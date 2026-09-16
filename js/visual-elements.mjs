@@ -18,7 +18,7 @@ const paths = {
   pulmao: 'M-2 -13 V-3 L-5 0 M2 -13 V-3 L5 0 M-5 -8 C-13 -8 -16 8 -10 11 L-3 8 V-4 Z M5 -8 C13 -8 16 8 10 11 L3 8 V-4 Z',
   cerebro: 'M0 -10 C-5 -16 -11 -10 -10 -5 C-17 -3 -15 7 -10 7 C-9 14 -3 14 0 9 C3 14 9 14 10 7 C15 7 17 -3 10 -5 C11 -10 5 -16 0 -10 Z M0 -10 V9 M-9 -3 L-4 0 L-8 5 M9 -3 L4 0 L8 5',
   bacteria: 'M-7 -8 C-16 -3 -11 10 -4 9 L8 5 C17 0 10 -13 3 -11 Z M-9 -9 L-12 -12 M-13 0 H-17 M-6 9 L-7 14 M9 5 L12 9 M10 -8 L14 -11',
-  lua: 'M5 -12 C-12 -16 -18 9 -2 13 C5 15 11 10 12 6 C-2 10 -7 -6 5 -12 Z',
+  lua: 'M12 0 A12 12 0 1 1 -12 0 A12 12 0 1 1 12 0 M-5 -4 A2 2 0 1 0 -1 -4 M2 5 A2 2 0 1 0 6 5',
   montanha: 'M-16 11 L-3 -12 L13 11 Z M-8 -4 L-3 -1 L1 -6 M3 11 L10 -3 L20 11',
   vulcao: 'M-16 12 L-6 -5 L5 -5 L16 12 Z M-6 -5 L0 0 L5 -5 M-2 -10 L-5 -16 M2 -10 L6 -16'
 };
@@ -29,7 +29,8 @@ function icon(name) {
   else {
     g.append(svg('circle', { r: name === 'atomo' ? 2 : 8 }));
     if (name === 'sol') for (let i = 0; i < 8; i++) g.append(svg('line', { x1: 10, x2: 14, transform: `rotate(${i * 45})` }));
-    if (name === 'planeta' || name === 'atomo') for (const angle of (name === 'atomo' ? [0, 60, 120] : [-25])) g.append(svg('ellipse', { rx: 14, ry: 4, fill: 'none', transform: `rotate(${angle})` }));
+    if (name === 'atomo') for (const angle of [0, 60, 120]) g.append(svg('ellipse', { rx: 14, ry: 4, fill: 'none', transform: `rotate(${angle})` }));
+    if (name === 'planeta') g.append(svg('path', { d: 'M-3 -7 L2 -5 L1 -1 L5 1 L2 6 L-1 5 L-2 1 L-6 -2 Z', fill: '#77b19c', stroke: 'none' }));
     if (name === 'celula') g.append(svg('circle', { cx: 2, cy: -1, r: 3, fill: '#fff' }));
     if (name === 'relogio') g.append(svg('path', { d: 'M0 -6 V0 L4 3', fill: 'none', stroke: '#fff' }));
   }
@@ -43,10 +44,13 @@ export function createVisualElement(e, { label = true } = {}) {
   if (e.tipo === 'icone') { const symbol = icon(e.icone); symbol.setAttribute('transform', `scale(${Math.max(0.8, Math.min(w / 16, h / 14))})`); shape.append(symbol); }
   else if (e.tipo === 'circulo' || e.tipo === 'particula') shape.append(svg('circle', { r: e.tipo === 'particula' ? 7 : Math.min(w, h) }));
   else if (e.tipo === 'elipse') shape.append(svg('ellipse', { rx: w, ry: h }));
-  else if (e.tipo === 'retangulo') shape.append(svg('rect', { x: -w, y: -h, width: w * 2, height: h * 2, rx: 8 }));
+  else if (e.tipo === 'retangulo' || e.tipo === 'texto') shape.append(svg('rect', { x: -w, y: -h, width: w * 2, height: h * 2, rx: 8 }));
   else if (e.tipo === 'linha' || e.tipo === 'seta') {
-    shape.append(svg('line', { x1: -w, x2: w }));
-    if (e.tipo === 'seta') shape.append(svg('path', { d: `M${w - 9} -7 L${w} 0 L${w - 9} 7`, fill: 'none' }));
+    const directed = Number.isFinite(e.destinoX) && Number.isFinite(e.destinoY);
+    const dx = directed ? (e.destinoX - e.x) * 8 : w;
+    const dy = directed ? (e.destinoY - e.y) * 4 : 0;
+    shape.append(svg('line', { x1: directed ? 0 : -w, y1: 0, x2: dx, y2: dy }));
+    if (e.tipo === 'seta') shape.append(svg('path', { d: 'M-10 -6 L0 0 L-10 6', transform: `translate(${dx} ${dy}) rotate(${Math.atan2(dy, directed ? dx : w * 2) * 180 / Math.PI})`, fill: 'none' }));
   } else if (e.tipo === 'onda') shape.append(svg('path', { d: 'M-40 0 Q-30 -20 -20 0 T0 0 T20 0 T40 0', fill: 'none' }));
   motion.append(shape);
   if (label && e.rotulo) motion.append(svg('text', { y: e.tipo === 'texto' ? 0 : Math.max(h, 30) + 20, 'text-anchor': 'middle', class: 'engine-label' }, e.rotulo));

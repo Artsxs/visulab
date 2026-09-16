@@ -1,6 +1,10 @@
+import { renderReviewed } from './js/reviewed-renderer.mjs';
+import { renderScene } from './js/scene-renderer.mjs';
+import { renderPremium } from './js/premium-renderer.mjs';
+import { findReviewedTopic, reviewedExperiences, SOURCES, premiumReferences, clarificationFor } from './js/reviewed-experiences.mjs';
 import { validateVisualExperience } from './js/visual-validator.mjs';
 import { AnimationEngine } from './js/animation-engine.mjs';
-import { createLocalFallback, findPremiumTopic } from './js/local-fallback.mjs';
+import { findPremiumTopic } from './js/local-fallback.mjs';
 
 document.documentElement.classList.add('has-js');
 
@@ -156,7 +160,7 @@ const experiences = {
       {
         title: 'Placas em movimento',
         description:
-          'A crosta terrestre é dividida em placas que se movem lentamente. Nas bordas, a tensão pode se acumular por muitos anos.',
+          'A litosfera (crosta e parte superior rígida do manto) é dividida em placas que se movem lentamente. Nas bordas, a tensão pode se acumular por muitos anos.',
       },
       {
         title: 'Energia liberada',
@@ -319,16 +323,17 @@ const localVisualExperiences = {
     titulo: 'Terremotos e placas tectônicas',
     disciplina: 'geografia',
     tipoVisual: 'terremoto',
+    simplificacoes: 'Corte esquemático da litosfera, sem escala de distância ou tempo. Deformação e tremor ampliados. Os círculos representam frentes de ondas; não são rachaduras.',
     resumo:
       'Acompanhe o movimento das placas, o acúmulo de pressão e a energia que se espalha em ondas sísmicas.',
     etapas: [
       {
         titulo: 'As placas se movimentam',
         explicacao:
-          'A crosta terrestre é dividida em placas que se deslocam lentamente. As setas mostram duas placas avançando em direções opostas na região de contato.',
+          'A litosfera (crosta e parte superior rígida do manto) é dividida em placas que se deslocam lentamente. As setas mostram duas placas avançando em direções opostas na região de contato.',
       },
       {
-        titulo: 'A pressão aumenta',
+        titulo: 'A tensão se acumula',
         explicacao:
           'O atrito pode prender as bordas das placas. Como o movimento continua, as rochas se deformam e armazenam energia.',
       },
@@ -356,6 +361,7 @@ const localVisualExperiences = {
     titulo: 'Como acontece a fotossíntese',
     disciplina: 'ciencias',
     tipoVisual: 'fotossintese',
+    simplificacoes: 'Moléculas e cloroplasto ampliados; movimentos e tempos esquemáticos. Etapas destacadas separadamente, mas as reações e trocas ocorrem de forma integrada.',
     resumo:
       'Siga a luz, a água e o dióxido de carbono até a produção de glicose e a liberação de oxigênio.',
     etapas: [
@@ -377,22 +383,23 @@ const localVisualExperiences = {
       {
         titulo: 'A planta produz glicose',
         explicacao:
-          'Nos cloroplastos, a energia luminosa ajuda a reorganizar água e dióxido de carbono, formando glicose que armazena energia química.',
+          'Nos cloroplastos, produtos das reações com luz permitem fixar carbono do CO₂ em açúcares. A glicose representa aqui esses açúcares, que armazenam energia química.',
       },
       {
         titulo: 'O oxigênio é liberado',
         explicacao:
-          'O oxigênio formado durante o processo sai principalmente pelos estômatos e passa para a atmosfera.',
+          'O oxigênio vem da quebra de moléculas de água nas reações dependentes de luz. Ele pode sair pelos estômatos. Esta etapa acontece junto às anteriores, não só depois da produção de açúcar.',
       },
     ],
     curiosidade:
-      'Grande parte do oxigênio produzido no planeta vem de organismos microscópicos fotossintetizantes que vivem nos oceanos.',
+      'O oxigênio liberado vem da água; o carbono incorporado aos açúcares vem do dióxido de carbono.',
     origem: 'local',
   },
   brasil_colonial: {
     titulo: 'Brasil Colonial em uma linha do tempo',
     disciplina: 'historia',
     tipoVisual: 'brasil_colonial',
+    simplificacoes: 'Marcos selecionados da colonização e da transição à Independência. Intervalos e distâncias na linha não estão em escala; atividades econômicas e resistências coexistiram.',
     resumo:
       'Selecione períodos para relacionar ocupação, atividades econômicas, trabalho, resistências e mudanças políticas entre 1500 e 1822.',
     etapas: [
@@ -534,6 +541,12 @@ const visualizerSceneDescriptions = {
 let engineActive = false;
 const engine = new AnimationEngine(visualizerCanvas, {
   reducedMotion: reducedMotionPreference.matches,
+  renderer: (stage, experience, index) => {
+    if (experience.revisao) return renderReviewed(stage, experience, index);
+    if (!localVisualExperiences[experience.tipoVisual]) return renderScene(stage, experience, index);
+    if (!stage.querySelector('svg')) mountVisualizerScene(experience);
+    return renderPremium(stage, experience, index);
+  },
   onChange: state => {
     if (!engineActive || !activeVisualExperience) return;
     activeVisualStep = state.index;
@@ -551,7 +564,7 @@ const engine = new AnimationEngine(visualizerCanvas, {
 let activeVisualExperience = null;
 let activeVisualStep = 0;
 let visualizerIsPlaying = false;
-let visualizerTimer = 0;
+
 let activeNetworkController = null;
 let visualizerRequestId = 0;
 let pendingQuestion = '';
@@ -588,6 +601,10 @@ const requestVisualExperience = async (question) => {
       throw error;
     }
 
+    if (payload?.esclarecimento) {
+      const error = new Error(payload.esclarecimento); error.code = 'CLARIFICATION'; throw error;
+    }
+
     if (!payload?.experiencia || !Array.isArray(payload.experiencia.cenas)) {
       const error = new Error('A função respondeu sem um roteiro visual válido.');
       error.code = 'INVALID_FUNCTION_RESPONSE';
@@ -595,7 +612,9 @@ const requestVisualExperience = async (question) => {
       throw error;
     }
 
-    return validateVisualExperience(payload?.experiencia);
+    const result = validateVisualExperience({ ...payload.experiencia, origem: 'ia', revisao: '', fontes: [] });
+    if (result.fallback && !localVisualExperiences[result.tipoVisual]) { const error = new Error('Roteiro sem elementos visuais.'); error.code = 'INVALID_FUNCTION_RESPONSE'; throw error; }
+    return result;
   } catch (error) {
     if (error.name === 'AbortError') {
       const timeoutError = new Error('A criação demorou mais que o esperado. Tente novamente.');
@@ -654,8 +673,7 @@ const renderVisualizerPeriods = () => {
     button.setAttribute('aria-label', `Selecionar ${button.textContent}`);
     button.addEventListener('click', () => {
       stopVisualizerPlayback();
-      activeVisualStep = index;
-      renderVisualizerStep();
+      engine.seek(index);
     });
     visualizerPeriods.append(button);
   });
@@ -678,28 +696,8 @@ const getVisualStepIndex = () => {
 
 const stopVisualizerPlayback = () => {
   if (engineActive) engine.pause();
-  window.clearTimeout(visualizerTimer);
-  visualizerTimer = 0;
   visualizerIsPlaying = false;
   visualizerCanvas.dataset.playing = 'false';
-};
-
-const scheduleVisualizerAdvance = () => {
-  window.clearTimeout(visualizerTimer);
-  if (engineActive || !visualizerIsPlaying || reducedMotionPreference.matches) return;
-
-  const speed = Number(visualizerSpeed.value) || 1;
-  visualizerTimer = window.setTimeout(() => {
-    if (activeVisualStep >= activeVisualExperience.etapas.length - 1) {
-      stopVisualizerPlayback();
-      renderVisualizerStep();
-      return;
-    }
-
-    activeVisualStep += 1;
-    renderVisualizerStep();
-    scheduleVisualizerAdvance();
-  }, 4200 / speed);
 };
 
 const renderVisualizerPlayControl = () => {
@@ -761,9 +759,6 @@ function renderVisualizerStep() {
     button.setAttribute('aria-pressed', String(isCurrent));
   });
 
-  visualizerStep.classList.remove('is-changing');
-  void visualizerStep.offsetWidth;
-  visualizerStep.classList.add('is-changing');
   renderVisualizerPlayControl();
 };
 
@@ -783,25 +778,33 @@ const showVisualExperience = (candidate) => {
   visualizerExperienceTitle.textContent = activeVisualExperience.titulo;
   visualizerSummary.textContent = activeVisualExperience.resumo;
   visualizerSource.textContent = {
-    premium: 'Animação premium', ia: 'Gerado com IA', local: 'Animação local',
+    premium: 'Experiência revisada', ia: 'Gerado com IA · não revisado', local: 'Experiência revisada',
   }[activeVisualExperience.origem];
   visualizerCuriosity.textContent = [activeVisualExperience.conclusao, activeVisualExperience.curiosidade].filter(Boolean).join(' ');
   visualizerAiNotice.hidden = activeVisualExperience.origem !== 'ia';
-  engineActive = !['terremoto', 'fotossintese', 'brasil_colonial'].includes(activeVisualExperience.tipoVisual);
-  if (!engineActive) mountVisualizerScene(activeVisualExperience);
-  else visualizerLegend.replaceChildren();
+  const referenceIds = premiumReferences[activeVisualExperience.tipoVisual] || activeVisualExperience.fontes;
+  const references = document.getElementById('visualizer-references');
+  references.replaceChildren();
+  const sourceNote = document.createElement('p');
+  sourceNote.textContent = referenceIds.length ? 'Referências consultadas na revisão deste roteiro:' : 'Este roteiro foi gerado sem consulta a fontes externas. A validação do formato não comprova a precisão das informações.';
+  references.append(sourceNote);
+  for (const id of referenceIds) {
+    const source = SOURCES[id];
+    if (!source) continue;
+    const link = document.createElement('a');
+    link.href = source.url; link.textContent = source.title; link.target = '_blank'; link.rel = 'noopener noreferrer';
+    references.append(link);
+  }
+  document.getElementById('visualizer-simplifications').textContent = activeVisualExperience.simplificacoes || 'Esquema didático: tamanhos, distâncias e duração não estão em escala. Etapas destacadas separadamente; processos podem ocorrer ao mesmo tempo.';
+  engineActive = true;
+  visualizerCanvas.dataset.clock = 'elapsed';
+  visualizerLegend.replaceChildren();
   renderVisualizerPeriods();
   visualizerEmpty.hidden = true;
   visualizerExperience.hidden = false;
+  engine.setSpeed(Number(visualizerSpeed.value));
+  engine.load(activeVisualExperience);
 
-  if (engineActive) {
-    engine.setSpeed(Number(visualizerSpeed.value));
-    engine.load(activeVisualExperience);
-    return;
-  }
-  visualizerIsPlaying = !reducedMotionPreference.matches;
-  renderVisualizerStep();
-  scheduleVisualizerAdvance();
 };
 
 const setVisualizerLoading = (isLoading) => {
@@ -812,7 +815,7 @@ const setVisualizerLoading = (isLoading) => {
   searchInput.disabled = false;
   searchForm.querySelector('[type="submit"]').disabled = isLoading;
   visualizerSuggestionButtons.forEach((button) => {
-    button.disabled = isLoading;
+    button.disabled = false;
   });
   visualizerSubmit.querySelector('span').textContent = isLoading ? '···' : '→';
 };
@@ -867,10 +870,13 @@ visualizerForm.addEventListener('submit', async (event) => {
   visualizerFeedback.textContent = '';
 
   try {
+    const clarification = clarificationFor(question);
+    if (clarification) { const error = new Error(clarification); error.code = 'CLARIFICATION'; throw error; }
     const premiumTopic = findPremiumTopic(question);
+    const reviewedTopic = findReviewedTopic(question);
     const experience = premiumTopic
       ? { ...localVisualExperiences[premiumTopic], origem: 'premium' }
-      : await requestVisualExperience(question);
+      : reviewedTopic ? reviewedExperiences[reviewedTopic] : await requestVisualExperience(question);
 
     if (requestId === visualizerRequestId) {
       showVisualExperience(experience);
@@ -894,15 +900,18 @@ visualizerForm.addEventListener('submit', async (event) => {
     };
     if (requestId === visualizerRequestId) {
       const isAiFailure = Object.hasOwn(messages, error.code);
-      console.error('[VisuLab] Falha ao solicitar animação', {
+      if (error.code !== 'CLARIFICATION') console.error('[VisuLab] Falha ao solicitar animação', {
         codigo: error.code || 'UNEXPECTED_FRONTEND_ERROR',
         status: error.status || null,
-        mensagem: error.message,
+        mensagem: messages[error.code] || 'Não foi possível preparar o roteiro.',
       });
-      if (isAiFailure) {
-        const fallback = createLocalFallback(question);
-        showVisualExperience(fallback);
-        visualizerFeedback.textContent = `${messages[error.code]} Exibimos uma animação local para você continuar estudando.`;
+      if (error.code === 'CLARIFICATION') {
+        visualizerFeedback.textContent = error.message;
+        visualizerEmpty.hidden = false;
+        visualizerQuestion.focus();
+      } else if (isAiFailure) {
+        visualizerFeedback.textContent = `${messages[error.code]} Não foi possível preparar uma explicação para esta pergunta. Tente novamente ou escolha uma das experiências revisadas nas sugestões.`;
+        visualizerEmpty.hidden = false;
       } else {
         visualizerFeedback.textContent = 'Ocorreu um erro ao mostrar a animação. Consulte o console e tente novamente.';
         visualizerEmpty.hidden = false;
@@ -915,56 +924,12 @@ visualizerForm.addEventListener('submit', async (event) => {
   }
 });
 
-visualizerPrevious.addEventListener('click', () => {
-  if (engineActive) { engine.seek(engine.index - 1); return; }
-  if (!activeVisualExperience || activeVisualStep === 0) return;
-  activeVisualStep -= 1;
-  renderVisualizerStep();
-  scheduleVisualizerAdvance();
-});
-
-visualizerNext.addEventListener('click', () => {
-  if (engineActive) { engine.seek(engine.index + 1); return; }
-  if (!activeVisualExperience || activeVisualStep >= activeVisualExperience.etapas.length - 1) return;
-  activeVisualStep += 1;
-  renderVisualizerStep();
-  scheduleVisualizerAdvance();
-});
-
-visualizerPlay.addEventListener('click', () => {
-  if (engineActive) { engine.play(); return; }
-  if (!activeVisualExperience || reducedMotionPreference.matches) return;
-
-  if (visualizerIsPlaying) {
-    stopVisualizerPlayback();
-    renderVisualizerPlayControl();
-    return;
-  }
-
-  if (activeVisualStep === activeVisualExperience.etapas.length - 1) {
-    activeVisualStep = 0;
-  }
-  visualizerIsPlaying = true;
-  renderVisualizerStep();
-  scheduleVisualizerAdvance();
-});
-
-visualizerPause.addEventListener('click', () => {
-  if (engineActive) { engine.pause(); return; }
-  if (!activeVisualExperience) return;
-  stopVisualizerPlayback();
-  renderVisualizerStep();
-});
-
-visualizerRestart.addEventListener('click', () => {
-  if (engineActive) { engine.restart(); return; }
-  if (!activeVisualExperience) return;
-  stopVisualizerPlayback();
-  activeVisualStep = 0;
-  renderVisualizerStep();
-});
-
-visualizerSpeed.addEventListener('change', () => { engine.setSpeed(Number(visualizerSpeed.value)); scheduleVisualizerAdvance(); });
+visualizerPrevious.addEventListener('click', () => engine.seek(engine.index - 1));
+visualizerNext.addEventListener('click', () => engine.seek(engine.index + 1));
+visualizerPlay.addEventListener('click', () => engine.play());
+visualizerPause.addEventListener('click', () => engine.pause());
+visualizerRestart.addEventListener('click', () => engine.restart());
+visualizerSpeed.addEventListener('change', () => engine.setSpeed(Number(visualizerSpeed.value)));
 
 reducedMotionPreference.addEventListener('change', () => {
   engine.setReducedMotion(reducedMotionPreference.matches);
@@ -977,4 +942,11 @@ document.addEventListener('visibilitychange', () => {
     stopVisualizerPlayback();
     renderVisualizerPlayControl();
   }
+});
+
+window.addEventListener('pagehide', () => {
+  activeNetworkController?.abort();
+  ++visualizerRequestId;
+  engine.destroy();
+  visualizerIsPlaying = false;
 });

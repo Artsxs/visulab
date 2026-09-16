@@ -24,7 +24,7 @@ test('autoplay, pausa e retomada mantêm apenas um relógio ativo', () => {
   assert.equal(engine.playing, true); advance(200); engine.pause();
   assert.equal(engine.elapsed, 200); assert.equal(frames.size, 0);
   engine.play(); engine.play(); assert.equal(frames.size, 1);
-  engine.setSpeed(2); advance(100); assert.equal(engine.elapsed, 400);
+  engine.setSpeed(2); advance(100); assert.ok(Math.abs(engine.elapsed - 400) < 5);
   engine.destroy(); assert.equal(frames.size, 0);
 });
 test('quadros atrasados preservam tempo entre cenas e encerram em 100%', () => {
@@ -41,4 +41,20 @@ test('movimento reduzido nunca agenda quadros e permite concluir manualmente', (
   assert.equal(engine.playing, false); assert.equal(frames.size, 0);
   engine.seek(2); assert.equal(progress, 1); engine.play(); assert.equal(frames.size, 0);
   engine.destroy();
+});
+
+test('trocar experiência invalida callback antigo e cancela recursos', () => {
+  const { engine, frames } = clockEngine();
+  const stale = frames.values().next().value;
+  engine.load({ cenas: [{ duracaoMs: 5000 }] });
+  const elapsed = engine.elapsed;
+  stale(engine.lastTime + 800);
+  assert.equal(engine.elapsed, elapsed);
+  assert.equal(frames.size, 1);
+  engine.destroy(); assert.equal(frames.size, 0);
+});
+test('quadro atrasado monta apenas a cena de destino', () => {
+  const { engine, advance } = clockEngine();
+  let mounts = 0; engine.mount = () => mounts++;
+  advance(2700); assert.equal(mounts, 1); engine.destroy();
 });

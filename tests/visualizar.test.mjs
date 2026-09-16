@@ -39,13 +39,16 @@ const makeRequest = (body, options = {}) => {
 };
 
 const validExperience = {
+  versao: '1.0',
+  analise: { assunto: 'Ciclo da água', foco: 'Mudanças de estado', entidades: [{ id: 'agua', papel: 'Água que evapora' }, { id: 'nuvem', papel: 'Gotículas condensadas' }], relacoes: ['Água evapora e vapor condensa'], sequencia: ['Evaporação', 'Condensação'] },
+  simplificacoes: 'Tempos e distâncias sem escala.',
   disciplina: 'ciencias',
   titulo: 'Ciclo da água',
   resumo: 'A água circula continuamente entre a superfície e a atmosfera.',
   tipoDeCena: 'ciclo',
   cenas: [
-    { titulo: 'Evaporação', explicacao: 'A água recebe energia e evapora.', duracaoMs: 3000, elementos: [{ id: 'agua', tipo: 'particula', rotulo: 'Água', x: 30, y: 70, largura: 5, altura: 5, cor: 'azul' }], acoes: [{ alvo: 'agua', tipo: 'mover', paraX: 50, paraY: 20, duracaoMs: 2000, atrasoMs: 100 }] },
-    { titulo: 'Condensação', explicacao: 'O vapor esfria e forma nuvens.', duracaoMs: 3000, elementos: [{ id: 'nuvem', tipo: 'icone', icone: 'nuvem', rotulo: 'Nuvem', x: 50, y: 30, largura: 10, altura: 10, cor: 'claro' }], acoes: [{ alvo: 'nuvem', tipo: 'pulsar', duracaoMs: 1800, atrasoMs: 100 }] },
+    { titulo: 'Evaporação', objetivo: 'Explicar a evaporação', explicacao: 'A água recebe energia e evapora.', duracaoMs: 3000, elementos: [{ id: 'agua', tipo: 'particula', rotulo: 'Água', x: 30, y: 70, largura: 5, altura: 5, cor: 'azul' }], acoes: [{ alvo: 'agua', tipo: 'mover', paraX: 50, paraY: 20, duracaoMs: 2000, atrasoMs: 100 }] },
+    { titulo: 'Condensação', objetivo: 'Explicar a condensação', explicacao: 'O vapor esfria e forma nuvens.', duracaoMs: 3000, elementos: [{ id: 'nuvem', tipo: 'icone', icone: 'nuvem', rotulo: 'Nuvem', x: 50, y: 30, largura: 10, altura: 10, cor: 'claro' }], acoes: [{ alvo: 'nuvem', tipo: 'pulsar', duracaoMs: 1800, atrasoMs: 100 }] },
   ],
   conclusao: 'A água circula continuamente.',
   curiosidade: 'A mesma água pode percorrer esse ciclo muitas vezes.',
@@ -61,9 +64,9 @@ const nvidiaSuccess = (experience = validExperience) => Response.json({
 const invalidExperienceTexts = [
   ['JSON malformado', '{"titulo":"Resposta incompleta"'],
   ['cenas vazias', JSON.stringify({ ...validExperience, cenas: [] })],
-  ['cenas sem ações', JSON.stringify({
+  ['cenas sem elementos', JSON.stringify({
     ...validExperience,
-    cenas: validExperience.cenas.map(scene => ({ ...scene, acoes: [] })),
+    cenas: validExperience.cenas.map(scene => ({ ...scene, elementos: [] })),
   })],
 ];
 const geminiTextResponse = (text) => Response.json({
@@ -203,7 +206,7 @@ test('pede JSON e schema no prompt Gemini sem campos de formato em generationCon
     assert.ok(instruction.includes(JSON.stringify(RESPONSE_SCHEMA)));
     assert.match(instruction, /único objeto JSON/i);
     assert.match(instruction, /sem Markdown/i);
-    assert.match(instruction, /pelo menos 5 elementos visuais/i);
+    assert.match(instruction, /somente os elementos necessários/i);
     assert.match(instruction, /etapas bem separadas/i);
     assert.match(instruction, /setas de relação/i);
     assert.match(instruction, /cenario por etapa/i);
@@ -512,7 +515,7 @@ test('retorna falhas dos dois provedores somente depois de tentar ambos', async 
 });
 
 test('aceita disciplina outro e todos os tipos visuais permitidos', async () => {
-  const types = [...TYPES, ...SPECIALS];
+  const types = TYPES;
 
   for (const tipoVisual of types) {
     process.env.VISULAB_API_KEY = 'chave-ficticia-de-teste';
@@ -520,57 +523,32 @@ test('aceita disciplina outro e todos os tipos visuais permitidos', async () => 
       ...validExperience,
       disciplina: 'outro',
       tipoDeCena: tipoVisual,
+      ...(tipoVisual === 'especial' ? { experienciaEspecial: 'terremoto' } : {}),
     });
     const response = await visualizar(makeRequest({ pergunta: 'Explique este tema de estudo.' }));
     assert.equal(response.status, 200, tipoVisual);
   }
 });
 
-test('descarta propriedades extras da IA e nunca devolve conteúdo executável', async () => {
-  process.env.VISULAB_API_KEY = 'chave-ficticia-de-teste';
-  globalThis.fetch = async () => geminiSuccess({
-    ...validExperience,
-    codigo: '<script>executar()</script>',
-    cenas: validExperience.cenas.map((scene) => ({ ...scene, html: '<b>texto</b>' })),
-  });
-
+test('rejeita propriedades extras e nunca devolve conteúdo executável', async () => {
+  useSuccessfulGemini();
+  globalThis.fetch = async () => geminiSuccess({ ...validExperience, codigo: '<script>executar()</script>' });
   const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
-  const payload = await response.json();
-  assert.equal(response.status, 200);
-  assert.deepEqual(payload, { experiencia: validateVisualExperience(validExperience), provedor: 'gemini' });
-  assert.equal(JSON.stringify(payload).includes('<script>'), false);
+  assert.equal(response.status, 502);
+  assert.equal(JSON.stringify(await response.json()).includes('<script>'), false);
 });
-
-test('descarta marcação nos campos textuais', async () => {
-  const maliciousExperience = {
-    ...validExperience,
-    curiosidade: '<img src=x onerror=alert(1)>',
-  };
-  process.env.VISULAB_API_KEY = 'chave-ficticia-de-teste';
-  globalThis.fetch = async () => geminiSuccess(maliciousExperience);
-
+test('rejeita marcação nos campos textuais', async () => {
+  useSuccessfulGemini();
+  globalThis.fetch = async () => geminiSuccess({ ...validExperience, curiosidade: '<img src=x onerror=alert(1)>' });
   const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
-  const payload = await response.json();
-  assert.equal(response.status, 200);
-  assert.equal(payload.experiencia.curiosidade, '');
-  assert.equal(JSON.stringify(payload).includes('<img'), false);
+  assert.equal(response.status, 502);
+  assert.equal(JSON.stringify(await response.json()).includes('<img'), false);
 });
-
-test('aceita etapas curtas e limita o excesso a seis', async () => {
-  for (const amount of [2, 7]) {
-    process.env.VISULAB_API_KEY = 'chave-ficticia-de-teste';
-    globalThis.fetch = async () => geminiSuccess({
-      ...validExperience,
-      cenas: Array.from({ length: amount }, (_, index) => ({
-        ...validExperience.cenas[0],
-        titulo: `Etapa ${index + 1}`,
-        explicacao: 'Explicação segura.',
-      })),
-    });
-    const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
-    assert.equal(response.status, 200, String(amount));
-    assert.equal((await response.json()).experiencia.cenas.length, Math.min(6, amount));
-  }
+test('rejeita excesso de cenas sem truncar silenciosamente o processo', async () => {
+  useSuccessfulGemini();
+  globalThis.fetch = async () => geminiSuccess({ ...validExperience, cenas: Array(7).fill(validExperience.cenas[0]) });
+  const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal(response.status, 502);
 });
 
 test('preserva o limite temporário sem expor o corpo externo', async () => {
@@ -641,7 +619,30 @@ test('origem enviada pela IA não pode se passar por premium ou fallback local',
     useSuccessfulGemini();
     globalThis.fetch = async () => geminiSuccess({ ...validExperience, origem });
     const response = await visualizar(makeRequest({ pergunta: 'Explique um eclipse solar' }));
-    assert.equal(response.status, 200);
-    assert.equal((await response.json()).experiencia.origem, 'ia');
+    assert.equal(response.status, 502);
+    assert.equal((await response.json()).codigo, 'INVALID_API_RESPONSE');
+  }
+});
+
+test('IA pode solicitar esclarecimento sem fabricar uma experiência', async () => {
+  useSuccessfulGemini();
+  globalThis.fetch = async () => geminiSuccess({ esclarecimento: 'Você quer estudar uma rede neural ou uma rede de computadores?' });
+  const response = await visualizar(makeRequest({ pergunta: 'Como funciona uma rede?' }));
+  const body = await response.json();
+  assert.equal(response.status, 200); assert.ok(body.esclarecimento); assert.equal(body.experiencia, undefined);
+});
+test('diagrama estático é válido quando há conteúdo específico e planejamento', async () => {
+  useSuccessfulGemini();
+  globalThis.fetch = async () => geminiSuccess({ ...validExperience, cenas: validExperience.cenas.map(s => ({ ...s, acoes: [] })) });
+  assert.equal((await visualizar(makeRequest({ pergunta: 'Como chove?' }))).status, 200);
+});
+test('rejeita roteiro genérico e planejamento sem correspondência visual', async () => {
+  for (const change of [
+    { analise: { ...validExperience.analise, entidades: [{ id: 'ausente', papel: 'Água' }] } },
+    { cenas: validExperience.cenas.map(s => ({ ...s, titulo: 'Identifique o tema' })) },
+    { cenas: validExperience.cenas.map(s => ({ ...s, acoes: [{ alvo: 'ausente', tipo: 'aparecer', atrasoMs: 0, duracaoMs: 1000 }] })) },
+  ]) {
+    useSuccessfulGemini(); globalThis.fetch = async () => geminiSuccess({ ...validExperience, ...change });
+    assert.equal((await visualizar(makeRequest({ pergunta: 'Como chove?' }))).status, 502);
   }
 });

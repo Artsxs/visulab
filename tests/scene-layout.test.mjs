@@ -39,3 +39,17 @@ test('cenários e ícones específicos passam pela lista permitida; código é d
   assert.equal(result.origem, 'premium');
   assert.deepEqual(validateVisualExperience(result), result);
 });
+
+test('enquadramento comum mantém entidades persistentes e direção de setas', () => {
+  const first = validateVisualExperience(fixtureFor('água')).cenas[0];
+  first.elementos.push({ id: 'subida', tipo: 'seta', rotulo: '', x: 42, y: 70, destinoX: 42, destinoY: 20, largura: 3, altura: 3, cor: 'azul' });
+  const second = structuredClone(first);
+  second.elementos.push({ id: 'extra', tipo: 'icone', icone: 'sol', rotulo: 'Sol', x: 92, y: 12, largura: 18, altura: 28, cor: 'amarelo' });
+  const all = [first, second];
+  const a = layoutScene(first, all), b = layoutScene(second, all);
+  assert.equal(a.elements[0].x, b.elements[0].x);
+  assert.equal(a.elements[0].y, b.elements[0].y);
+  const arrow = a.elements.find(e => e.id === 'subida');
+  assert.equal(arrow.x, arrow.destinoX);
+  assert.ok(arrow.destinoY < arrow.y, 'a seta aponta para cima');
+});

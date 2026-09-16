@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateVisualExperience, ACTIONS, ELEMENTS, ICONS } from '../js/visual-validator.mjs';
-import { createLocalFallback } from '../js/local-fallback.mjs';
+import { findReviewedTopic } from '../js/reviewed-experiences.mjs';
 const scene = () => ({ titulo: 'Evaporação', explicacao: 'A água recebe calor e evapora.', duracaoMs: 4000, elementos: [{ id: 'vapor', tipo: 'particula', rotulo: 'Vapor', x: 30, y: 70, cor: 'claro' }], acoes: [{ alvo: 'vapor', tipo: 'mover', paraX: 30, paraY: 20, duracaoMs: 2500, atrasoMs: 300 }] });
 const validate = s => validateVisualExperience({ versao: '1.0', tipoVisual: 'ciclo', titulo: 'Ciclo da água', cenas: [s] });
 test('roteiro válido é normalizado e idempotente entre servidor e navegador', () => { const r = validate(scene()); assert.equal(r.cenas[0].acoes[0].paraY, 20); assert.equal(r.fallback, false); assert.deepEqual(validateVisualExperience(r), r); });
@@ -20,12 +20,6 @@ test('aceita tipoDeCena do contrato da IA', () => {
   const result = validateVisualExperience({ tipoDeCena: 'sistema_biologico', cenas: [scene()] });
   assert.equal(result.tipoVisual, 'sistema_biologico');
 });
-test('fallback local transforma qualquer tema em cenas com movimento', () => {
-  for (const topic of ['sistema digestivo', 'eclipse solar', 'mapa dos biomas', 'células']) {
-    const result = createLocalFallback(topic);
-    assert.equal(result.origem, 'local');
-    assert.equal(result.fallback, false);
-    assert.equal(result.cenas.length, 3);
-    assert.ok(result.cenas.every(item => item.elementos.length >= 3 && item.acoes.some(action => action.tipo === 'mover')));
-  }
+test('assunto desconhecido não recebe explicação genérica local', () => {
+  assert.equal(findReviewedTopic('sistema digestivo'), null);
 });

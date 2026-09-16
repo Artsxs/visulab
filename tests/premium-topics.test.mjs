@@ -17,3 +17,6 @@ test('temas diferentes e palavras ambíguas continuam livres para a IA', () => {
     assert.equal(findPremiumTopic(question), null, question);
   }
 });
+test('perguntas específicas não são substituídas por introduções locais', () => {
+  for (const q of ['Qual a diferença entre fotossíntese C3 e C4?', 'Quantas capitanias hereditárias existiram?', 'Terremotos de magnitude 8', 'Compare Brasil colonial e imperial']) assert.equal(findPremiumTopic(q), null, q);
+});

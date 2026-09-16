@@ -3070,3 +3070,73 @@ ol {
 @media (prefers-reduced-motion: reduce) {
   .engine-scene, .engine-scene * { animation: none !important; transition: none !important; }
 }
+
+/* Palco científico: movimentos controlados pelo relógio, sem loops decorativos. */
+.visualizer-canvas[data-clock] *,
+.visualizer-canvas[data-clock] [data-visual-step] {
+  animation: none !important;
+  transition: none !important;
+  filter: none !important;
+}
+.visualizer-canvas[data-clock] .visual-focus { opacity: 0.2; }
+.visualizer-canvas[data-clock][data-step="0"] [data-visual-step="0"],
+.visualizer-canvas[data-clock][data-step="1"] [data-visual-step="1"],
+.visualizer-canvas[data-clock][data-step="2"] [data-visual-step="2"],
+.visualizer-canvas[data-clock][data-step="3"] [data-visual-step="3"],
+.visualizer-canvas[data-clock][data-step="4"] [data-visual-step="4"] { opacity: 1; }
+.visualizer-progress span { transition: none; }
+.visualizer-stage, .visualizer-canvas { background: #f6f8fb; }
+.visualizer-canvas { min-height: 0; }
+.engine-scene { min-height: 0; }
+.engine-surface, .engine-backdrop[data-setting] .engine-surface { fill: #f6f8fb; stroke: none; }
+.engine-labels { display: none; }
+.engine-mobile-markers { display: block; }
+.engine-mobile-markers circle { fill: #243454; stroke: #fff; stroke-width: 3; }
+.engine-mobile-markers text { fill: #fff; font: 700 34px system-ui, sans-serif; }
+.engine-mobile-legend {
+  display: grid; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 16px;
+  margin: 0; padding: 14px 18px; list-style: none; background: #f6f8fb; color: #243454;
+}
+.engine-mobile-legend li { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+.engine-legend-number { display: grid; place-items: center; flex: 0 0 24px; height: 24px; border-radius: 50%; background: #243454; color: #fff; font-size: 12px; font-weight: 700; }
+.reviewed-scene { display: block; width: 100%; height: auto; font-family: var(--font-sans); }
+.visualizer-legend:empty { display: none; }
+.visualizer-simplifications { margin-top: 12px; font-size: .8rem; color: var(--color-ink-soft); }
+.visualizer-references { margin-top: 12px; font-size: .8rem; }
+.visualizer-references a { display: block; margin-top: 5px; color: var(--color-blue); text-decoration: underline; overflow-wrap: anywhere; }
+.visualizer-curiosity:has(p:empty) { display: none; }
+@media (max-width: 480px) {
+  .engine-mobile-legend { grid-template-columns: 1fr; padding: 12px; }
+  .visualizer-canvas .visual-svg-label { font-size: 25px; }
+  .visualizer-canvas .visual-svg-callout { font-size: 23px; }
+}
+
+/* As prévias originais permanecem; o palco se adapta sem rolagem lateral. */
+.hero__copy { min-width: 0; }
+.hero-visual .orbit, .hero-visual__label, .hero-visual__shape { animation: none; }
+.visualizer-canvas > .visual-scene { min-width: 0; }
+.visualizer-canvas { overflow-x: hidden; justify-content: stretch; }
+.premium-marker, .premium-mobile-legend { display: none; }
+.visualizer-canvas[data-clock] .visual-focus { opacity: 0; visibility: hidden; }
+.visualizer-canvas[data-clock][data-step="0"] [data-visual-step="0"],
+.visualizer-canvas[data-clock][data-step="1"] [data-visual-step="1"],
+.visualizer-canvas[data-clock][data-step="2"] [data-visual-step="2"],
+.visualizer-canvas[data-clock][data-step="3"] [data-visual-step="3"],
+.visualizer-canvas[data-clock][data-step="4"] [data-visual-step="4"] { opacity: 1; visibility: visible; }
+@media (max-width: 600px) {
+  .hero h1 { font-size: clamp(2.3rem, 12vw, 4.4rem); }
+  .visual-scene text:not(.premium-marker-text) { display: none; }
+  .premium-marker, .premium-mobile-legend { display: block; }
+  .premium-mobile-legend { display: grid; }
+  .premium-marker circle { fill: #243454; stroke: #fff; stroke-width: 2; }
+  .premium-marker-text { fill: white; font: 700 32px system-ui, sans-serif; }
+}
+
+.visualizer-canvas[data-clock] .visual-scene--timeline .visual-focus { visibility: visible; opacity: .5; }
+.visualizer-canvas[data-clock][data-step="0"] .timeline-milestone[data-visual-step="0"],
+.visualizer-canvas[data-clock][data-step="1"] .timeline-milestone[data-visual-step="1"],
+.visualizer-canvas[data-clock][data-step="2"] .timeline-milestone[data-visual-step="2"],
+.visualizer-canvas[data-clock][data-step="3"] .timeline-milestone[data-visual-step="3"] { opacity: 1; }
+@media (max-width: 600px) {
+  .timeline-milestone rect, .timeline-milestone > path { display: none; }
+}

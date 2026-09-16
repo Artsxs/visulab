@@ -25,7 +25,7 @@ export function validateVisualExperience(input) {
       if (!ELEMENTS.includes(e.tipo) || typeof e.id !== 'string' || !/^[a-zA-Z0-9_-]{1,40}$/.test(e.id) || ids.has(e.id)) return [];
       if (e.tipo === 'icone' && !ICONS.includes(e.icone)) return [];
       ids.add(e.id);
-      return [{ id: e.id, tipo: e.tipo, rotulo: safeText(e.rotulo, 40), x: number(e.x, 0, 100, 50), y: number(e.y, 0, 100, 50), largura: number(e.largura, 1, 100, 16), altura: number(e.altura, 1, 100, 12), cor: member(e.cor, Object.keys(PALETTE), 'azul'), ...(e.tipo === 'icone' ? { icone: e.icone } : {}) }];
+      return [{ id: e.id, tipo: e.tipo, rotulo: safeText(e.rotulo, 40), x: number(e.x, 0, 100, 50), y: number(e.y, 0, 100, 50), largura: number(e.largura, 1, 100, 16), altura: number(e.altura, 1, 100, 12), cor: member(e.cor, Object.keys(PALETTE), 'azul'), ...(['seta', 'linha'].includes(e.tipo) && Number.isFinite(e.destinoX) && Number.isFinite(e.destinoY) ? { destinoX: number(e.destinoX, 0, 100, e.x), destinoY: number(e.destinoY, 0, 100, e.y) } : {}), ...(e.tipo === 'icone' ? { icone: e.icone } : {}) }];
     });
     const duracaoMs = number(s.duracaoMs, 1000, 8000, 4000);
     const acoes = list(s.acoes, 12).filter(a => object(a) && ids.has(a.alvo) && ACTIONS.includes(a.tipo)).map(a => {
@@ -40,5 +40,5 @@ export function validateVisualExperience(input) {
     fallback = true;
     cenas = [{ titulo: 'Vamos estudar', explicacao: safeText(c.resumo, 280, 'Não foi possível representar este assunto. Reformule a pergunta ou explore uma experiência pronta.'), duracaoMs: 4000, elementos: [], acoes: [], cenario: 'neutro' }];
   }
-  return { versao: '1.0', disciplina: member(c.disciplina, ['ciencias', 'historia', 'geografia', 'outro'], 'outro'), titulo: safeText(c.titulo, 90, 'Uma explicação visual'), resumo: safeText(c.resumo, 280, 'Acompanhe a explicação por etapas.'), tipoVisual, cenas, etapas: cenas.map(({ titulo, explicacao }) => ({ titulo, explicacao })), conclusao: safeText(c.conclusao, 280), curiosidade: safeText(c.curiosidade, 220), origem: member(c.origem, ['premium', 'local', 'ia'], 'ia'), fallback };
+  return { revisao: member(c.revisao, ['agua', 'eclipse', 'ia'], ''), fontes: list(c.fontes, 5).filter(id => ['agua', 'eclipse', 'ia'].includes(id)), simplificacoes: safeText(c.simplificacoes, 340), versao: '1.0', disciplina: member(c.disciplina, ['ciencias', 'historia', 'geografia', 'outro'], 'outro'), titulo: safeText(c.titulo, 90, 'Uma explicação visual'), resumo: safeText(c.resumo, 280, 'Acompanhe a explicação por etapas.'), tipoVisual, cenas, etapas: cenas.map(({ titulo, explicacao }) => ({ titulo, explicacao })), conclusao: safeText(c.conclusao, 280), curiosidade: safeText(c.curiosidade, 220), origem: member(c.origem, ['premium', 'local', 'ia'], 'ia'), fallback };
 }
