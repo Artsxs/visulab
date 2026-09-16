@@ -25,11 +25,21 @@ Escolha fluxo para processos; ciclo para processos recorrentes; linha_do_tempo p
 comparacao para antes/depois ou diferenças; sistema_biologico para órgãos e sistemas do corpo; microscopico para células,
 átomos e moléculas; camadas para estruturas como a atmosfera; movimento para fenômenos físicos, deslocamentos e órbitas.
 Para terremotos/placas tectônicas, fotossíntese e Brasil Colonial, escolha especial e experienciaEspecial correspondente.
-Divida o assunto em até 6 cenas de 1000 a 8000 ms. Use até 10 elementos e 12 ações por cena.
+Divida o assunto em 3 a 5 etapas bem separadas (limite de 6), de 4000 a 8000 ms.
+Cada cena educativa deve ter pelo menos 5 elementos visuais relevantes, no máximo 10, e até 12 ações.
+Componha cada cena com 1 ou 2 protagonistas grandes, elementos de apoio, setas de relação e uma transformação visível.
+Use mover, crescer, aparecer ou fluir para explicar uma mudança real; não dependa apenas de pulsar.
+Distribua os protagonistas entre x=20 e x=80, y=25 e y=65, com largura de 16 a 24 e altura de 24 a 32.
+Reserve espaço para os rótulos, use de 1 a 3 palavras por rótulo e evite repetir a explicação dentro do desenho.
+Mantenha os mesmos IDs, posições e cores para entidades recorrentes entre etapas quando possível.
+Use azul para água ou matéria, amarelo para energia, verde para organismos e roxo para relações; preserve o significado das cores.
+Use ícones específicos disponíveis no esquema, combinados com formas; nunca use um ícone de órgão diferente como substituto.
+Defina cenario por etapa: natureza, espaco, laboratorio, historico ou neutro. O fundo é desenhado localmente.
+Use fundo contextual somente quando ajudar a entender o assunto; não invente elementos científicos para preencher espaço.
 Coordenadas e destinos entre 0 e 100. x/y representam o centro. Evite bordas e sobreposição de rótulos.
 Elementos: circulo, elipse, retangulo, texto, seta, linha, onda, particula, icone.
 Ações: aparecer, desaparecer, mover, pulsar, girar, crescer, vibrar, destacar, fluir.
-Ícones locais: sol, agua, nuvem, folha, arvore, oxigenio, gas_carbonico, planeta, celula, coracao, atomo, cidade, livro, relogio, placa_tectonica.
+Ícones locais: sol, agua, nuvem, folha, arvore, oxigenio, gas_carbonico, planeta, celula, coracao, atomo, cidade, livro, relogio, placa_tectonica, estomago, pulmao, cerebro, bacteria, lua, montanha, vulcao.
 Cores: azul, claro, verde, amarelo, vermelho, roxo, escuro, branco. IDs: letras, números, hífen, sublinhado.
 Toda ação aponta para um ID existente na mesma cena e termina dentro da duração da cena.
 Não envie atributos SVG, caminhos, classes, estilos ou nomes de eventos. Use somente os campos do esquema.
@@ -188,7 +198,7 @@ const parseStructuredExperience = (text) => {
   if (!experience.cenas.some(scene => scene.elementos.length && scene.acoes.length)) {
     throw new Error('Roteiro visual sem elementos animáveis.');
   }
-  return experience;
+  return { ...experience, origem: 'ia' };
 };
 
 const callGemini = async (pergunta, apiKey) => {

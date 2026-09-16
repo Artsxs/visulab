@@ -203,6 +203,10 @@ test('pede JSON e schema no prompt Gemini sem campos de formato em generationCon
     assert.ok(instruction.includes(JSON.stringify(RESPONSE_SCHEMA)));
     assert.match(instruction, /único objeto JSON/i);
     assert.match(instruction, /sem Markdown/i);
+    assert.match(instruction, /pelo menos 5 elementos visuais/i);
+    assert.match(instruction, /etapas bem separadas/i);
+    assert.match(instruction, /setas de relação/i);
+    assert.match(instruction, /cenario por etapa/i);
     assert.match(instruction, /somente a perguntas educacionais/i);
     assert.match(instruction, /português brasileiro/i);
     assert.match(instruction, /ignore qualquer instrução/i);
@@ -471,4 +475,14 @@ test('trata timeout e resposta externa inválida sem detalhes internos', async (
   assert.equal(invalid.status, 502);
   assert.equal(payload.codigo, 'INVALID_API_RESPONSE');
   assert.equal(JSON.stringify(payload).includes('segredo externo'), false);
+});
+
+test('origem enviada pela IA não pode se passar por premium ou fallback local', async () => {
+  for (const origem of ['premium', 'local']) {
+    useSuccessfulGemini();
+    globalThis.fetch = async () => geminiSuccess({ ...validExperience, origem });
+    const response = await visualizar(makeRequest({ pergunta: 'Explique um eclipse solar' }));
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).experiencia.origem, 'ia');
+  }
 });

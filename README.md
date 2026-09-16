@@ -28,20 +28,27 @@ framework, gerenciador de pacotes ou etapa de build.
 ## Como o laboratório funciona
 
 1. O estudante escreve uma pergunta ou seleciona uma sugestão.
-2. O navegador envia somente `{ "pergunta": "..." }` por `POST` para
-   `/.netlify/functions/visualizar`.
-3. A função tenta o modelo `gemini-3.5-flash-lite` com a chave mantida apenas
-   no servidor. O prompt inclui o esquema e pede um único objeto JSON sem
-   Markdown; a chamada Gemini não usa campos de formato em `generationConfig`.
-4. Se o Gemini falhar e `NVIDIA_API_KEY` estiver configurada, a função tenta a
-   NVIDIA NIM com o modelo configurado em `NVIDIA_MODEL` (ou
-   `meta/llama-3.1-8b-instruct` como fallback) e saída JSON.
-5. A resposta passa por validação no servidor e novamente no navegador.
-6. O motor constrói SVG responsivo com formas e ícones locais, anima as cenas
-   pela Web Animations API e insere todos os textos
-   com `textContent`; a IA nunca fornece HTML, SVG ou JavaScript.
-7. Se os provedores falharem, o navegador cria um roteiro visual local a partir
-   do tema digitado, com formas, setas, movimento e controles.
+2. Terremotos (incluindo placas tectônicas e abalos sísmicos), fotossíntese
+   (incluindo como a planta produz alimento) e Brasil Colonial (incluindo
+   capitanias hereditárias) usam os templates manuais, sem chamada à IA.
+   A interface identifica esses roteiros como **Animação premium**.
+3. Nos demais assuntos, o navegador envia `{ "pergunta": "..." }` por `POST`
+   para `/.netlify/functions/visualizar`. A função tenta Gemini e depois NVIDIA.
+   O esquema JSON vai no prompt do Gemini, sem campos de formato em `generationConfig`.
+4. O prompt pede pelo menos cinco elementos relevantes por cena, protagonistas
+   grandes, rótulos curtos, setas, transformações e cores consistentes entre etapas.
+   Os fundos permitidos são neutro, natureza, espaço, laboratório e histórico;
+   formas, ícones e fundos são desenhados por código local, nunca por código da IA.
+5. O backend valida e normaliza o JSON, e o navegador valida novamente antes de
+   renderizar. Respostas válidas aparecem como **Gerado com IA**.
+6. O motor centraliza a composição preservando os destinos dos movimentos,
+   amplia elementos principais e separa os rótulos em caixas sem sobreposição.
+   No celular, uma legenda numerada mantém os nomes legíveis abaixo da cena.
+7. Se Gemini e NVIDIA falharem, o navegador cria um roteiro de apoio e informa
+   **Animação local**. Esse fallback continua disponível para qualquer tema.
+
+A NVIDIA usa `process.env.NVIDIA_MODEL`, com `meta/llama-3.1-8b-instruct`
+como padrão. As chaves continuam somente no backend.
 
 O contrato de roteiro versão `1.0` contém disciplina, título, resumo,
 `tipoDeCena`, `cenas`, conclusão e curiosidade. No frontend, `tipoDeCena` é
@@ -51,7 +58,7 @@ normalizado como `tipoVisual`. Os tipos são `fluxo`, `ciclo`,
 das três experiências locais).
 
 Cada cena contém título, explicação equivalente ao visual, `duracaoMs`,
-`elementos` e `acoes`. Consulte `js/visual-schema.mjs` para o JSON Schema completo
+`elementos`, `acoes` e o campo opcional `cenario`. Consulte `js/visual-schema.mjs` para o JSON Schema completo
  e `tests/fixtures.mjs` para exemplos executáveis, explicitamente simulados.
 
 O validador compartilhado permite até seis cenas de 1 a 8 segundos, dez elementos
@@ -64,7 +71,9 @@ Os módulos são:
 
 - `js/visual-validator.mjs`: contrato e normalização no servidor e navegador;
 - `js/visual-schema.mjs`: JSON Schema enviado ao Gemini;
-- `js/visual-elements.mjs`: nove formas permitidas e quinze ícones locais;
+- `js/premium-topics.mjs`: reconhecimento dos temas dos templates manuais;
+- `js/scene-layout.mjs`: composição e separação de rótulos;
+- `js/visual-elements.mjs`: nove formas permitidas e 22 ícones locais;
 - `js/scene-renderer.mjs`: composição SVG e quadros das nove ações;
 - `js/animation-engine.mjs`: relógio, transições, pausa, navegação e velocidade.
 
@@ -95,11 +104,11 @@ ocupação do território e mudanças políticas.
 
 ## Modo local de segurança
 
-As três experiências acima servem como fallback e não dependem da chave. Outros
+As três experiências acima são templates premium prioritários e não dependem da chave. Outros
 temas recebem um diagrama animado local baseado no texto digitado. O
 reconhecimento das experiências especiais inclui, entre outras, estas palavras:
 
-- terremotos: `terremoto`, `placas tectônicas`, `abalo` e `ondas sísmicas`;
+- terremotos: `terremoto`, `placas tectônicas`, `abalos sísmicos` e `ondas sísmicas`;
 - fotossíntese: `fotossíntese` e `clorofila`;
 - Brasil Colonial: `colonial`, `colônia`, `colonização` e `capitanias`.
 
@@ -197,6 +206,8 @@ node --check netlify/functions/visualizar.mjs
 node tests/visualizar.test.mjs
 node tests/visual-validator.test.mjs
 node tests/animation-engine.test.mjs
+node tests/premium-topics.test.mjs
+node tests/scene-layout.test.mjs
 ```
 
 Os testes simulam Gemini e NVIDIA; nenhuma chamada externa e nenhuma chave real são

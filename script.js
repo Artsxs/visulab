@@ -1,6 +1,7 @@
 import { validateVisualExperience } from './js/visual-validator.mjs';
 import { AnimationEngine } from './js/animation-engine.mjs';
 import { createLocalFallback } from './js/local-fallback.mjs';
+import { findPremiumTopic } from './js/premium-topics.mjs';
 
 document.documentElement.classList.add('has-js');
 
@@ -82,13 +83,6 @@ const resultsStatus = document.getElementById('results-status');
 const emptyState = document.getElementById('empty-state');
 const clearSearchButton = document.getElementById('clear-search');
 let activeCategory = 'todos';
-
-const normalizeText = (text) =>
-  text
-    .trim()
-    .toLocaleLowerCase('pt-BR')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
 
 const updateActiveFilter = (category) => {
   activeCategory = category;
@@ -567,22 +561,6 @@ const VISUALIZER_FUNCTION_URL = '/.netlify/functions/visualizar';
 const hasMarkup = (value) => /[<>]/.test(value);
 const characterCount = (value) => [...value].length;
 
-const findLocalVisualExperience = (question) => {
-  const normalizedQuestion = normalizeText(question);
-
-  if (/terremot|placa(?:s)? tectonic|onda(?:s)? sismic|\babalo(?:s)?\b/.test(normalizedQuestion)) {
-    return localVisualExperiences.terremoto;
-  }
-  if (/fotossint|clorofila/.test(normalizedQuestion)) {
-    return localVisualExperiences.fotossintese;
-  }
-  if (/brasil colonial|colonizacao do brasil|periodo colonial|linha do tempo.*brasil|\bcolonial\b|\bcolonia\b|capitania/.test(normalizedQuestion)) {
-    return localVisualExperiences.brasil_colonial;
-  }
-
-  return null;
-};
-
 const requestVisualExperience = async (question) => {
   const controller = new AbortController();
   activeNetworkController = controller;
@@ -797,7 +775,7 @@ const showVisualExperience = (candidate) => {
   const special = candidate.experienciaEspecial || candidate.tipoVisual;
   const specialTemplate = localVisualExperiences[special];
   const experience = specialTemplate
-    ? { ...specialTemplate, origem: candidate.origem }
+    ? { ...specialTemplate, origem: 'premium' }
     : candidate;
   activeVisualExperience = validateVisualExperience(experience);
   activeVisualStep = 0;
@@ -805,9 +783,9 @@ const showVisualExperience = (candidate) => {
   visualizerArea.textContent = visualizerDisciplines[activeVisualExperience.disciplina];
   visualizerExperienceTitle.textContent = activeVisualExperience.titulo;
   visualizerSummary.textContent = activeVisualExperience.resumo;
-  visualizerSource.textContent = activeVisualExperience.origem === 'local'
-    ? 'Animação local'
-    : 'Gerado com IA';
+  visualizerSource.textContent = {
+    premium: 'Animação premium', ia: 'Gerado com IA', local: 'Animação local',
+  }[activeVisualExperience.origem];
   visualizerCuriosity.textContent = [activeVisualExperience.conclusao, activeVisualExperience.curiosidade].filter(Boolean).join(' ');
   visualizerAiNotice.hidden = activeVisualExperience.origem !== 'ia';
   engineActive = !['terremoto', 'fotossintese', 'brasil_colonial'].includes(activeVisualExperience.tipoVisual);
@@ -890,7 +868,10 @@ visualizerForm.addEventListener('submit', async (event) => {
   visualizerFeedback.textContent = '';
 
   try {
-    const experience = await requestVisualExperience(question);
+    const premiumTopic = findPremiumTopic(question);
+    const experience = premiumTopic
+      ? { ...localVisualExperiences[premiumTopic], origem: 'premium' }
+      : await requestVisualExperience(question);
 
     if (requestId === visualizerRequestId) {
       showVisualExperience(experience);
@@ -918,7 +899,7 @@ visualizerForm.addEventListener('submit', async (event) => {
         mensagem: error.message,
       });
       if (isAiFailure) {
-        const fallback = findLocalVisualExperience(question) || createLocalFallback(question);
+        const fallback = createLocalFallback(question);
         showVisualExperience(fallback);
         visualizerFeedback.textContent = `${messages[error.code]} Exibimos uma animação local para você continuar estudando.`;
       } else {
