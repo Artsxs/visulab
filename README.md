@@ -31,7 +31,8 @@ framework, gerenciador de pacotes ou etapa de build.
 2. O navegador envia somente `{ "pergunta": "..." }` por `POST` para
    `/.netlify/functions/visualizar`.
 3. A função tenta o modelo `gemini-3.5-flash-lite` com a chave mantida apenas
-   no servidor e solicita JSON estruturado.
+   no servidor. O prompt inclui o esquema e pede um único objeto JSON sem
+   Markdown; a chamada Gemini não usa campos de formato em `generationConfig`.
 4. Se o Gemini falhar e `NVIDIA_API_KEY` estiver configurada, a função tenta a
    NVIDIA NIM com o modelo configurado em `NVIDIA_MODEL` (ou
    `meta/llama-3.1-8b-instruct` como fallback) e saída JSON.
@@ -176,10 +177,12 @@ O Gemini usa `VISULAB_API_KEY`. A alternativa NVIDIA NIM usa
 2. Entre em **Site configuration → Environment variables**.
 3. Crie `VISULAB_API_KEY` e informe o valor como secreto.
 4. Opcionalmente, crie `NVIDIA_API_KEY` para habilitar o segundo provedor.
-5. Inclua o escopo de Functions quando essa opção estiver disponível.
-6. Faça um novo deploy para a função receber as variáveis.
+5. Opcionalmente, defina `NVIDIA_MODEL` com o identificador do modelo desejado.
+   Sem essa variável, a função usa `meta/llama-3.1-8b-instruct`.
+6. Inclua o escopo de Functions quando essa opção estiver disponível.
+7. Faça um novo deploy para a função receber as variáveis.
 
-O arquivo `.env.example` contém somente os nomes das duas variáveis, com valores
+O arquivo `.env.example` contém os nomes das duas chaves e de `NVIDIA_MODEL`, com valores
 vazios. Não coloque uma chave real nele, no README, no HTML, em `script.js`, em commits ou em comandos
 que possam ficar no histórico do terminal. A chave nunca deve ir para o
 frontend.
@@ -196,7 +199,7 @@ node tests/visual-validator.test.mjs
 node tests/animation-engine.test.mjs
 ```
 
-Os testes simulam o Gemini; nenhuma chamada externa e nenhuma chave real são
+Os testes simulam Gemini e NVIDIA; nenhuma chamada externa e nenhuma chave real são
 necessárias. Eles cobrem método e tipo de conteúdo, JSON inválido, limites do
 corpo e da pergunta, contrato estruturado, validação de campos, headers,
 indisponibilidade, cota, timeout e sigilo das mensagens.

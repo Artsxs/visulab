@@ -36,6 +36,9 @@ Não envie atributos SVG, caminhos, classes, estilos ou nomes de eventos. Use so
 Explique cada cena de forma equivalente aos movimentos, sem depender somente das cores. Use rótulos curtos.
 Seja factual e apropriado para estudantes, evite informações incertas. Informe quando o tema não puder ser representado;
 nesse caso use uma cena textual, sem inventar fatos. Para pedidos não educacionais, convide a fazer uma pergunta de estudo.
+Retorne um único objeto JSON válido, sem Markdown, sem blocos de código e sem texto antes ou depois do objeto.
+Siga este JSON Schema, usando somente os campos e valores permitidos:
+${JSON.stringify(RESPONSE_SCHEMA)}
 `;
 
 const RESPONSE_HEADERS = {
@@ -214,8 +217,6 @@ const callGemini = async (pergunta, apiKey) => {
           generationConfig: {
             temperature: 0.2,
             maxOutputTokens: 12000,
-            responseMimeType: 'application/json',
-            responseSchema: RESPONSE_SCHEMA,
           },
         }),
         signal: controller.signal,
@@ -262,7 +263,7 @@ const callNvidia = async (pergunta, apiKey) => {
         body: JSON.stringify({
           model: NVIDIA_MODEL,
           messages: [
-            { role: 'system', content: `${SYSTEM_INSTRUCTION}\nResponda com um único objeto JSON que siga este JSON Schema: ${JSON.stringify(RESPONSE_SCHEMA)}` },
+            { role: 'system', content: SYSTEM_INSTRUCTION },
             { role: 'user', content: pergunta },
           ],
           response_format: { type: 'json_object' },

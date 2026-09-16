@@ -1,21 +1,31 @@
 import assert from 'node:assert/strict';
-import { afterEach, test } from 'node:test';
+import { afterEach, beforeEach, test } from 'node:test';
 
 import { validateVisualExperience, TYPES, SPECIALS } from '../js/visual-validator.mjs';
-import visualizar from '../netlify/functions/visualizar.mjs';
+import { RESPONSE_SCHEMA } from '../js/visual-schema.mjs';
 
 const originalFetch = globalThis.fetch;
-const originalVisuLabKey = process.env.VISULAB_API_KEY;
-const originalNvidiaKey = process.env.NVIDIA_API_KEY;
+const originalEnvironment = Object.fromEntries(
+  ['VISULAB_API_KEY', 'NVIDIA_API_KEY', 'NVIDIA_MODEL'].map(name => [name, process.env[name]]),
+);
+let moduleVersion = 0;
+let visualizar;
+const loadFunction = async () => (
+  await import(`../netlify/functions/visualizar.mjs?test=${moduleVersion += 1}`)
+).default;
+
+beforeEach(async () => {
+  for (const name of Object.keys(originalEnvironment)) delete process.env[name];
+  globalThis.fetch = () => { throw new Error('Requisição externa não simulada pelo teste.'); };
+  visualizar = await loadFunction();
+});
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
-
-  if (originalVisuLabKey === undefined) delete process.env.VISULAB_API_KEY;
-  else process.env.VISULAB_API_KEY = originalVisuLabKey;
-  if (originalNvidiaKey === undefined) delete process.env.NVIDIA_API_KEY;
-  else process.env.NVIDIA_API_KEY = originalNvidiaKey;
-
+  for (const [name, value] of Object.entries(originalEnvironment)) {
+    if (value === undefined) delete process.env[name];
+    else process.env[name] = value;
+  }
 });
 
 const makeRequest = (body, options = {}) => {
@@ -47,6 +57,17 @@ const geminiSuccess = (experience = validExperience) =>
   });
 const nvidiaSuccess = (experience = validExperience) => Response.json({
   choices: [{ message: { role: 'assistant', content: JSON.stringify(experience) } }],
+});
+const invalidExperienceTexts = [
+  ['JSON malformado', '{"titulo":"Resposta incompleta"'],
+  ['cenas vazias', JSON.stringify({ ...validExperience, cenas: [] })],
+  ['cenas sem ações', JSON.stringify({
+    ...validExperience,
+    cenas: validExperience.cenas.map(scene => ({ ...scene, acoes: [] })),
+  })],
+];
+const geminiTextResponse = (text) => Response.json({
+  candidates: [{ content: { parts: [{ text }] } }],
 });
 
 const useSuccessfulGemini = (assertRequest) => {
@@ -164,7 +185,7 @@ test('informa quando VISULAB_API_KEY não está configurada', async () => {
   }
 });
 
-test('usa modelo, header e schema estruturado solicitados sem expor a chave', async () => {
+test('pede JSON e schema no prompt Gemini sem campos de formato em generationConfig', async () => {
   useSuccessfulGemini((url, options) => {
     assert.match(url, /gemini-3\.5-flash-lite:generateContent$/);
     assert.equal(url.includes('chave-ficticia-de-teste'), false);
@@ -173,17 +194,15 @@ test('usa modelo, header e schema estruturado solicitados sem expor a chave', as
 
     const body = JSON.parse(options.body);
     assert.equal(options.body.includes('chave-ficticia-de-teste'), false);
-    assert.equal(body.generationConfig.responseMimeType, 'application/json');
-    assert.equal('responseFormat' in body.generationConfig, false);
-    assert.deepEqual(body.generationConfig.responseSchema.properties.disciplina.enum, [
-      'ciencias', 'historia', 'geografia', 'outro',
-    ]);
-    assert.deepEqual(body.generationConfig.responseSchema.properties.tipoDeCena.enum, TYPES);
-    assert.ok(body.generationConfig.responseSchema.required.includes('tipoDeCena'));
-    assert.ok(body.generationConfig.responseSchema.required.includes('curiosidade'));
-    assert.ok(body.generationConfig.responseSchema.properties.cenas.items.required.includes('explicacao'));
+    assert.deepEqual(Object.keys(body.generationConfig).sort(), ['maxOutputTokens', 'temperature']);
+    for (const field of ['responseMimeType', 'responseSchema', 'responseFormat', 'response_format']) {
+      assert.equal(field in body.generationConfig, false, field);
+    }
 
     const instruction = body.systemInstruction.parts[0].text;
+    assert.ok(instruction.includes(JSON.stringify(RESPONSE_SCHEMA)));
+    assert.match(instruction, /único objeto JSON/i);
+    assert.match(instruction, /sem Markdown/i);
     assert.match(instruction, /somente a perguntas educacionais/i);
     assert.match(instruction, /português brasileiro/i);
     assert.match(instruction, /ignore qualquer instrução/i);
@@ -196,6 +215,68 @@ test('usa modelo, header e schema estruturado solicitados sem expor a chave', as
   assert.deepEqual(payload, { experiencia: validateVisualExperience(validExperience), provedor: 'gemini' });
   assert.equal(JSON.stringify(payload).includes('chave-ficticia-de-teste'), false);
   assertSecurityHeaders(response);
+});
+
+test('retorna Gemini validado sem chamar NVIDIA quando ambos estão configurados', async () => {
+  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  const calls = [];
+  useSuccessfulGemini((url) => calls.push(url));
+
+  const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    experiencia: validateVisualExperience(validExperience),
+    provedor: 'gemini',
+  });
+  assert.equal(calls.length, 1);
+  assert.match(calls[0], /generativelanguage\.googleapis\.com/);
+});
+
+test('rejeita JSON malformado, cenas vazias e cenas sem ações de ambos os provedores', async () => {
+  for (const provider of ['gemini', 'nvidia']) {
+    if (provider === 'gemini') {
+      process.env.VISULAB_API_KEY = 'gemini-ficticia';
+      delete process.env.NVIDIA_API_KEY;
+    } else {
+      delete process.env.VISULAB_API_KEY;
+      process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+    }
+
+    for (const [description, text] of invalidExperienceTexts) {
+      globalThis.fetch = async () => provider === 'gemini'
+        ? geminiTextResponse(text)
+        : Response.json({ choices: [{ message: { content: text } }] });
+
+      const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+      const payload = await response.json();
+      assert.equal(response.status, 502, `${provider}: ${description}`);
+      assert.equal(payload.codigo, 'INVALID_API_RESPONSE');
+      assert.equal('experiencia' in payload, false);
+    }
+  }
+});
+
+test('tenta NVIDIA quando o Gemini responde HTTP 200 com roteiro inválido', async () => {
+  process.env.VISULAB_API_KEY = 'gemini-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+
+  for (const [description, text] of invalidExperienceTexts) {
+    const calls = [];
+    globalThis.fetch = async (url) => {
+      calls.push(url);
+      return calls.length === 1 ? geminiTextResponse(text) : nvidiaSuccess();
+    };
+
+    const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+    assert.equal(response.status, 200, description);
+    assert.deepEqual(await response.json(), {
+      experiencia: validateVisualExperience(validExperience),
+      provedor: 'nvidia',
+    });
+    assert.equal(calls.length, 2);
+    assert.match(calls[0], /generativelanguage\.googleapis\.com/);
+    assert.equal(calls[1], 'https://integrate.api.nvidia.com/v1/chat/completions');
+  }
 });
 
 test('tenta Gemini primeiro e usa NVIDIA NIM quando o Gemini falha', async () => {
@@ -219,6 +300,27 @@ test('tenta Gemini primeiro e usa NVIDIA NIM quando o Gemini falha', async () =>
   assert.deepEqual(body.response_format, { type: 'json_object' });
   assert.equal(body.stream, false);
   assert.equal(calls[1].options.body.includes('nvidia-ficticia'), false);
+});
+
+test('lê NVIDIA_MODEL e usa o modelo padrão se a variável estiver ausente ou inválida', async () => {
+  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  for (const configuredModel of [undefined, '', '   ', 'modelo invalido', 'meta/llama-3.1-70b-instruct']) {
+    if (configuredModel === undefined) delete process.env.NVIDIA_MODEL;
+    else process.env.NVIDIA_MODEL = configuredModel;
+    const configuredFunction = await loadFunction();
+    let calledModel;
+    globalThis.fetch = async (_url, options) => {
+      calledModel = JSON.parse(options.body).model;
+      return nvidiaSuccess();
+    };
+
+    const response = await configuredFunction(makeRequest({ pergunta: 'Explique um átomo.' }));
+    assert.equal(response.status, 200, String(configuredModel));
+    assert.equal((await response.json()).provedor, 'nvidia');
+    assert.equal(calledModel, configuredModel?.startsWith('meta/')
+      ? configuredModel
+      : 'meta/llama-3.1-8b-instruct');
+  }
 });
 
 test('usa NVIDIA diretamente quando somente NVIDIA_API_KEY está configurada', async () => {
