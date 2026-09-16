@@ -6,10 +6,15 @@ const GEMINI_ENDPOINT =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 const NVIDIA_ENDPOINT = `${NVIDIA_BASE_URL}/chat/completions`;
-const NVIDIA_MODEL = 'moonshotai/kimi-k3';
+const DEFAULT_NVIDIA_MODEL = 'meta/llama-3.1-8b-instruct';
+const configuredNvidiaModel = process.env.NVIDIA_MODEL?.trim();
+const NVIDIA_MODEL = /^[a-zA-Z0-9._/-]{1,100}$/.test(configuredNvidiaModel || '')
+  ? configuredNvidiaModel
+  : DEFAULT_NVIDIA_MODEL;
 const MAX_QUESTION_CHARACTERS = 250;
 const MAX_REQUEST_BYTES = 2048;
-const API_TIMEOUT_MS = 8000;
+const GEMINI_TIMEOUT_MS = 8000;
+const NVIDIA_TIMEOUT_MS = 15000;
 
 const SYSTEM_INSTRUCTION = `
 Você atua como roteirista visual educacional. Responda somente a perguntas educacionais, em português brasileiro.
@@ -185,7 +190,7 @@ const parseStructuredExperience = (text) => {
 
 const callGemini = async (pergunta, apiKey) => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
 
   try {
     let response;
@@ -209,12 +214,8 @@ const callGemini = async (pergunta, apiKey) => {
           generationConfig: {
             temperature: 0.2,
             maxOutputTokens: 12000,
-            responseFormat: {
-              text: {
-                mimeType: 'application/json',
-                schema: RESPONSE_SCHEMA,
-              },
-            },
+            responseMimeType: 'application/json',
+            responseSchema: RESPONSE_SCHEMA,
           },
         }),
         signal: controller.signal,
@@ -248,7 +249,7 @@ const callGemini = async (pergunta, apiKey) => {
 
 const callNvidia = async (pergunta, apiKey) => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), NVIDIA_TIMEOUT_MS);
   try {
     let response;
     try {

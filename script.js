@@ -586,7 +586,7 @@ const findLocalVisualExperience = (question) => {
 const requestVisualExperience = async (question) => {
   const controller = new AbortController();
   activeNetworkController = controller;
-  const timeout = window.setTimeout(() => controller.abort(), 20000);
+  const timeout = window.setTimeout(() => controller.abort(), 28000);
 
   try {
     const response = await fetch(VISUALIZER_FUNCTION_URL, {

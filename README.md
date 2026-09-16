@@ -33,7 +33,8 @@ framework, gerenciador de pacotes ou etapa de build.
 3. A função tenta o modelo `gemini-3.5-flash-lite` com a chave mantida apenas
    no servidor e solicita JSON estruturado.
 4. Se o Gemini falhar e `NVIDIA_API_KEY` estiver configurada, a função tenta a
-   NVIDIA NIM com `moonshotai/kimi-k3` e saída JSON.
+   NVIDIA NIM com o modelo configurado em `NVIDIA_MODEL` (ou
+   `meta/llama-3.1-8b-instruct` como fallback) e saída JSON.
 5. A resposta passa por validação no servidor e novamente no navegador.
 6. O motor constrói SVG responsivo com formas e ícones locais, anima as cenas
    pela Web Animations API e insere todos os textos

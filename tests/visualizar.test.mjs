@@ -173,14 +173,15 @@ test('usa modelo, header e schema estruturado solicitados sem expor a chave', as
 
     const body = JSON.parse(options.body);
     assert.equal(options.body.includes('chave-ficticia-de-teste'), false);
-    assert.equal(body.generationConfig.responseFormat.text.mimeType, 'application/json');
-    assert.deepEqual(body.generationConfig.responseFormat.text.schema.properties.disciplina.enum, [
+    assert.equal(body.generationConfig.responseMimeType, 'application/json');
+    assert.equal('responseFormat' in body.generationConfig, false);
+    assert.deepEqual(body.generationConfig.responseSchema.properties.disciplina.enum, [
       'ciencias', 'historia', 'geografia', 'outro',
     ]);
-    assert.deepEqual(body.generationConfig.responseFormat.text.schema.properties.tipoDeCena.enum, TYPES);
-    assert.ok(body.generationConfig.responseFormat.text.schema.required.includes('tipoDeCena'));
-    assert.ok(body.generationConfig.responseFormat.text.schema.required.includes('curiosidade'));
-    assert.ok(body.generationConfig.responseFormat.text.schema.properties.cenas.items.required.includes('explicacao'));
+    assert.deepEqual(body.generationConfig.responseSchema.properties.tipoDeCena.enum, TYPES);
+    assert.ok(body.generationConfig.responseSchema.required.includes('tipoDeCena'));
+    assert.ok(body.generationConfig.responseSchema.required.includes('curiosidade'));
+    assert.ok(body.generationConfig.responseSchema.properties.cenas.items.required.includes('explicacao'));
 
     const instruction = body.systemInstruction.parts[0].text;
     assert.match(instruction, /somente a perguntas educacionais/i);
@@ -214,7 +215,7 @@ test('tenta Gemini primeiro e usa NVIDIA NIM quando o Gemini falha', async () =>
   assert.equal(calls[1].url, 'https://integrate.api.nvidia.com/v1/chat/completions');
   assert.equal(calls[1].options.headers.Authorization, 'Bearer nvidia-ficticia');
   const body = JSON.parse(calls[1].options.body);
-  assert.equal(body.model, 'moonshotai/kimi-k3');
+  assert.equal(body.model, 'meta/llama-3.1-8b-instruct');
   assert.deepEqual(body.response_format, { type: 'json_object' });
   assert.equal(body.stream, false);
   assert.equal(calls[1].options.body.includes('nvidia-ficticia'), false);
