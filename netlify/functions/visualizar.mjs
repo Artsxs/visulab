@@ -7,14 +7,27 @@ const GEMINI_ENDPOINT =
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 const NVIDIA_ENDPOINT = `${NVIDIA_BASE_URL}/chat/completions`;
 const DEFAULT_NVIDIA_MODEL = 'meta/llama-3.1-8b-instruct';
-const configuredNvidiaModel = process.env.NVIDIA_MODEL?.trim();
-const NVIDIA_MODEL = /^[a-zA-Z0-9._/-]{1,100}$/.test(configuredNvidiaModel || '')
-  ? configuredNvidiaModel
-  : DEFAULT_NVIDIA_MODEL;
 const MAX_QUESTION_CHARACTERS = 250;
 const MAX_REQUEST_BYTES = 2048;
 const GEMINI_TIMEOUT_MS = 8000;
 const NVIDIA_TIMEOUT_MS = 15000;
+
+const NVIDIA_MODEL_ERROR = 'Corrija NVIDIA_MODEL no Netlify: use um identificador de modelo (fabricante/modelo), nunca uma chave. Configure a chave somente em NVIDIA_API_KEY.';
+
+const readNvidiaModel = () => {
+  const model = process.env.NVIDIA_MODEL?.trim() || DEFAULT_NVIDIA_MODEL;
+  const keys = [process.env.NVIDIA_API_KEY, process.env.VISULAB_API_KEY]
+    .map(key => key?.trim()).filter(Boolean);
+  // Não basta aceitar letras e hífens: uma chave nvapi- também satisfaz isso.
+  if (model.length > 100 || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\/[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(model)
+    || /nvapi-|AIza|\bsk-|bearer\s/i.test(model)
+    || keys.some(key => model.includes(key))) {
+    const error = new Error(NVIDIA_MODEL_ERROR);
+    error.kind = 'configuration';
+    throw error;
+  }
+  return model;
+};
 
 const SYSTEM_INSTRUCTION = `
 Você atua como roteirista visual educacional. Responda somente a perguntas educacionais, em português brasileiro.
@@ -67,33 +80,25 @@ const jsonResponse = (status, body, extraHeaders = {}) =>
 const errorResponse = (status, codigo, mensagem, extraHeaders) =>
   jsonResponse(status, { codigo, mensagem }, extraHeaders);
 
-const logProviderFailure = (provider, code, error) => {
+const logProviderFailure = (provider, code, error, model) => {
   console.error('[VisuLab Function] Falha no provedor de IA', {
     provider,
     code,
-    model: provider === 'gemini' ? GEMINI_MODEL : NVIDIA_MODEL,
+    // model só recebe uma constante local ou o resultado da validação.
+    model,
     upstreamStatus: Number.isInteger(error?.status) ? error.status : null,
     kind: error?.kind || null,
-    name: error?.name || 'Error',
-    reason: error?.message || 'Erro sem mensagem',
-    providerReason: error?.providerReason || null,
+    name: error?.name === 'AbortError' ? 'AbortError' : 'Error',
+    reason: error?.kind === 'configuration' ? NVIDIA_MODEL_ERROR : code,
+    phase: error?.phase || null,
+    elapsedMs: error?.elapsedMs ?? null,
+    timeoutMs: error?.timeoutMs ?? null,
+    deadlineExceeded: error?.deadlineExceeded || false,
   });
 };
 
-const readSafeProviderReason = async (response, apiKey) => {
-  try {
-    const payload = await response.clone().json();
-    const message = payload?.error?.message;
-    if (typeof message !== 'string') return '';
-    return [...message
-      .replaceAll(apiKey, '[REDACTED]')
-      .replace(/[\u0000-\u001f\u007f]/g, ' ')]
-      .slice(0, 300)
-      .join('');
-  } catch {
-    return '';
-  }
-};
+// Mensagens/corpos externos nunca entram nos logs: podem repetir credenciais,
+// URLs e até um segredo inserido por engano no identificador do modelo.
 
 const characterCount = (value) => [...value].length;
 const containsUnsafeText = (value) =>
@@ -201,124 +206,111 @@ const parseStructuredExperience = (text) => {
   return { ...experience, origem: 'ia' };
 };
 
-const callGemini = async (pergunta, apiKey) => {
+const requestProvider = async (url, options, timeoutMs, parsePayload) => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
-
+  const started = performance.now();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let phase = 'request';
   try {
     let response;
     try {
-      response = await fetch(GEMINI_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: SYSTEM_INSTRUCTION }],
-          },
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: pergunta }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 12000,
-          },
-        }),
-        signal: controller.signal,
-      });
+      response = await fetch(url, { ...options, signal: controller.signal });
+      controller.signal.throwIfAborted();
     } catch (error) {
-      if (error?.name === 'AbortError') throw error;
-      const networkError = new Error('Falha de rede.');
-      networkError.kind = 'network';
-      throw networkError;
-    }
-
-    if (!response.ok) {
-      const upstreamError = new Error('Falha externa.');
-      upstreamError.status = response.status;
-      upstreamError.providerReason = await readSafeProviderReason(response, apiKey);
-      throw upstreamError;
-    }
-
-    let payload;
-    try {
-      payload = await response.json();
-    } catch {
-      throw new Error('Resposta externa inválida.');
-    }
-
-    return parseStructuredExperience(readGeminiText(payload));
-  } finally {
-    clearTimeout(timeout);
-  }
-};
-
-const callNvidia = async (pergunta, apiKey) => {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), NVIDIA_TIMEOUT_MS);
-  try {
-    let response;
-    try {
-      response = await fetch(NVIDIA_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: NVIDIA_MODEL,
-          messages: [
-            { role: 'system', content: SYSTEM_INSTRUCTION },
-            { role: 'user', content: pergunta },
-          ],
-          response_format: { type: 'json_object' },
-          temperature: 0.2,
-          top_p: 0.7,
-          max_tokens: 4096,
-          stream: false,
-        }),
-        signal: controller.signal,
-      });
-    } catch (error) {
-      if (error?.name === 'AbortError') throw error;
+      if (controller.signal.aborted || error?.name === 'AbortError') throw error;
       const networkError = new Error('Falha de rede.');
       networkError.kind = 'network';
       throw networkError;
     }
     if (!response.ok) {
+      // Não leia o corpo de erro: além de conter segredos, ele pode travar e
+      // ocultar um HTTP 401/403/404/429 já recebido atrás de um timeout.
+      if (response.body) void response.body.cancel().catch(() => {});
       const upstreamError = new Error('Falha externa.');
       upstreamError.status = response.status;
-      upstreamError.providerReason = await readSafeProviderReason(response, apiKey);
       throw upstreamError;
     }
+    phase = 'body';
     let payload;
     try {
       payload = await response.json();
-    } catch {
+      controller.signal.throwIfAborted();
+    } catch (error) {
+      if (controller.signal.aborted || error?.name === 'AbortError') throw error;
       throw new Error('Resposta externa inválida.');
     }
-    return parseStructuredExperience(payload?.choices?.[0]?.message?.content);
+    phase = 'validation';
+    return parsePayload(payload);
+  } catch (error) {
+    const failure = new Error('Falha no provedor.');
+    if (controller.signal.aborted || error?.name === 'AbortError') failure.name = 'AbortError';
+    failure.status = Number.isInteger(error?.status) ? error.status : undefined;
+    failure.kind = error?.kind === 'network' ? 'network' : undefined;
+    failure.phase = phase;
+    failure.elapsedMs = Math.round(performance.now() - started);
+    failure.timeoutMs = timeoutMs;
+    failure.deadlineExceeded = controller.signal.aborted;
+    throw failure;
   } finally {
     clearTimeout(timeout);
   }
 };
 
-const classifyFailure = (provider, error) => {
+const callGemini = (pergunta, apiKey) => requestProvider(GEMINI_ENDPOINT, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-goog-api-key': apiKey,
+  },
+  body: JSON.stringify({
+    systemInstruction: {
+      parts: [{ text: SYSTEM_INSTRUCTION }],
+    },
+    contents: [
+      {
+        role: 'user',
+        parts: [{ text: pergunta }],
+      },
+    ],
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 12000,
+    },
+  }),
+}, GEMINI_TIMEOUT_MS, payload => parseStructuredExperience(readGeminiText(payload)));
+
+const callNvidia = (pergunta, apiKey, model) => requestProvider(NVIDIA_ENDPOINT, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${apiKey}`,
+  },
+  body: JSON.stringify({
+    model,
+    messages: [
+      { role: 'system', content: SYSTEM_INSTRUCTION },
+      { role: 'user', content: pergunta },
+    ],
+    response_format: { type: 'json_object' },
+    temperature: 0.2,
+    top_p: 0.7,
+    max_tokens: 4096,
+    stream: false,
+  }),
+}, NVIDIA_TIMEOUT_MS, payload => parseStructuredExperience(payload?.choices?.[0]?.message?.content));
+
+const classifyFailure = (provider, error, model) => {
   let suffix = 'INVALID_RESPONSE';
   let status = 502;
-  if (error?.name === 'AbortError') { suffix = 'TIMEOUT'; status = 504; }
+  if (error?.kind === 'configuration') { suffix = 'MODEL_CONFIGURATION_ERROR'; status = 503; }
+  else if (error?.name === 'AbortError') { suffix = 'TIMEOUT'; status = 504; }
   else if (error?.status === 400) suffix = 'REQUEST_REJECTED';
   else if ([401, 403].includes(error?.status)) { suffix = 'AUTH_ERROR'; status = 503; }
   else if (error?.status === 404) suffix = 'MODEL_NOT_FOUND';
   else if (error?.status === 429) { suffix = 'LIMIT'; status = 429; }
   else if (error?.kind === 'network' || error?.status === 408 || error?.status >= 500) { suffix = 'UNAVAILABLE'; status = 503; }
   const code = `${provider.toUpperCase()}_${suffix}`;
-  logProviderFailure(provider, code, error);
+  logProviderFailure(provider, code, error, model);
   return { provider, code, status };
 };
 
@@ -387,18 +379,28 @@ export default async (request) => {
       console.info('[VisuLab Function] Roteiro gerado', { provider: 'gemini', model: GEMINI_MODEL });
       return jsonResponse(200, { experiencia, provedor: 'gemini' });
     } catch (error) {
-      failures.push(classifyFailure('gemini', error));
+      failures.push(classifyFailure('gemini', error, GEMINI_MODEL));
     }
   }
 
   if (nvidiaKey) {
+    let model = null;
     try {
-      const experiencia = await callNvidia(validation.pergunta, nvidiaKey);
-      console.info('[VisuLab Function] Roteiro gerado', { provider: 'nvidia', model: NVIDIA_MODEL });
+      model = readNvidiaModel();
+      const experiencia = await callNvidia(validation.pergunta, nvidiaKey, model);
+      console.info('[VisuLab Function] Roteiro gerado', { provider: 'nvidia', model });
       return jsonResponse(200, { experiencia, provedor: 'nvidia' });
     } catch (error) {
-      failures.push(classifyFailure('nvidia', error));
+      failures.push(classifyFailure('nvidia', error, model));
     }
+  }
+
+  if (failures.some(failure => failure.code === 'NVIDIA_MODEL_CONFIGURATION_ERROR')) {
+    return jsonResponse(503, {
+      codigo: 'NVIDIA_MODEL_CONFIGURATION_ERROR',
+      mensagem: NVIDIA_MODEL_ERROR,
+      provedores: failures.map(({ provider, code }) => ({ provider, code })),
+    });
   }
 
   const onlyFailure = failures.length === 1 ? failures[0] : null;

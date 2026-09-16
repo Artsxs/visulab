@@ -306,25 +306,184 @@ test('tenta Gemini primeiro e usa NVIDIA NIM quando o Gemini falha', async () =>
   assert.equal(calls[1].options.body.includes('nvidia-ficticia'), false);
 });
 
-test('lê NVIDIA_MODEL e usa o modelo padrão se a variável estiver ausente ou inválida', async () => {
+test('lê NVIDIA_MODEL por requisição e usa o padrão somente se ausente ou vazio', async () => {
   process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
-  for (const configuredModel of [undefined, '', '   ', 'modelo invalido', 'meta/llama-3.1-70b-instruct']) {
+  for (const configuredModel of [undefined, '', '   ', 'meta/llama-3.1-70b-instruct']) {
     if (configuredModel === undefined) delete process.env.NVIDIA_MODEL;
     else process.env.NVIDIA_MODEL = configuredModel;
-    const configuredFunction = await loadFunction();
     let calledModel;
     globalThis.fetch = async (_url, options) => {
       calledModel = JSON.parse(options.body).model;
       return nvidiaSuccess();
     };
 
-    const response = await configuredFunction(makeRequest({ pergunta: 'Explique um átomo.' }));
+    const response = await visualizar(makeRequest({ pergunta: 'Explique um átomo.' }));
     assert.equal(response.status, 200, String(configuredModel));
     assert.equal((await response.json()).provedor, 'nvidia');
     assert.equal(calledModel, configuredModel?.startsWith('meta/')
       ? configuredModel
       : 'meta/llama-3.1-8b-instruct');
   }
+});
+
+test('separa modelo, autenticação e logs usando somente credenciais fictícias', async (t) => {
+  process.env.NVIDIA_API_KEY = 'nvapi-credencial-ficticia-nao-valida';
+  process.env.NVIDIA_MODEL = 'meta/llama-3.1-8b-instruct';
+  const logs = [];
+  t.mock.method(console, 'info', (...args) => logs.push(args));
+  t.mock.method(console, 'error', (...args) => logs.push(args));
+  let request;
+  globalThis.fetch = async (url, options) => { request = { url, ...options }; return nvidiaSuccess(); };
+  const response = await visualizar(makeRequest({ pergunta: 'Explique um átomo.' }));
+  assert.equal(response.status, 200);
+  assert.equal(JSON.parse(request.body).model, process.env.NVIDIA_MODEL);
+  assert.equal(request.headers.Authorization, `Bearer ${process.env.NVIDIA_API_KEY}`);
+  assert.equal(request.url.includes(process.env.NVIDIA_API_KEY), false);
+  assert.equal(request.body.includes(process.env.NVIDIA_API_KEY), false);
+  assert.equal(JSON.stringify(logs).includes(process.env.NVIDIA_API_KEY), false);
+  assert.equal((await response.text()).includes(process.env.NVIDIA_API_KEY), false);
+});
+
+test('bloqueia modelo inválido ou contendo chave antes do fetch, sem expor valores', async (t) => {
+  process.env.NVIDIA_API_KEY = 'nvapi-segredo-ficticio-nao-valido';
+  const logs = [];
+  t.mock.method(console, 'info', (...args) => logs.push(args));
+  t.mock.method(console, 'error', (...args) => logs.push(args));
+  let calls = 0;
+  globalThis.fetch = async () => { calls++; return nvidiaSuccess(); };
+  for (const model of [
+    'nvapi-outra-chave-ficticia', `meta/${process.env.NVIDIA_API_KEY}`,
+    `Bearer ${process.env.NVIDIA_API_KEY}`, 'NVAPI-FICTICIA',
+    process.env.NVIDIA_API_KEY, 'modelo invalido', 'meta/AIzaFicticia',
+  ]) {
+    process.env.NVIDIA_MODEL = model;
+    const response = await visualizar(makeRequest({ pergunta: 'Explique um átomo.' }));
+    assert.equal(response.status, 503);
+    const payload = await response.json();
+    assert.equal(payload.codigo, 'NVIDIA_MODEL_CONFIGURATION_ERROR');
+    assert.match(payload.mensagem, /Corrija NVIDIA_MODEL/);
+    assert.equal(JSON.stringify(payload).includes(model), false);
+    assert.equal(JSON.stringify(logs).includes(model), false);
+    assert.equal(logs.at(-1)[1].model, null);
+  }
+  // Também rejeita chaves sem prefixo reconhecível, mesmo com sintaxe fabricante/modelo.
+  process.env.NVIDIA_API_KEY = 'segredoFicticio';
+  process.env.NVIDIA_MODEL = 'meta/segredoFicticio';
+  assert.equal((await visualizar(makeRequest({ pergunta: 'Explique um átomo.' }))).status, 503);
+  assert.equal(JSON.stringify(logs).includes('segredoFicticio'), false);
+  assert.equal(calls, 0);
+});
+
+test('Gemini continua primeiro com NVIDIA_MODEL inválido; falha não dispara NVIDIA', async (t) => {
+  const logs = [];
+  t.mock.method(console, 'info', (...args) => logs.push(args));
+  t.mock.method(console, 'error', (...args) => logs.push(args));
+  process.env.NVIDIA_API_KEY = 'credencial-ficticia';
+  process.env.NVIDIA_MODEL = 'nvapi-configuracao-incorreta-ficticia';
+  let calls = 0;
+  useSuccessfulGemini(() => calls++);
+  assert.equal((await visualizar(makeRequest({ pergunta: 'Como chove?' }))).status, 200);
+  globalThis.fetch = async () => { calls++; throw new DOMException('segredo externo', 'AbortError'); };
+  const payload = await (await visualizar(makeRequest({ pergunta: 'Como chove?' }))).json();
+  assert.equal(calls, 2, 'somente Gemini é chamado nas duas requisições');
+  assert.equal(payload.codigo, 'NVIDIA_MODEL_CONFIGURATION_ERROR');
+  assert.deepEqual(payload.provedores.map(p => p.code), ['GEMINI_TIMEOUT', 'NVIDIA_MODEL_CONFIGURATION_ERROR']);
+  assert.equal(JSON.stringify({ payload, logs }).includes(process.env.NVIDIA_MODEL), false);
+});
+
+test('logs preservam HTTP sem registrar mensagens, nomes externos ou credenciais refletidas', async (t) => {
+  const logs = [];
+  t.mock.method(console, 'info', (...args) => logs.push(args));
+  t.mock.method(console, 'error', (...args) => logs.push(args));
+  process.env.VISULAB_API_KEY = 'segredo-gemini-ficticio';
+  process.env.NVIDIA_API_KEY = 'nvapi-segredo-nvidia-ficticio';
+  const reflected = `${process.env.VISULAB_API_KEY} ${process.env.NVIDIA_API_KEY} nvapi-outra-ficticia`;
+  for (const status of [400, 401, 403, 404, 429, 500]) {
+    globalThis.fetch = async () => Response.json({ error: { message: reflected } }, { status });
+    const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+    const payload = await response.text();
+    assert.equal(logs.at(-1)[1].upstreamStatus, status);
+    for (const secret of reflected.split(' ')) assert.equal(`${payload}${JSON.stringify(logs)}`.includes(secret), false);
+  }
+  globalThis.fetch = async () => { const e = new Error(reflected); e.name = reflected; throw e; };
+  await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal(JSON.stringify(logs).includes('nvapi-'), false);
+});
+
+const fakeDeadlines = t => {
+  const timers = [];
+  t.mock.method(globalThis, 'setTimeout', (run, ms) => {
+    const timer = { run, ms, cleared: false }; timers.push(timer); return timer;
+  });
+  t.mock.method(globalThis, 'clearTimeout', timer => { timer.cleared = true; });
+  return timers;
+};
+
+test('Gemini expira em 8s; NVIDIA recebe sinal e prazo próprios, e timers são limpos', async (t) => {
+  const timers = fakeDeadlines(t), logs = [], signals = [];
+  t.mock.method(console, 'error', (...args) => logs.push(args));
+  process.env.VISULAB_API_KEY = 'gemini-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  globalThis.fetch = async (_url, { signal }) => {
+    signals.push(signal);
+    if (signals.length === 1) {
+      assert.equal(timers[0].ms, 8000);
+      return new Promise((_resolve, reject) => {
+        signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+        timers[0].run();
+      });
+    }
+    assert.equal(timers[0].cleared, true, 'Gemini é limpo antes de iniciar NVIDIA');
+    assert.equal(timers[1].ms, 15000);
+    assert.equal(signal.aborted, false);
+    return nvidiaSuccess();
+  };
+  const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal((await response.json()).provedor, 'nvidia');
+  assert.notEqual(signals[0], signals[1]);
+  assert.ok(timers.every(timer => timer.cleared));
+  const log = logs[0][1];
+  assert.equal(log.code, 'GEMINI_TIMEOUT');
+  assert.equal(log.phase, 'request');
+  assert.equal(log.deadlineExceeded, true);
+  assert.equal(log.timeoutMs, 8000);
+  assert.ok(Number.isInteger(log.elapsedMs));
+});
+
+for (const provider of ['gemini', 'nvidia']) {
+  test(`${provider}: abort durante leitura do JSON continua sendo timeout`, async (t) => {
+    const timers = fakeDeadlines(t), logs = [];
+    t.mock.method(console, 'error', (...args) => logs.push(args));
+    process.env[provider === 'gemini' ? 'VISULAB_API_KEY' : 'NVIDIA_API_KEY'] = 'chave-ficticia';
+    globalThis.fetch = async (_url, { signal }) => ({
+      ok: true,
+      json: () => new Promise((_resolve, reject) => {
+        signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+        timers[0].run();
+      }),
+    });
+    const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+    assert.equal(response.status, 504);
+    assert.equal((await response.json()).codigo, 'API_TIMEOUT');
+    assert.equal(logs[0][1].phase, 'body');
+    assert.equal(logs[0][1].deadlineExceeded, true);
+    assert.equal(timers[0].ms, provider === 'gemini' ? 8000 : 15000);
+    assert.equal(timers[0].cleared, true);
+  });
+}
+
+test('limpa timer em sucesso/erro e não espera pelo corpo de um HTTP 404', async (t) => {
+  const timers = fakeDeadlines(t);
+  process.env.VISULAB_API_KEY = 'chave-ficticia';
+  globalThis.fetch = async () => geminiSuccess();
+  assert.equal((await visualizar(makeRequest({ pergunta: 'Como chove?' }))).status, 200);
+  assert.equal(timers[0].cleared, true);
+  let cancelled = false;
+  globalThis.fetch = async () => new Response(new ReadableStream({ cancel() { cancelled = true; } }), { status: 404 });
+  const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal((await response.json()).codigo, 'API_MODEL_NOT_FOUND');
+  assert.equal(cancelled, true);
+  assert.equal(timers[1].cleared, true);
 });
 
 test('usa NVIDIA diretamente quando somente NVIDIA_API_KEY está configurada', async () => {

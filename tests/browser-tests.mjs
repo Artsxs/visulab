@@ -40,6 +40,20 @@ await test('falha da IA exibe fallback animado e permite tentar novamente', asyn
   w.console.error = originalConsoleError;
   assert(errors[0][1].codigo === 'API_NOT_CONFIGURED' && errors[0][1].status === 503, 'diagnóstico no console'); assert(d.querySelector('#visualizer-feedback').textContent.includes('chave da IA não está configurada'), 'motivo visível'); assert(d.querySelector('.engine-scene'), 'fallback SVG'); assert(d.querySelector('#visualizer-source').textContent === 'Animação local', 'origem local'); assert(!form.querySelector('[type=submit]').disabled, 'nova tentativa');
 });
+await test('configuração NVIDIA inválida e timeout do provedor mantêm o fallback local', async () => {
+  const originalConsoleError = w.console.error;
+  w.console.error = () => {};
+  try {
+    for (const codigo of ['NVIDIA_MODEL_CONFIGURATION_ERROR', 'API_TIMEOUT']) {
+      w.fetch = async () => Response.json({ codigo, mensagem: 'Falha segura simulada.' }, { status: codigo === 'API_TIMEOUT' ? 504 : 503 });
+      submit('Explique um eclipse solar'); await wait(60);
+      assert(d.querySelector('.engine-scene'), 'fallback SVG');
+      assert(d.querySelector('#visualizer-source').textContent === 'Animação local', codigo);
+      assert(!form.querySelector('[type=submit]').disabled, 'nova tentativa liberada');
+      if (codigo === 'NVIDIA_MODEL_CONFIGURATION_ERROR') assert(d.querySelector('#visualizer-feedback').textContent.includes('NVIDIA_MODEL'), 'indica qual variável corrigir');
+    }
+  } finally { w.console.error = originalConsoleError; }
+});
 await test('sinônimos dos três temas usam animação premium sem chamar IA', async () => {
   let calls = 0;
   w.fetch = async () => { calls++; throw Error('Premium não deve chamar a IA'); };

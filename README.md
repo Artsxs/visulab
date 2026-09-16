@@ -187,7 +187,8 @@ O Gemini usa `VISULAB_API_KEY`. A alternativa NVIDIA NIM usa
 3. Crie `VISULAB_API_KEY` e informe o valor como secreto.
 4. Opcionalmente, crie `NVIDIA_API_KEY` para habilitar o segundo provedor.
 5. Opcionalmente, defina `NVIDIA_MODEL` com o identificador do modelo desejado.
-   Sem essa variável, a função usa `meta/llama-3.1-8b-instruct`.
+   Por exemplo: `meta/llama-3.1-8b-instruct`. Sem essa variável ou com valor vazio,
+   a função usa esse modelo padrão. Nunca coloque uma chave em `NVIDIA_MODEL`.
 6. Inclua o escopo de Functions quando essa opção estiver disponível.
 7. Faça um novo deploy para a função receber as variáveis.
 
@@ -195,6 +196,27 @@ O arquivo `.env.example` contém os nomes das duas chaves e de `NVIDIA_MODEL`, c
 vazios. Não coloque uma chave real nele, no README, no HTML, em `script.js`, em commits ou em comandos
 que possam ficar no histórico do terminal. A chave nunca deve ir para o
 frontend.
+
+Uma configuração inválida de `NVIDIA_MODEL`, inclusive um valor com prefixo de
+credencial ou que contenha uma das chaves configuradas, bloqueia a chamada à NVIDIA
+com `NVIDIA_MODEL_CONFIGURATION_ERROR`. O diagnóstico informa qual variável
+corrigir e nunca inclui seu valor. Gemini continua sendo tentado primeiro; se ele
+responder corretamente, a alternativa NVIDIA não é chamada. A chave NVIDIA é usada
+somente em `Authorization: Bearer …`, nunca como nome de modelo ou no corpo JSON.
+Se uma chave já apareceu nos logs de produção, revogue-a e substitua-a no provedor
+e em `NVIDIA_API_KEY`; corrigir os novos logs não apaga o segredo do histórico.
+
+Os limites atuais são 8 segundos para Gemini e 15 segundos para NVIDIA, sequenciais,
+com controllers independentes e limpeza de cada temporizador em `finally`. O
+navegador espera até 28 segundos. Um `GEMINI_TIMEOUT` por volta de 8 segundos é
+compatível com o limite local; sozinho, não demonstra falha de autenticação nem
+explica a latência do provedor. Os logs registram `elapsedMs`, `timeoutMs`,
+`deadlineExceeded` e `phase` (`request`, `body` ou `validation`), sem mensagens
+externas, corpos, URLs de requisição ou credenciais. Cancelamentos durante a leitura
+do JSON também são classificados como timeout. O HTTP de uma resposta de erro é
+preservado sem aguardar seu corpo. Os limites foram mantidos para observar a causa
+antes de ampliar o tempo total de espera. O cancelamento no navegador invalida a
+resposta antiga; ele não garante que a execução remota da Function seja interrompida.
 
 ## Executar as verificações automatizadas
 
