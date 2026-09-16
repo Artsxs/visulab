@@ -4,21 +4,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>VisuLab: Uma viagem interativa pelo conhecimento</title>
+    <title>VisuLab — Veja o conhecimento acontecer</title>
     <meta
       name="description"
-      content="Aprenda Ciências, História e Geografia com animações e experiências interativas que tornam conteúdos difíceis mais fáceis de compreender."
+      content="Transforme perguntas de Ciências, História e Geografia em explicações visuais, animadas e organizadas por etapas."
     />
-    <meta property="og:title" content="VisuLab: Conhecimento que ganha forma" />
+    <meta property="og:title" content="VisuLab — Veja o conhecimento acontecer" />
     <meta
       property="og:description"
-      content="Uma viagem interativa pelo conhecimento, feita para quem aprende explorando."
+      content="Pergunte, acompanhe cada etapa e visualize conteúdos difíceis de um jeito claro e acolhedor."
     />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:image" content="/assets/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="VisuLab — Veja o conhecimento acontecer, com ilustrações de placas tectônicas, uma linha do tempo e uma planta recebendo luz."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VisuLab — Veja o conhecimento acontecer" />
+    <meta
+      name="twitter:description"
+      content="Pergunte, acompanhe cada etapa e visualize conteúdos difíceis de um jeito claro e acolhedor."
+    />
+    <meta name="twitter:image" content="/assets/og.png" />
+    <meta
+      name="twitter:image:alt"
+      content="VisuLab — Veja o conhecimento acontecer, com ilustrações educativas."
+    />
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=1.0.0" />
     <meta name="theme-color" content="#1e4ed8" />
   </head>
 
@@ -33,8 +51,9 @@
         </a>
 
         <nav class="site-nav" aria-label="Navegação principal">
+          <a href="#ver-acontecer">Ver acontecer</a>
           <a href="#explorar">Explorar</a>
-          <a href="#sobre">O projeto</a>
+          <a href="#como-funciona">Como funciona</a>
         </nav>
 
         <button
@@ -52,34 +71,36 @@
     <main id="main">
       <section class="hero shell" aria-labelledby="hero-title">
         <div class="hero__copy" data-reveal>
-          <p class="eyebrow"><span aria-hidden="true">✦</span> Aprender é explorar</p>
-          <h1 id="hero-title">O conhecimento<br /><em>ganha forma.</em></h1>
-          <p class="hero__subtitle">Uma viagem interativa pelo conhecimento</p>
+          <p class="eyebrow"><span aria-hidden="true">✦</span> Pergunte, observe, compreenda</p>
+          <h1 id="hero-title">Veja o conhecimento<br /><em>acontecer.</em></h1>
+          <p class="hero__subtitle">Perguntas viram experiências visuais.</p>
           <p class="hero__description">
-            Descubra ideias complexas de um jeito simples, visual e curioso,
-            como se cada aula fosse uma nova expedição.
+            O VisuLab transforma conteúdos difíceis de Ciências, História e
+            Geografia em animações guiadas, com uma explicação de cada vez.
           </p>
 
-          <form class="search" id="search-form" role="search">
-            <label class="sr-only" for="search-input">Pesquisar conteúdo</label>
+          <form class="search" id="search-form">
+            <label class="sr-only" for="search-input">Faça uma pergunta ao VisuLab</label>
             <span class="search__icon" aria-hidden="true"></span>
             <input
               id="search-input"
-              name="busca"
-              type="search"
+              name="pergunta-inicial"
+              type="text"
+              maxlength="250"
               autocomplete="off"
-              placeholder="O que você quer entender hoje?"
+              placeholder="Ex.: Como acontecem os terremotos?"
+              required
             />
-            <button type="submit">Buscar</button>
+            <button type="submit">Ver acontecer</button>
           </form>
 
           <div class="hero__actions">
-            <a class="button button--primary" id="start-journey" href="#explorar">
-              Começar uma viagem <span aria-hidden="true">→</span>
+            <a class="button button--primary" id="start-journey" href="#ver-acontecer">
+              Fazer uma pergunta <span aria-hidden="true">→</span>
             </a>
             <span class="hero__note">
               <span class="hero__note-dot" aria-hidden="true"></span>
-              Explore gratuitamente
+              Três experiências funcionam mesmo sem IA
             </span>
           </div>
         </div>
@@ -116,6 +137,190 @@
         </div>
       </section>
 
+      <section class="visualizer section" id="ver-acontecer" aria-labelledby="visualizer-title">
+        <div class="shell">
+          <div class="visualizer__heading" data-reveal>
+            <div>
+              <p class="eyebrow"><span aria-hidden="true">◉</span> Laboratório visual</p>
+              <h2 id="visualizer-title">Pergunte.<br /><em>Veja acontecer.</em></h2>
+            </div>
+            <p>
+              Escreva o que deseja entender. O VisuLab organiza a resposta em
+              pequenas etapas e constrói uma animação segura no seu navegador.
+            </p>
+          </div>
+
+          <div class="visualizer__workspace" data-reveal>
+            <div class="visualizer__ask">
+              <form class="visualizer-form" id="visualizer-form">
+                <label for="visualizer-question">O que você gostaria de visualizar?</label>
+                <div class="visualizer-form__field">
+                  <input
+                    id="visualizer-question"
+                    name="pergunta"
+                    type="text"
+                    maxlength="250"
+                    autocomplete="off"
+                    aria-describedby="visualizer-privacy visualizer-counter visualizer-feedback"
+                    placeholder="Ex.: Como as placas tectônicas causam terremotos?"
+                    required
+                  />
+                  <button class="button button--primary" type="submit">
+                    Ver acontecer <span aria-hidden="true">→</span>
+                  </button>
+                </div>
+                <div class="visualizer-form__meta">
+                  <p class="privacy-note" id="visualizer-privacy">
+                    <span aria-hidden="true">◈</span>
+                    Não informe nome, telefone, endereço ou outros dados pessoais.
+                  </p>
+                  <p class="character-counter" id="visualizer-counter">0 de 250 caracteres</p>
+                </div>
+              </form>
+
+              <div class="question-suggestions" aria-labelledby="suggestions-title">
+                <p id="suggestions-title">Experimente uma pergunta</p>
+                <div class="question-suggestions__list">
+                  <button type="button" data-visualizer-suggestion="Como as placas tectônicas causam terremotos?">
+                    Como nascem os terremotos?
+                  </button>
+                  <button type="button" data-visualizer-suggestion="Como acontece o processo da fotossíntese?">
+                    Como a planta produz alimento?
+                  </button>
+                  <button type="button" data-visualizer-suggestion="Quais foram os principais momentos do Brasil Colonial?">
+                    Brasil Colonial em uma linha do tempo
+                  </button>
+                </div>
+              </div>
+
+              <div class="visualizer-loading" id="visualizer-loading" role="status" hidden>
+                <span class="visualizer-loading__spinner" aria-hidden="true"></span>
+                <div>
+                  <strong>Preparando a experiência...</strong>
+                  <p>Organizando as ideias em etapas visuais.</p>
+                </div>
+              </div>
+              <p class="visualizer-feedback" id="visualizer-feedback" aria-live="polite"></p>
+            </div>
+
+            <article class="visualizer-result" id="visualizer-result" aria-labelledby="visualizer-experience-title">
+              <div class="visualizer-empty" id="visualizer-empty">
+                <span aria-hidden="true">✶</span>
+                <strong>Sua pergunta vira movimento.</strong>
+                <p>Escolha uma sugestão ou escreva uma curiosidade para começar.</p>
+              </div>
+
+              <div class="visualizer-experience" id="visualizer-experience" hidden>
+                <header class="visualizer-experience__header">
+                  <div>
+                    <p class="visualizer-experience__area" id="visualizer-area"></p>
+                    <h3 id="visualizer-experience-title"></h3>
+                    <p id="visualizer-summary"></p>
+                  </div>
+                  <span class="visualizer-source" id="visualizer-source"></span>
+                </header>
+
+                <div class="visualizer-stage">
+                  <div
+                    class="visualizer-canvas"
+                    id="visualizer-canvas"
+                    role="img"
+                    aria-label="Animação educativa"
+                  ></div>
+                  <div class="visualizer-legend" id="visualizer-legend" aria-label="Legenda da animação"></div>
+                </div>
+
+                <nav
+                  class="visualizer-periods"
+                  id="visualizer-periods"
+                  aria-label="Escolher período do Brasil Colonial"
+                  hidden
+                ></nav>
+
+                <div class="visualizer-step" id="visualizer-step">
+                  <span id="visualizer-step-number" aria-hidden="true"></span>
+                  <div>
+                    <p id="visualizer-step-label"></p>
+                    <h4 id="visualizer-step-title"></h4>
+                    <p id="visualizer-step-description"></p>
+                  </div>
+                </div>
+
+                <div
+                  class="visualizer-progress"
+                  id="visualizer-progress"
+                  role="progressbar"
+                  aria-label="Progresso da experiência"
+                  aria-valuemin="1"
+                  aria-valuemax="1"
+                  aria-valuenow="1"
+                >
+                  <span id="visualizer-progress-bar"></span>
+                </div>
+                <p
+                  class="visualizer-progress-label"
+                  id="visualizer-progress-label"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                ></p>
+
+                <div class="visualizer-controls" role="group" aria-label="Controles da experiência">
+                  <button class="visualizer-control" id="visualizer-previous" type="button">
+                    <span aria-hidden="true">←</span> Etapa anterior
+                  </button>
+                  <button class="visualizer-control visualizer-control--play" id="visualizer-play" type="button">
+                    <span aria-hidden="true">▶</span> Reproduzir
+                  </button>
+                  <button class="visualizer-control" id="visualizer-pause" type="button">
+                    <span aria-hidden="true">Ⅱ</span> Pausar
+                  </button>
+                  <button class="visualizer-control" id="visualizer-next" type="button">
+                    Próxima etapa <span aria-hidden="true">→</span>
+                  </button>
+                  <button class="visualizer-control" id="visualizer-restart" type="button">
+                    <span aria-hidden="true">↺</span> Reiniciar
+                  </button>
+                  <label class="visualizer-speed" for="visualizer-speed">
+                    Velocidade
+                    <select id="visualizer-speed">
+                      <option value="0.5">0,5×</option>
+                      <option value="1" selected>1×</option>
+                      <option value="1.5">1,5×</option>
+                      <option value="2">2×</option>
+                    </select>
+                  </label>
+                </div>
+
+                <aside class="visualizer-curiosity" aria-labelledby="visualizer-curiosity-title">
+                  <span aria-hidden="true">✦</span>
+                  <div>
+                    <h4 id="visualizer-curiosity-title">Você sabia?</h4>
+                    <p id="visualizer-curiosity"></p>
+                  </div>
+                </aside>
+
+                <details class="visualizer-transcript">
+                  <summary>Descrição textual da animação</summary>
+                  <p id="visualizer-alternative"></p>
+                </details>
+
+                <p class="visualizer-ai-notice" id="visualizer-ai-notice" hidden>
+                  Conteúdo criado com auxílio de inteligência artificial. Consulte também seu material didático.
+                </p>
+              </div>
+            </article>
+
+            <noscript>
+              <p class="visualizer-noscript">
+                Ative o JavaScript para usar o laboratório visual. Os três conteúdos
+                introdutórios abaixo continuam disponíveis para leitura.
+              </p>
+            </noscript>
+          </div>
+        </div>
+      </section>
+
       <section class="explore section shell" id="explorar" aria-labelledby="explore-title">
         <div class="section-heading" data-reveal>
           <div>
@@ -129,7 +334,7 @@
         </div>
 
         <div class="filter-bar" data-reveal>
-          <div class="filters" aria-label="Filtrar por área">
+          <div class="filters" role="group" aria-label="Filtrar por área">
             <button class="filter is-active" type="button" data-filter="todos" aria-pressed="true">
               Todos
             </button>
@@ -238,11 +443,11 @@
         </div>
       </section>
 
-      <section class="about section" id="sobre" aria-labelledby="about-title">
+      <section class="about section" id="como-funciona" aria-labelledby="about-title">
         <div class="shell about__inner">
           <div class="about__copy" data-reveal>
-            <p class="eyebrow eyebrow--light">Por que o VisuLab existe</p>
-            <h2 id="about-title">Entender muda tudo.</h2>
+            <p class="eyebrow eyebrow--light">Como funciona</p>
+            <h2 id="about-title">Da pergunta à compreensão.</h2>
             <p class="about__lead">
               Conteúdos difíceis não precisam parecer distantes. O VisuLab transforma
               conceitos abstratos em experiências visuais que despertam curiosidade,
@@ -259,22 +464,22 @@
             <li>
               <span>01</span>
               <div>
-                <strong>Observe</strong>
-                <p>Veja o conteúdo por novos ângulos.</p>
+                <strong>Pergunte</strong>
+                <p>Escreva o conteúdo que você quer compreender.</p>
               </div>
             </li>
             <li>
               <span>02</span>
               <div>
-                <strong>Experimente</strong>
-                <p>Interaja, compare e teste possibilidades.</p>
+                <strong>Veja acontecer</strong>
+                <p>Acompanhe a animação e avance no seu ritmo.</p>
               </div>
             </li>
             <li>
               <span>03</span>
               <div>
-                <strong>Compreenda</strong>
-                <p>Construa conexões que permanecem.</p>
+                <strong>Conecte as ideias</strong>
+                <p>Leia o resumo, as etapas e a curiosidade final.</p>
               </div>
             </li>
           </ol>
@@ -286,8 +491,8 @@
           <p class="eyebrow">A curiosidade é o seu mapa</p>
           <h2 id="closing-title">Qual será a sua<br />próxima descoberta?</h2>
         </div>
-        <a class="button button--primary" href="#explorar">
-          Explorar conteúdos <span aria-hidden="true">→</span>
+        <a class="button button--primary" href="#ver-acontecer">
+          Ver acontecer <span aria-hidden="true">→</span>
         </a>
       </section>
     </main>
@@ -298,7 +503,7 @@
           <img src="assets/visulab-logo.svg" alt="" width="36" height="36" />
           <span>VisuLab</span>
         </a>
-        <p>Uma viagem interativa pelo conhecimento.</p>
+        <p>VisuLab é um projeto educacional. Veja o conhecimento acontecer.</p>
         <p class="site-footer__challenge">Grande Desafio <strong>2026</strong></p>
       </div>
     </footer>
@@ -333,6 +538,244 @@
       </div>
     </dialog>
 
-    <script src="script.js"></script>
+    <template id="visual-template-placas">
+      <svg class="visual-scene visual-scene--plates" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="plates-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#dcecff" />
+            <stop offset="1" stop-color="#f8fbff" />
+          </linearGradient>
+          <linearGradient id="plates-left" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f6cc62" />
+            <stop offset="1" stop-color="#dc8f4d" />
+          </linearGradient>
+          <linearGradient id="plates-right" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f58a65" />
+            <stop offset="1" stop-color="#be554a" />
+          </linearGradient>
+          <marker id="plates-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#plates-sky)" />
+        <path class="tectonic-plate tectonic-plate--left" d="M0 300 C150 270 250 288 395 300 L395 420 H0Z" fill="url(#plates-left)" />
+        <path class="tectonic-plate tectonic-plate--right" d="M405 300 C545 274 650 285 800 252 V420 H405Z" fill="url(#plates-right)" />
+        <path d="M395 300 L405 300 L455 420 H342Z" fill="#233659" opacity=".9" />
+        <path d="M0 342 C160 316 255 332 384 344" fill="none" stroke="#fff0b5" stroke-width="8" opacity=".55" />
+        <path d="M420 342 C555 316 665 323 800 298" fill="none" stroke="#ffc0aa" stroke-width="8" opacity=".55" />
+
+        <g class="visual-focus visual-focus--movement" data-visual-step="0">
+          <path class="visual-arrow visual-arrow--left" d="M155 155 H330" fill="none" stroke="currentColor" stroke-width="8" marker-end="url(#plates-arrow)" />
+          <path class="visual-arrow visual-arrow--right" d="M645 155 H470" fill="none" stroke="currentColor" stroke-width="8" marker-end="url(#plates-arrow)" />
+          <text x="150" y="125" class="visual-svg-label">Placa A</text>
+          <text x="570" y="125" class="visual-svg-label">Placa B</text>
+        </g>
+
+        <g class="visual-focus visual-focus--pressure" data-visual-step="1">
+          <path class="pressure-line pressure-line--one" d="M360 240 L385 205 L408 242 L432 208 L455 245" fill="none" stroke="#ff6b4a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="404" cy="267" r="50" fill="none" stroke="#ff6b4a" stroke-width="4" stroke-dasharray="8 9" />
+          <text x="330" y="185" class="visual-svg-callout">tensão acumulada</text>
+        </g>
+
+        <g class="visual-focus visual-focus--rupture" data-visual-step="2">
+          <path class="fault-flash" d="M407 260 l-28 42 26 1-31 55 64-70-28 1 25-29z" fill="#fff" stroke="#ff6b4a" stroke-width="5" />
+          <circle class="hypocenter" cx="407" cy="322" r="15" fill="#ff6b4a" />
+          <path d="M420 320 C486 292 532 280 590 273" fill="none" stroke="#1e4ed8" stroke-width="3" marker-end="url(#plates-arrow)" />
+          <text x="600" y="278" class="visual-svg-callout">hipocentro</text>
+          <text x="330" y="220" class="visual-svg-callout">energia liberada</text>
+        </g>
+
+        <g class="visual-focus visual-focus--waves" data-visual-step="3">
+          <circle class="seismic-wave seismic-wave--one" cx="407" cy="322" r="42" fill="none" stroke="#1e4ed8" stroke-width="5" />
+          <circle class="seismic-wave seismic-wave--two" cx="407" cy="322" r="88" fill="none" stroke="#1e4ed8" stroke-width="4" />
+          <circle class="seismic-wave seismic-wave--three" cx="407" cy="322" r="138" fill="none" stroke="#1e4ed8" stroke-width="3" />
+          <text x="108" y="382" class="visual-svg-callout">ondas sísmicas</text>
+        </g>
+
+        <g class="visual-focus visual-focus--surface" data-visual-step="4">
+          <path d="M407 300 V185" stroke="#ff6b4a" stroke-width="3" stroke-dasharray="7 7" />
+          <circle cx="407" cy="188" r="10" fill="#ff6b4a" />
+          <text x="430" y="194" class="visual-svg-callout">epicentro</text>
+          <g class="surface-house" transform="translate(575 213)">
+            <path d="M0 35 L42 0 L84 35" fill="#315cb6" />
+            <rect x="12" y="35" width="60" height="48" rx="4" fill="#fff" stroke="#315cb6" stroke-width="4" />
+          </g>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-fotossintese">
+      <svg class="visual-scene visual-scene--photosynthesis" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="photo-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#dff5eb" />
+            <stop offset="1" stop-color="#f7fbef" />
+          </linearGradient>
+          <marker id="photo-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#photo-sky)" />
+        <path d="M0 347 Q170 315 340 346 T800 338 V420 H0Z" fill="#b98a62" />
+        <path d="M397 353 C395 300 400 238 408 175" fill="none" stroke="#28724f" stroke-width="18" stroke-linecap="round" />
+        <path class="photo-leaf" d="M408 230 C455 148 565 142 621 186 C584 263 486 295 408 230Z" fill="#54b978" stroke="#28724f" stroke-width="5" />
+        <path d="M422 225 C478 214 534 203 594 185" fill="none" stroke="#28724f" stroke-width="4" />
+        <path class="photo-leaf" d="M401 282 C358 214 267 207 214 248 C250 315 334 333 401 282Z" fill="#7acc87" stroke="#28724f" stroke-width="5" />
+        <path d="M385 279 C335 270 286 260 236 249" fill="none" stroke="#28724f" stroke-width="4" />
+
+        <g class="visual-focus visual-focus--sunlight" data-visual-step="0">
+          <circle class="photo-sun-core" cx="125" cy="95" r="48" fill="#f4c542" />
+          <g class="photo-rays" stroke="#f4c542" stroke-width="7" stroke-linecap="round">
+            <path d="M125 25 V5" /><path d="M125 185 V205" /><path d="M55 95 H35" /><path d="M195 95 H215" />
+            <path d="M76 46 L60 30" /><path d="M174 144 L190 160" /><path d="M76 144 L60 160" /><path d="M174 46 L190 30" />
+          </g>
+          <path class="visual-arrow visual-arrow--light" d="M175 130 C235 158 290 180 345 214" fill="none" stroke="currentColor" stroke-width="7" marker-end="url(#photo-arrow)" />
+          <text x="205" y="130" class="visual-svg-callout">energia luminosa</text>
+        </g>
+
+        <g class="visual-focus visual-focus--water" data-visual-step="1">
+          <g class="water-drops" fill="#3c8ce7">
+            <path d="M300 382 C300 365 316 351 316 351 C316 351 332 365 332 382 A16 16 0 0 1 300 382Z" />
+            <path d="M348 389 C348 376 360 365 360 365 C360 365 372 376 372 389 A12 12 0 0 1 348 389Z" />
+          </g>
+          <path class="visual-arrow visual-arrow--water" d="M330 368 C355 337 374 315 390 292" fill="none" stroke="currentColor" stroke-width="7" marker-end="url(#photo-arrow)" />
+          <text x="235" y="344" class="visual-svg-callout">água pelas raízes</text>
+        </g>
+
+        <g class="visual-focus visual-focus--carbon" data-visual-step="2">
+          <g class="carbon-bubbles">
+            <circle cx="675" cy="115" r="28" fill="#fff" stroke="#7b61d1" stroke-width="4" />
+            <text x="675" y="122" text-anchor="middle" class="visual-svg-molecule">CO₂</text>
+            <circle cx="725" cy="173" r="22" fill="#fff" stroke="#7b61d1" stroke-width="4" />
+            <text x="725" y="180" text-anchor="middle" class="visual-svg-molecule">CO₂</text>
+          </g>
+          <path class="visual-arrow visual-arrow--carbon" d="M662 158 C624 168 600 178 571 195" fill="none" stroke="currentColor" stroke-width="7" marker-end="url(#photo-arrow)" />
+        </g>
+
+        <g class="visual-focus visual-focus--chloroplast" data-visual-step="3">
+          <ellipse class="chloroplast-glow" cx="505" cy="212" rx="76" ry="42" fill="#c9eb76" stroke="#2eaa72" stroke-width="5" />
+          <g fill="none" stroke="#2eaa72" stroke-width="5">
+            <path d="M463 197 h36" /><path d="M470 210 h48" /><path d="M478 223 h38" />
+          </g>
+          <text x="442" y="145" class="visual-svg-callout">cloroplasto</text>
+          <path d="M478 151 L495 173" fill="none" stroke="#2eaa72" stroke-width="3" marker-end="url(#photo-arrow)" />
+          <g class="glucose-badge" transform="translate(95 254)">
+            <path d="M45 0 L84 23 V69 L45 92 L6 69 V23Z" fill="#fff" stroke="#ff6b4a" stroke-width="5" />
+            <text x="45" y="52" text-anchor="middle" class="visual-svg-molecule">glicose</text>
+          </g>
+          <path class="visual-arrow visual-arrow--glucose" d="M353 290 C285 297 232 300 184 300" fill="none" stroke="currentColor" stroke-width="7" marker-end="url(#photo-arrow)" />
+        </g>
+
+        <g class="visual-focus visual-focus--oxygen" data-visual-step="4">
+          <g class="oxygen-bubbles-svg">
+            <circle cx="600" cy="91" r="26" fill="#fff" stroke="#1e91d6" stroke-width="4" />
+            <text x="600" y="98" text-anchor="middle" class="visual-svg-molecule">O₂</text>
+            <circle cx="651" cy="54" r="19" fill="#fff" stroke="#1e91d6" stroke-width="4" />
+            <text x="651" y="60" text-anchor="middle" class="visual-svg-molecule visual-svg-molecule--small">O₂</text>
+          </g>
+          <path class="visual-arrow visual-arrow--oxygen" d="M552 173 C580 140 596 122 607 111" fill="none" stroke="currentColor" stroke-width="7" marker-end="url(#photo-arrow)" />
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-linhaTempo">
+      <svg class="visual-scene visual-scene--timeline" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="timeline-bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#fff0e2" />
+            <stop offset="1" stop-color="#f4e8ff" />
+          </linearGradient>
+        </defs>
+        <rect width="800" height="420" fill="url(#timeline-bg)" />
+        <path d="M85 230 H715" fill="none" stroke="#233659" stroke-width="5" stroke-linecap="round" />
+        <path class="timeline-progress-svg" d="M85 230 H715" fill="none" stroke="#ff6b4a" stroke-width="9" stroke-linecap="round" pathLength="4" />
+
+        <g class="timeline-milestone visual-focus" data-visual-step="0" transform="translate(115 230)">
+          <circle r="24" fill="#1e4ed8" stroke="#fff" stroke-width="7" />
+          <path d="M0 -30 V-96" stroke="#1e4ed8" stroke-width="4" />
+          <rect x="-66" y="-155" width="132" height="58" rx="16" fill="#fff" stroke="#1e4ed8" stroke-width="3" />
+          <text y="-130" text-anchor="middle" class="timeline-year">1500</text>
+          <text y="-109" text-anchor="middle" class="timeline-caption">encontros e disputas</text>
+        </g>
+
+        <g class="timeline-milestone visual-focus" data-visual-step="1" transform="translate(305 230)">
+          <circle r="24" fill="#2eaa72" stroke="#fff" stroke-width="7" />
+          <path d="M0 30 V96" stroke="#2eaa72" stroke-width="4" />
+          <rect x="-72" y="97" width="144" height="58" rx="16" fill="#fff" stroke="#2eaa72" stroke-width="3" />
+          <text y="122" text-anchor="middle" class="timeline-year">1530 a 1650</text>
+          <text y="143" text-anchor="middle" class="timeline-caption">ocupação e açúcar</text>
+        </g>
+
+        <g class="timeline-milestone visual-focus" data-visual-step="2" transform="translate(500 230)">
+          <circle r="24" fill="#f4c542" stroke="#fff" stroke-width="7" />
+          <path d="M0 -30 V-96" stroke="#c69516" stroke-width="4" />
+          <rect x="-70" y="-155" width="140" height="58" rx="16" fill="#fff" stroke="#c69516" stroke-width="3" />
+          <text y="-130" text-anchor="middle" class="timeline-year">1690 a 1760</text>
+          <text y="-109" text-anchor="middle" class="timeline-caption">mineração e interior</text>
+        </g>
+
+        <g class="timeline-milestone visual-focus" data-visual-step="3" transform="translate(685 230)">
+          <circle r="24" fill="#ff6b4a" stroke="#fff" stroke-width="7" />
+          <path d="M0 30 V96" stroke="#ff6b4a" stroke-width="4" />
+          <rect x="-72" y="97" width="144" height="58" rx="16" fill="#fff" stroke="#ff6b4a" stroke-width="3" />
+          <text y="122" text-anchor="middle" class="timeline-year">1808 a 1822</text>
+          <text y="143" text-anchor="middle" class="timeline-caption">crise e transição</text>
+        </g>
+        <text x="400" y="54" text-anchor="middle" class="timeline-heading">Brasil Colonial</text>
+      </svg>
+    </template>
+
+    <template id="visual-template-linha-do-tempo">
+      <svg class="visual-scene visual-scene--generic-timeline" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="generic-timeline-bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#e5efff" />
+            <stop offset="1" stop-color="#fff3df" />
+          </linearGradient>
+          <marker id="generic-timeline-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#generic-timeline-bg)" />
+        <path class="generic-timeline-axis" d="M86 222 H715" fill="none" stroke="currentColor" stroke-width="6" marker-end="url(#generic-timeline-arrow)" />
+        <text x="400" y="78" text-anchor="middle" class="timeline-heading">Uma mudança através do tempo</text>
+        <g class="generic-timeline-node visual-focus" data-visual-step="0" transform="translate(105 222)"><circle r="32" fill="#1e4ed8" /><text y="8" text-anchor="middle">1</text></g>
+        <g class="generic-timeline-node visual-focus" data-visual-step="1" transform="translate(224 222)"><circle r="32" fill="#2eaa72" /><text y="8" text-anchor="middle">2</text></g>
+        <g class="generic-timeline-node visual-focus" data-visual-step="2" transform="translate(343 222)"><circle r="32" fill="#f4c542" /><text y="8" text-anchor="middle">3</text></g>
+        <g class="generic-timeline-node visual-focus" data-visual-step="3" transform="translate(462 222)"><circle r="32" fill="#ff6b4a" /><text y="8" text-anchor="middle">4</text></g>
+        <g class="generic-timeline-node visual-focus" data-visual-step="4" transform="translate(581 222)"><circle r="32" fill="#7b61d1" /><text y="8" text-anchor="middle">5</text></g>
+        <g class="generic-timeline-node visual-focus" data-visual-step="5" transform="translate(700 222)"><circle r="32" fill="#315cb6" /><text y="8" text-anchor="middle">6</text></g>
+        <text x="105" y="292" text-anchor="middle" class="timeline-caption">início</text>
+        <text x="700" y="292" text-anchor="middle" class="timeline-caption">desdobramento</text>
+      </svg>
+    </template>
+
+    <template id="visual-template-processo">
+      <svg class="visual-scene visual-scene--process" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="process-bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#e4edff" />
+            <stop offset="1" stop-color="#f7edff" />
+          </linearGradient>
+          <marker id="process-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#process-bg)" />
+        <circle cx="400" cy="210" r="142" fill="none" stroke="#cad5ed" stroke-width="3" stroke-dasharray="8 10" />
+        <path class="process-orbit" d="M220 210 C260 65 540 65 580 210 C540 355 260 355 220 210Z" fill="none" stroke="#1e4ed8" stroke-width="5" marker-end="url(#process-arrow)" />
+        <g class="process-node visual-focus" data-visual-step="0" transform="translate(218 210)"><circle r="44" fill="#1e4ed8" /><text text-anchor="middle" y="7">1</text></g>
+        <g class="process-node visual-focus" data-visual-step="1" transform="translate(305 92)"><circle r="44" fill="#2eaa72" /><text text-anchor="middle" y="7">2</text></g>
+        <g class="process-node visual-focus" data-visual-step="2" transform="translate(495 92)"><circle r="44" fill="#f4c542" /><text text-anchor="middle" y="7">3</text></g>
+        <g class="process-node visual-focus" data-visual-step="3" transform="translate(582 210)"><circle r="44" fill="#ff6b4a" /><text text-anchor="middle" y="7">4</text></g>
+        <g class="process-node visual-focus" data-visual-step="4" transform="translate(495 328)"><circle r="44" fill="#7b61d1" /><text text-anchor="middle" y="7">5</text></g>
+        <g class="process-node visual-focus" data-visual-step="5" transform="translate(305 328)"><circle r="44" fill="#315cb6" /><text text-anchor="middle" y="7">6</text></g>
+        <circle class="process-core" cx="400" cy="210" r="72" fill="#fff" stroke="#233659" stroke-width="4" />
+        <text x="400" y="202" text-anchor="middle" class="process-core-title">Veja as etapas</text>
+        <text x="400" y="227" text-anchor="middle" class="process-core-caption">uma ideia de cada vez</text>
+      </svg>
+    </template>
+
+    <script type="module" src="script.js?v=1.1.0"></script>
   </body>
 </html>
