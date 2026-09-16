@@ -1,7 +1,6 @@
 import { validateVisualExperience } from './js/visual-validator.mjs';
 import { AnimationEngine } from './js/animation-engine.mjs';
-import { createLocalFallback } from './js/local-fallback.mjs';
-import { findPremiumTopic } from './js/premium-topics.mjs';
+import { createLocalFallback, findPremiumTopic } from './js/local-fallback.mjs';
 
 document.documentElement.classList.add('has-js');
 

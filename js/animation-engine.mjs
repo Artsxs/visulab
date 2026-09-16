@@ -7,10 +7,9 @@ export class AnimationEngine {
   mount() {
     this.animations.forEach(a => a.cancel());
     this.animations = [];
-    const { root, targets } = renderScene(this.stage, this.experience, this.index);
+    const { root, targets, actions } = renderScene(this.stage, this.experience, this.index);
     if (!this.reducedMotion && typeof root.animate === 'function') {
-      this.animations.push(root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, fill: 'both' }));
-      for (const action of this.experience.cenas[this.index].acoes) {
+      for (const action of actions) {
         const target = targets.get(action.alvo);
         if (!target) continue;
         // Cada ação recebe um grupo próprio, evitando que transforms simultâneos se sobrescrevam.

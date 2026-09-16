@@ -13,7 +13,14 @@ const paths = {
   coracao: 'M0 10 C-24 -4 -8 -17 0 -7 C8 -17 24 -4 0 10',
   cidade: 'M-12 10 V-3 H-5 V10 M-3 10 V-11 H4 V10 M6 10 V-5 H12 V10',
   livro: 'M0 -7 Q-7 -12 -13 -7 V10 Q-6 5 0 10 Q6 5 13 10 V-7 Q7 -12 0 -7 V10',
-  placa_tectonica: 'M-14 -4 L-2 -7 L-5 3 L-14 6 Z M2 -7 L14 -4 V6 L0 3 L4 -1 Z'
+  placa_tectonica: 'M-14 -4 L-2 -7 L-5 3 L-14 6 Z M2 -7 L14 -4 V6 L0 3 L4 -1 Z',
+  estomago: 'M-3 -14 L-3 -3 C3 0 1 -10 7 -9 C18 -6 13 10 4 12 C-4 15 -13 7 -9 3 C-5 -1 -6 -6 -6 -14 Z',
+  pulmao: 'M-2 -13 V-3 L-5 0 M2 -13 V-3 L5 0 M-5 -8 C-13 -8 -16 8 -10 11 L-3 8 V-4 Z M5 -8 C13 -8 16 8 10 11 L3 8 V-4 Z',
+  cerebro: 'M0 -10 C-5 -16 -11 -10 -10 -5 C-17 -3 -15 7 -10 7 C-9 14 -3 14 0 9 C3 14 9 14 10 7 C15 7 17 -3 10 -5 C11 -10 5 -16 0 -10 Z M0 -10 V9 M-9 -3 L-4 0 L-8 5 M9 -3 L4 0 L8 5',
+  bacteria: 'M-7 -8 C-16 -3 -11 10 -4 9 L8 5 C17 0 10 -13 3 -11 Z M-9 -9 L-12 -12 M-13 0 H-17 M-6 9 L-7 14 M9 5 L12 9 M10 -8 L14 -11',
+  lua: 'M5 -12 C-12 -16 -18 9 -2 13 C5 15 11 10 12 6 C-2 10 -7 -6 5 -12 Z',
+  montanha: 'M-16 11 L-3 -12 L13 11 Z M-8 -4 L-3 -1 L1 -6 M3 11 L10 -3 L20 11',
+  vulcao: 'M-16 12 L-6 -5 L5 -5 L16 12 Z M-6 -5 L0 0 L5 -5 M-2 -10 L-5 -16 M2 -10 L6 -16'
 };
 function icon(name) {
   const g = svg('g', { 'stroke-width': 1.3 });
@@ -28,12 +35,12 @@ function icon(name) {
   }
   return g;
 }
-export function createVisualElement(e) {
-  const position = svg('g', { transform: `translate(${e.x * 8} ${e.y * 4})` });
+export function createVisualElement(e, { label = true } = {}) {
+  const position = svg('g', { transform: `translate(${e.x * 8} ${e.y * 4})`, 'data-element-id': e.id });
   const motion = svg('g');
-  const shape = svg('g', { fill: PALETTE[e.cor], stroke: PALETTE[e.cor], 'stroke-width': 2 });
+  const shape = svg('g', { fill: PALETTE[e.cor], stroke: ['branco', 'claro'].includes(e.cor) ? '#607f9e' : PALETTE[e.cor], 'stroke-width': 2 });
   const w = e.largura * 4, h = e.altura * 2;
-  if (e.tipo === 'icone') { const symbol = icon(e.icone); symbol.setAttribute('transform', 'scale(2.5)'); shape.append(symbol); }
+  if (e.tipo === 'icone') { const symbol = icon(e.icone); symbol.setAttribute('transform', `scale(${Math.max(0.8, Math.min(w / 16, h / 14))})`); shape.append(symbol); }
   else if (e.tipo === 'circulo' || e.tipo === 'particula') shape.append(svg('circle', { r: e.tipo === 'particula' ? 7 : Math.min(w, h) }));
   else if (e.tipo === 'elipse') shape.append(svg('ellipse', { rx: w, ry: h }));
   else if (e.tipo === 'retangulo') shape.append(svg('rect', { x: -w, y: -h, width: w * 2, height: h * 2, rx: 8 }));
@@ -42,7 +49,7 @@ export function createVisualElement(e) {
     if (e.tipo === 'seta') shape.append(svg('path', { d: `M${w - 9} -7 L${w} 0 L${w - 9} 7`, fill: 'none' }));
   } else if (e.tipo === 'onda') shape.append(svg('path', { d: 'M-40 0 Q-30 -20 -20 0 T0 0 T20 0 T40 0', fill: 'none' }));
   motion.append(shape);
-  if (e.rotulo) motion.append(svg('text', { y: e.tipo === 'texto' ? 0 : Math.max(h, 30) + 20, 'text-anchor': 'middle', class: 'engine-label' }, e.rotulo));
+  if (label && e.rotulo) motion.append(svg('text', { y: e.tipo === 'texto' ? 0 : Math.max(h, 30) + 20, 'text-anchor': 'middle', class: 'engine-label' }, e.rotulo));
   position.append(motion);
   return { position, motion };
 }

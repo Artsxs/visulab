@@ -3,6 +3,19 @@ import { validateVisualExperience } from './visual-validator.mjs';
 const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const cleanTopic = value => [...String(value).trim()].slice(0, 90).join('') || 'Tema de estudo';
 
+// Mantido em um módulo já publicado: o ponto de entrada não pode depender de
+// um arquivo novo que acidentalmente fique fora do deploy do Netlify.
+export function findPremiumTopic(question) {
+  const text = normalize(String(question)).replace(/[^a-z0-9]+/g, ' ').trim();
+  if (/\b(terremotos?|sismos?)\b|\bplacas? tectonicas?\b|\b(abalos?|ondas?) sismic[oa]s?\b/.test(text)) return 'terremoto';
+  const plant = /\b(plantas?|vegetais?|folhas?)\b/.test(text);
+  if (/\bfotossintese\b|\bclorofila\b/.test(text)
+    || (plant && /produz|producao|fabric|\bfaz|\bfaze/.test(text) && /aliment|glicose|acucar/.test(text))
+    || (plant && /\b(luz|sol|solar)\b/.test(text) && /gas carbonico|dioxido de carbono|\bco2\b/.test(text))) return 'fotossintese';
+  if (/\bbrasil colonial\b|\bperiodo colonial\b|\bcolonizacao do brasil\b|\bcapitanias? hereditarias?\b|\bbrasil colonia\b/.test(text)) return 'brasil_colonial';
+  return null;
+}
+
 const inferType = topic => {
   const text = normalize(topic);
   if (/histori|colon|revolu|guerra|idade media|imperio|republica/.test(text)) return 'linha_do_tempo';
@@ -54,4 +67,3 @@ export function createLocalFallback(question) {
     origem: 'local',
   });
 }
-

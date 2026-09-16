@@ -16,7 +16,7 @@ await test('pausa, retomada, velocidade, reinício e cancelamento', async () => 
 });
 await test('todos os ícones e ações são construídos localmente', () => {
   for (const icone of ICONS) { const n = createVisualElement({ tipo: 'icone', icone, x: 50, y: 50, largura: 10, altura: 10, cor: 'azul', rotulo: icone }); assert(n.position.querySelector('path, circle, text'), icone); }
-  const r = validateVisualExperience(fixtureFor('água')); r.cenas[0].acoes = ACTIONS.map(tipo => ({ alvo: 'principal', tipo, duracaoMs: 1000, atrasoMs: 0, paraX: 30, paraY: 30 })); const e = new AnimationEngine(stage); e.load(r); assert(e.animations.length === 10, 'nove ações e transição'); e.destroy();
+  const r = validateVisualExperience(fixtureFor('água')); r.cenas[0].acoes = ACTIONS.map(tipo => ({ alvo: 'principal', tipo, duracaoMs: 1000, atrasoMs: 0, paraX: 30, paraY: 30 })); const e = new AnimationEngine(stage); e.load(r); assert(e.animations.length === ACTIONS.length, 'todas as ações'); e.destroy();
 });
 const iframe = document.querySelector('iframe');
 if (iframe.contentDocument.readyState !== 'complete') await new Promise(r => iframe.addEventListener('load', r, { once: true }));
@@ -40,23 +40,54 @@ await test('falha da IA exibe fallback animado e permite tentar novamente', asyn
   w.console.error = originalConsoleError;
   assert(errors[0][1].codigo === 'API_NOT_CONFIGURED' && errors[0][1].status === 503, 'diagnóstico no console'); assert(d.querySelector('#visualizer-feedback').textContent.includes('chave da IA não está configurada'), 'motivo visível'); assert(d.querySelector('.engine-scene'), 'fallback SVG'); assert(d.querySelector('#visualizer-source').textContent === 'Animação local', 'origem local'); assert(!form.querySelector('[type=submit]').disabled, 'nova tentativa');
 });
-await test('sucesso da IA em tema especial não é rotulado como fallback local', async () => {
-  w.fetch = async () => Response.json({ experiencia: { ...fixtureFor('fotossíntese'), tipoVisual: 'fotossintese', experienciaEspecial: 'fotossintese' } });
-  submit('Como funciona a fotossíntese?'); await wait(60);
-  assert(d.querySelector('#visualizer-source').textContent === 'Gerado com IA', 'origem da resposta');
-  assert(!d.querySelector('#visualizer-feedback').textContent, 'não deve mostrar falha');
-  assert(d.querySelector('#visualizer-canvas svg'), 'modelo especial');
-});
-await test('todo tema é enviado à função e especiais têm fallback local', async () => {
+await test('sinônimos dos três temas usam animação premium sem chamar IA', async () => {
   let calls = 0;
-  w.fetch = async () => { calls += 1; return Response.json({ codigo: 'API_UNAVAILABLE' }, { status: 503 }); };
-  for (const q of ['Como acontecem os terremotos?', 'Como funciona a fotossíntese?', 'Explique o Brasil Colonial.']) { submit(q); await wait(50); assert(d.querySelector('#visualizer-source').textContent === 'Animação local', q); assert(d.querySelector('#visualizer-canvas svg'), 'SVG especial'); }
-  assert(calls === 3, 'cada tema deve chamar a função');
+  w.fetch = async () => { calls++; throw Error('Premium não deve chamar a IA'); };
+  const cases = [
+    ['Como acontecem os terremotos?', 'plates'], ['placas tectônicas', 'plates'], ['abalos sísmicos', 'plates'],
+    ['fotossíntese', 'photosynthesis'], ['como a planta produz alimento', 'photosynthesis'], ['planta, luz, gás carbônico', 'photosynthesis'],
+    ['Brasil colonial', 'timeline'], ['período colonial', 'timeline'], ['capitanias hereditárias', 'timeline'],
+  ];
+  for (const [q, template] of cases) {
+    submit(q); await wait(30);
+    assert(d.querySelector('#visualizer-source').textContent === 'Animação premium', q);
+    assert(d.querySelector(`#visualizer-canvas .visual-scene--${template}`), 'template manual correspondente');
+    assert(!d.querySelector('#visualizer-feedback').textContent, 'sem aviso de erro');
+    assert(d.querySelector('#visualizer-ai-notice').hidden, 'sem atribuição à IA');
+    d.querySelector('#visualizer-next').click();
+    assert(d.querySelector('#visualizer-step-label').textContent.startsWith('Etapa 2'), 'template possui etapas');
+  }
+  assert(calls === 0, 'premium independe da rede');
+});
+await test('template premium cancela IA pendente e não é substituído pela resposta antiga', async () => {
+  let resolve, signal;
+  w.fetch = (_url, options) => { signal = options.signal; return new Promise(r => { resolve = r; }); };
+  submit('Explique as fases da Lua');
+  submit('placas tectônicas');
+  assert(signal.aborted, 'cancelamento da IA');
+  resolve(Response.json({ experiencia: fixtureFor('órbita') })); await wait(60);
+  assert(d.querySelector('#visualizer-source').textContent === 'Animação premium', 'resposta antiga descartada');
+  assert(d.querySelector('#visualizer-canvas svg:not(.engine-scene)'), 'template preservado');
+  assert(!form.querySelector('[type=submit]').disabled, 'formulário liberado');
 });
 await test('seis tipos genéricos, cenas, controles e rótulos SVG', async () => {
   w.fetch = async (_url, options) => Response.json({ experiencia: fixtureFor(JSON.parse(options.body).pergunta) });
   for (const q of ['Como funciona o ciclo da água?', 'Como o sangue circula pelo corpo?', 'Compare mitose e meiose.', 'Quais são as camadas da atmosfera?', 'órbita', 'Revolução Francesa']) {
     submit(q); await wait(40); assert(d.querySelector('.engine-scene'), q); assert(d.querySelector('#visualizer-play').disabled, 'autoplay'); d.querySelector('#visualizer-pause').click(); assert(d.querySelector('#visualizer-pause').disabled, 'pausa'); d.querySelector('#visualizer-next').click(); assert(d.querySelector('#visualizer-step-label').textContent.startsWith('Etapa 2 de '), 'próxima'); d.querySelector('#visualizer-previous').click(); assert(d.querySelector('#visualizer-step-label').textContent.startsWith('Etapa 1 de '), 'anterior');
   }
+});
+await test('cena rica tem fundo, elementos grandes, rótulos separados e legenda para celular', async () => {
+  submit('ciclo da água'); await wait(60);
+  const canvas = d.querySelector('#visualizer-canvas');
+  assert(canvas.querySelectorAll('[data-element-id]').length >= 5, 'elementos visuais');
+  assert(canvas.querySelector('[data-setting="natureza"]'), 'fundo contextual');
+  assert(canvas.querySelectorAll('.engine-mobile-legend li').length === 3, 'legenda nativa');
+  const labels = [...canvas.querySelectorAll('.engine-label-surface')].map(node => node.getBBox());
+  for (let i = 0; i < labels.length; i++) for (let j = i + 1; j < labels.length; j++) {
+    const a = labels[i], b = labels[j];
+    assert(!(a.x < b.x+b.width && a.x+a.width > b.x && a.y < b.y+b.height && a.y+a.height > b.y), 'rótulos sobrepostos');
+  }
+  const symbols = [...canvas.querySelectorAll('[data-element-id] g[transform^="scale"]')];
+  assert(symbols.length >= 3 && symbols.every(node => Number(node.getAttribute('transform').slice(6,-1)) > 2.5), 'ícones ampliados');
 });
 results.textContent += `\n\n${lines.filter(l => l.startsWith('PASSOU')).length}/${lines.length} verificações passaram.`;

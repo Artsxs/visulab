@@ -3,7 +3,8 @@ export const TYPES = ['fluxo', 'ciclo', 'linha_do_tempo', 'mapa', 'comparacao', 
 export const SPECIALS = ['terremoto', 'fotossintese', 'brasil_colonial'];
 export const ELEMENTS = ['circulo', 'elipse', 'retangulo', 'texto', 'seta', 'linha', 'onda', 'particula', 'icone'];
 export const ACTIONS = ['aparecer', 'desaparecer', 'mover', 'pulsar', 'girar', 'crescer', 'vibrar', 'destacar', 'fluir'];
-export const ICONS = ['sol', 'agua', 'nuvem', 'folha', 'arvore', 'oxigenio', 'gas_carbonico', 'planeta', 'celula', 'coracao', 'atomo', 'cidade', 'livro', 'relogio', 'placa_tectonica'];
+export const ICONS = ['sol', 'agua', 'nuvem', 'folha', 'arvore', 'oxigenio', 'gas_carbonico', 'planeta', 'celula', 'coracao', 'atomo', 'cidade', 'livro', 'relogio', 'placa_tectonica', 'estomago', 'pulmao', 'cerebro', 'bacteria', 'lua', 'montanha', 'vulcao'];
+export const BACKDROPS = ['neutro', 'natureza', 'espaco', 'laboratorio', 'historico'];
 export const PALETTE = { azul: '#3977d5', claro: '#b9def5', verde: '#25856a', amarelo: '#e8ac27', vermelho: '#ce5264', roxo: '#8c65c3', escuro: '#334366', branco: '#ffffff' };
 const object = v => v && typeof v === 'object' && !Array.isArray(v);
 export const safeText = (v, max = 90, fallback = '') => typeof v === 'string' && !/[<>\u0000-\u001f\u007f]/.test(v) ? [...v.trim()].slice(0, max).join('') || fallback : fallback;
@@ -33,11 +34,11 @@ export function validateVisualExperience(input) {
       return { alvo: a.alvo, tipo: a.tipo, paraX: number(a.paraX, 0, 100, target.x), paraY: number(a.paraY, 0, 100, target.y), duracaoMs: number(a.duracaoMs, 100, duracaoMs - atrasoMs, Math.min(1000, duracaoMs - atrasoMs)), atrasoMs };
     });
     if (!elementos.length) fallback = true;
-    return { titulo: safeText(s.titulo, 90, 'Observe esta etapa'), explicacao: safeText(s.explicacao, 340, 'Consulte seu material de estudo para aprofundar este assunto.'), duracaoMs, elementos, acoes };
+    return { titulo: safeText(s.titulo, 90, 'Observe esta etapa'), explicacao: safeText(s.explicacao, 340, 'Consulte seu material de estudo para aprofundar este assunto.'), duracaoMs, elementos, acoes, cenario: member(s.cenario, BACKDROPS, 'neutro') };
   });
   if (!cenas.length) {
     fallback = true;
-    cenas = [{ titulo: 'Vamos estudar', explicacao: safeText(c.resumo, 280, 'Não foi possível representar este assunto. Reformule a pergunta ou explore uma experiência pronta.'), duracaoMs: 4000, elementos: [], acoes: [] }];
+    cenas = [{ titulo: 'Vamos estudar', explicacao: safeText(c.resumo, 280, 'Não foi possível representar este assunto. Reformule a pergunta ou explore uma experiência pronta.'), duracaoMs: 4000, elementos: [], acoes: [], cenario: 'neutro' }];
   }
-  return { versao: '1.0', disciplina: member(c.disciplina, ['ciencias', 'historia', 'geografia', 'outro'], 'outro'), titulo: safeText(c.titulo, 90, 'Uma explicação visual'), resumo: safeText(c.resumo, 280, 'Acompanhe a explicação por etapas.'), tipoVisual, cenas, etapas: cenas.map(({ titulo, explicacao }) => ({ titulo, explicacao })), conclusao: safeText(c.conclusao, 280), curiosidade: safeText(c.curiosidade, 220), origem: c.origem === 'local' ? 'local' : 'ia', fallback };
+  return { versao: '1.0', disciplina: member(c.disciplina, ['ciencias', 'historia', 'geografia', 'outro'], 'outro'), titulo: safeText(c.titulo, 90, 'Uma explicação visual'), resumo: safeText(c.resumo, 280, 'Acompanhe a explicação por etapas.'), tipoVisual, cenas, etapas: cenas.map(({ titulo, explicacao }) => ({ titulo, explicacao })), conclusao: safeText(c.conclusao, 280), curiosidade: safeText(c.curiosidade, 220), origem: member(c.origem, ['premium', 'local', 'ia'], 'ia'), fallback };
 }
