@@ -1,5 +1,6 @@
 import { validateVisualExperience } from './js/visual-validator.mjs';
 import { AnimationEngine } from './js/animation-engine.mjs';
+import { createLocalFallback } from './js/local-fallback.mjs';
 
 document.documentElement.classList.add('has-js');
 
@@ -561,9 +562,7 @@ let visualizerTimer = 0;
 let activeNetworkController = null;
 let visualizerRequestId = 0;
 let pendingQuestion = '';
-
-const wait = (milliseconds) =>
-  new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+const VISUALIZER_FUNCTION_URL = '/.netlify/functions/visualizar';
 
 const hasMarkup = (value) => /[<>]/.test(value);
 const characterCount = (value) => [...value].length;
@@ -587,10 +586,10 @@ const findLocalVisualExperience = (question) => {
 const requestVisualExperience = async (question) => {
   const controller = new AbortController();
   activeNetworkController = controller;
-  const timeout = window.setTimeout(() => controller.abort(), 16000);
+  const timeout = window.setTimeout(() => controller.abort(), 20000);
 
   try {
-    const response = await fetch('/.netlify/functions/visualizar', {
+    const response = await fetch(VISUALIZER_FUNCTION_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pergunta: question }),
@@ -606,7 +605,16 @@ const requestVisualExperience = async (question) => {
 
     if (!response.ok) {
       const error = new Error(payload?.mensagem || 'O serviço visual está indisponível.');
-      error.code = payload?.codigo || 'SERVICE_UNAVAILABLE';
+      error.code = payload?.codigo
+        || (response.status === 404 ? 'FUNCTION_NOT_FOUND' : 'INVALID_FUNCTION_RESPONSE');
+      error.status = response.status;
+      throw error;
+    }
+
+    if (!payload?.experiencia || !Array.isArray(payload.experiencia.cenas)) {
+      const error = new Error('A função respondeu sem um roteiro visual válido.');
+      error.code = 'INVALID_FUNCTION_RESPONSE';
+      error.status = response.status;
       throw error;
     }
 
@@ -616,6 +624,9 @@ const requestVisualExperience = async (question) => {
       const timeoutError = new Error('A criação demorou mais que o esperado. Tente novamente.');
       timeoutError.code = 'TIMEOUT';
       throw timeoutError;
+    }
+    if (!error.code && error instanceof TypeError) {
+      error.code = 'NETWORK_ERROR';
     }
     throw error;
   } finally {
@@ -784,15 +795,19 @@ const showVisualExperience = (candidate) => {
   engineActive = false;
   engine.destroy();
   const special = candidate.experienciaEspecial || candidate.tipoVisual;
-  activeVisualExperience = validateVisualExperience(localVisualExperiences[special] || candidate);
+  const specialTemplate = localVisualExperiences[special];
+  const experience = specialTemplate
+    ? { ...specialTemplate, origem: candidate.origem }
+    : candidate;
+  activeVisualExperience = validateVisualExperience(experience);
   activeVisualStep = 0;
 
   visualizerArea.textContent = visualizerDisciplines[activeVisualExperience.disciplina];
   visualizerExperienceTitle.textContent = activeVisualExperience.titulo;
   visualizerSummary.textContent = activeVisualExperience.resumo;
   visualizerSource.textContent = activeVisualExperience.origem === 'local'
-    ? 'Experiência pronta'
-    : 'Criado com IA';
+    ? 'Animação local'
+    : 'Gerado com IA';
   visualizerCuriosity.textContent = [activeVisualExperience.conclusao, activeVisualExperience.curiosidade].filter(Boolean).join(' ');
   visualizerAiNotice.hidden = activeVisualExperience.origem !== 'ia';
   engineActive = !['terremoto', 'fotossintese', 'brasil_colonial'].includes(activeVisualExperience.tipoVisual);
@@ -875,27 +890,41 @@ visualizerForm.addEventListener('submit', async (event) => {
   visualizerFeedback.textContent = '';
 
   try {
-    const localExperience = findLocalVisualExperience(question);
-    let experience;
-
-    if (localExperience) {
-      await wait(320);
-      experience = localExperience;
-    } else {
-      experience = await requestVisualExperience(question);
-    }
+    const experience = await requestVisualExperience(question);
 
     if (requestId === visualizerRequestId) {
       showVisualExperience(experience);
     }
   } catch (error) {
     const messages = {
+      API_NOT_CONFIGURED: 'A chave da IA não está configurada no ambiente da função Netlify.',
+      AI_PROVIDERS_FAILED: 'Gemini e NVIDIA não conseguiram gerar a animação. Consulte os logs da função Netlify.',
+      API_CONFIGURATION_ERROR: 'O provedor de IA recusou a chave ou as permissões configuradas no Netlify.',
+      API_REQUEST_REJECTED: 'O provedor de IA recusou o modelo ou o formato do roteiro. Consulte os logs da função Netlify.',
+      API_MODEL_NOT_FOUND: 'O modelo configurado não foi encontrado pelo provedor de IA. Consulte os logs da função Netlify.',
       API_LIMIT: 'Muitas visualizações foram solicitadas agora. Aguarde um pouco e tente novamente.',
+      API_UNAVAILABLE: 'O provedor de IA está temporariamente indisponível.',
+      INVALID_API_RESPONSE: 'O provedor respondeu fora do formato visual esperado.',
+      INVALID_FUNCTION_RESPONSE: 'A função Netlify respondeu fora do formato esperado.',
+      FUNCTION_NOT_FOUND: 'A função visualizar não está presente neste deploy do Netlify.',
+      NETWORK_ERROR: 'Não foi possível alcançar a função Netlify. Em desenvolvimento local, execute o site com Netlify Dev.',
       TIMEOUT: 'A criação demorou mais que o esperado. Tente novamente.',
     };
     if (requestId === visualizerRequestId) {
-      visualizerFeedback.textContent = messages[error.code]
-        || 'Não foi possível criar a animação agora. Tente novamente ou escolha uma das três experiências prontas, disponíveis sem IA.';
+      const isAiFailure = Object.hasOwn(messages, error.code);
+      console.error('[VisuLab] Falha ao solicitar animação', {
+        codigo: error.code || 'UNEXPECTED_FRONTEND_ERROR',
+        status: error.status || null,
+        mensagem: error.message,
+      });
+      if (isAiFailure) {
+        const fallback = findLocalVisualExperience(question) || createLocalFallback(question);
+        showVisualExperience(fallback);
+        visualizerFeedback.textContent = `${messages[error.code]} Exibimos uma animação local para você continuar estudando.`;
+      } else {
+        visualizerFeedback.textContent = 'Ocorreu um erro ao mostrar a animação. Consulte o console e tente novamente.';
+        visualizerEmpty.hidden = false;
+      }
     }
   } finally {
     if (requestId === visualizerRequestId) {

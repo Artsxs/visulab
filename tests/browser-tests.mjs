@@ -12,7 +12,7 @@ await test('movimento reduzido: cenas estáticas e avanço manual', async () => 
   assert(!e.playing && !e.animations.length, 'não deve animar'); await wait(60); assert(e.index === 0, 'não deve avançar'); e.seek(1); assert(e.index === 1 && stage.textContent.includes('Condensação'), 'avanço manual'); e.destroy();
 });
 await test('pausa, retomada, velocidade, reinício e cancelamento', async () => {
-  const e = new AnimationEngine(stage); e.load(validateVisualExperience(fixtureFor('ciclo da água'))); await wait(120); e.pause(); const elapsed = e.elapsed; assert(elapsed > 0, 'início automático'); await wait(80); assert(e.elapsed === elapsed, 'pausa exata'); e.setSpeed(2); e.play(); await wait(100); e.pause(); assert(e.elapsed > elapsed + 100, 'velocidade 2x'); e.restart(); assert(e.index === 0 && e.playing, 'reinício'); e.destroy(); assert(!e.playing && !stage.children.length, 'limpeza');
+  const e = new AnimationEngine(stage); e.load(validateVisualExperience(fixtureFor('ciclo da água'))); assert(e.playing, 'início automático'); e.tick(e.lastTime + 120); e.pause(); const elapsed = e.elapsed; assert(elapsed >= 120, 'relógio ativo'); await wait(80); assert(e.elapsed === elapsed, 'pausa exata'); e.setSpeed(2); e.play(); e.tick(e.lastTime + 100); e.pause(); assert(e.elapsed >= elapsed + 200, 'velocidade 2x'); e.restart(); assert(e.index === 0 && e.playing, 'reinício'); e.destroy(); assert(!e.playing && !stage.children.length, 'limpeza');
 });
 await test('todos os ícones e ações são construídos localmente', () => {
   for (const icone of ICONS) { const n = createVisualElement({ tipo: 'icone', icone, x: 50, y: 50, largura: 10, altura: 10, cor: 'azul', rotulo: icone }); assert(n.position.querySelector('path, circle, text'), icone); }
@@ -33,13 +33,25 @@ await test('digitação não chama API; envio duplicado é bloqueado; resposta a
   calls[0].resolve(Response.json({ experiencia: fixtureFor('ciclo da água') })); await wait(80);
   assert(d.querySelector('#visualizer-experience-title').textContent === 'Compare mitose e meiose.', 'resposta obsoleta'); assert(!form.querySelector('[type=submit]').disabled, 'envio liberado');
 });
-await test('falha amigável limpa o palco e permite tentar novamente', async () => {
+await test('falha da IA exibe fallback animado e permite tentar novamente', async () => {
+  const errors = [], originalConsoleError = w.console.error;
+  w.console.error = (...args) => errors.push(args);
   w.fetch = async () => Response.json({ codigo: 'API_NOT_CONFIGURED' }, { status: 503 }); submit('Como funciona a atmosfera?'); await wait(60);
-  assert(d.querySelector('#visualizer-feedback').textContent.includes('Tente novamente'), 'mensagem'); assert(!d.querySelector('#visualizer-canvas').children.length, 'palco limpo'); assert(!form.querySelector('[type=submit]').disabled, 'nova tentativa');
+  w.console.error = originalConsoleError;
+  assert(errors[0][1].codigo === 'API_NOT_CONFIGURED' && errors[0][1].status === 503, 'diagnóstico no console'); assert(d.querySelector('#visualizer-feedback').textContent.includes('chave da IA não está configurada'), 'motivo visível'); assert(d.querySelector('.engine-scene'), 'fallback SVG'); assert(d.querySelector('#visualizer-source').textContent === 'Animação local', 'origem local'); assert(!form.querySelector('[type=submit]').disabled, 'nova tentativa');
 });
-await test('três experiências especiais preservadas sem rede', async () => {
-  w.fetch = () => { throw Error('não deveria chamar rede'); };
-  for (const q of ['Como aconteceram as placas tectônicas?', 'Como acontecem os terremotos?', 'Como funciona a fotossíntese?', 'Explique o Brasil Colonial.']) { submit(q); await wait(380); assert(d.querySelector('#visualizer-source').textContent === 'Experiência pronta', q); assert(d.querySelector('#visualizer-canvas svg'), 'SVG especial'); }
+await test('sucesso da IA em tema especial não é rotulado como fallback local', async () => {
+  w.fetch = async () => Response.json({ experiencia: { ...fixtureFor('fotossíntese'), tipoVisual: 'fotossintese', experienciaEspecial: 'fotossintese' } });
+  submit('Como funciona a fotossíntese?'); await wait(60);
+  assert(d.querySelector('#visualizer-source').textContent === 'Gerado com IA', 'origem da resposta');
+  assert(!d.querySelector('#visualizer-feedback').textContent, 'não deve mostrar falha');
+  assert(d.querySelector('#visualizer-canvas svg'), 'modelo especial');
+});
+await test('todo tema é enviado à função e especiais têm fallback local', async () => {
+  let calls = 0;
+  w.fetch = async () => { calls += 1; return Response.json({ codigo: 'API_UNAVAILABLE' }, { status: 503 }); };
+  for (const q of ['Como acontecem os terremotos?', 'Como funciona a fotossíntese?', 'Explique o Brasil Colonial.']) { submit(q); await wait(50); assert(d.querySelector('#visualizer-source').textContent === 'Animação local', q); assert(d.querySelector('#visualizer-canvas svg'), 'SVG especial'); }
+  assert(calls === 3, 'cada tema deve chamar a função');
 });
 await test('seis tipos genéricos, cenas, controles e rótulos SVG', async () => {
   w.fetch = async (_url, options) => Response.json({ experiencia: fixtureFor(JSON.parse(options.body).pergunta) });

@@ -6,16 +6,18 @@ export function renderScene(stage, experience, index) {
   // Estrutura espacial local comunica o tipo mesmo quando o roteiro só contém texto.
   const type = experience.tipoVisual;
   const backdrop = svg('g', { fill: 'none', stroke: '#9aaac7', 'stroke-width': 3, 'aria-hidden': 'true' });
-  if (type === 'ciclo' || type === 'movimento') backdrop.append(svg('ellipse', { cx: 400, cy: 190, rx: 290, ry: 145, 'stroke-dasharray': type === 'movimento' ? '8 10' : 'none' }));
+  if (type === 'ciclo' || type === 'movimento' || type === 'microscopico') backdrop.append(svg('ellipse', { cx: 400, cy: 190, rx: type === 'microscopico' ? 210 : 290, ry: 145, 'stroke-dasharray': type === 'movimento' ? '8 10' : 'none' }));
   else if (type === 'comparacao') backdrop.append(svg('line', { x1: 400, x2: 400, y1: 10, y2: 360 }));
   else if (type === 'camadas') for (let n = 0; n < 4; n++) backdrop.append(svg('rect', { x: 60, y: 30 + n * 85, width: 680, height: 75, rx: 12 }));
+  else if (type === 'mapa') backdrop.append(svg('path', { d: 'M100 55 L260 25 L385 90 L520 45 L700 100 L650 320 L480 285 L350 345 L205 290 L80 330 Z' }));
+  else if (type === 'sistema_biologico') backdrop.append(svg('path', { d: 'M400 25 C310 25 285 110 315 170 C250 225 300 345 400 350 C500 345 550 225 485 170 C515 110 490 25 400 25 Z' }));
   else backdrop.append(svg('path', { d: 'M50 200 H750 M735 190 L750 200 L735 210' }));
   root.append(backdrop);
   let elements = scene.elementos;
   if (!elements.length) elements = experience.cenas.map((s, i, all) => {
     const fraction = all.length === 1 ? 0.5 : i / (all.length - 1);
     let x = 10 + fraction * 80, y = 50;
-    if (type === 'ciclo' || type === 'movimento') { x = 50 + 34 * Math.cos(i / all.length * Math.PI * 2); y = 48 + 32 * Math.sin(i / all.length * Math.PI * 2); }
+    if (type === 'ciclo' || type === 'movimento' || type === 'microscopico') { x = 50 + 34 * Math.cos(i / all.length * Math.PI * 2); y = 48 + 32 * Math.sin(i / all.length * Math.PI * 2); }
     if (type === 'comparacao') { x = i % 2 ? 73 : 27; y = 15 + Math.floor(i / 2) * 30; }
     if (type === 'camadas') { x = 50; y = 12 + fraction * 70; }
     return { id: `etapa-${i}`, tipo: 'circulo', rotulo: `${i + 1}. ${s.titulo.slice(0, 24)}`, x, y, largura: 7, altura: 7, cor: i === index ? 'azul' : 'claro' };

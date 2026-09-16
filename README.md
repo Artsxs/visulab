@@ -4,8 +4,9 @@
 
 O VisuLab é um projeto educacional que transforma perguntas sobre Ciências,
 História e Geografia em explicações visuais organizadas por etapas. A primeira
-versão combina três experiências completas que funcionam no próprio navegador
-com respostas opcionais do Gemini, acessadas somente por uma Netlify Function.
+versão gera animações para qualquer tema escolar com o Gemini e, opcionalmente,
+com a NVIDIA NIM, acessados somente por uma Netlify Function. Animações locais
+mantêm o laboratório funcionando quando os provedores estão indisponíveis.
 
 O frontend usa HTML semântico, CSS responsivo, JavaScript e SVG local. Não há
 framework, gerenciador de pacotes ou etapa de build.
@@ -27,21 +28,25 @@ framework, gerenciador de pacotes ou etapa de build.
 ## Como o laboratório funciona
 
 1. O estudante escreve uma pergunta ou seleciona uma sugestão.
-2. O navegador procura palavras-chave das três experiências locais.
-3. Se encontrar um tema local, monta a experiência sem rede e sem IA.
-4. Para outro tema, envia somente `{ "pergunta": "..." }` por `POST` para
+2. O navegador envia somente `{ "pergunta": "..." }` por `POST` para
    `/.netlify/functions/visualizar`.
-5. A função chama o modelo `gemini-3.5-flash-lite` com a chave mantida apenas
+3. A função tenta o modelo `gemini-3.5-flash-lite` com a chave mantida apenas
    no servidor e solicita JSON estruturado.
-6. A resposta passa por validação no servidor e novamente no navegador.
-7. O motor constrói SVG responsivo com formas e ícones locais, anima as cenas
+4. Se o Gemini falhar e `NVIDIA_API_KEY` estiver configurada, a função tenta a
+   NVIDIA NIM com `moonshotai/kimi-k3` e saída JSON.
+5. A resposta passa por validação no servidor e novamente no navegador.
+6. O motor constrói SVG responsivo com formas e ícones locais, anima as cenas
    pela Web Animations API e insere todos os textos
    com `textContent`; a IA nunca fornece HTML, SVG ou JavaScript.
+7. Se os provedores falharem, o navegador cria um roteiro visual local a partir
+   do tema digitado, com formas, setas, movimento e controles.
 
 O contrato de roteiro versão `1.0` contém disciplina, título, resumo,
-`tipoVisual`, `cenas`, conclusão e curiosidade. Os tipos são `fluxo`, `ciclo`,
-`linha_do_tempo`, `comparacao`, `camadas`, `movimento` e `especial` (com
-`experienciaEspecial` selecionando uma das três experiências locais).
+`tipoDeCena`, `cenas`, conclusão e curiosidade. No frontend, `tipoDeCena` é
+normalizado como `tipoVisual`. Os tipos são `fluxo`, `ciclo`,
+`linha_do_tempo`, `mapa`, `comparacao`, `sistema_biologico`, `microscopico`,
+`camadas`, `movimento` e `especial` (com `experienciaEspecial` selecionando uma
+das três experiências locais).
 
 Cada cena contém título, explicação equivalente ao visual, `duracaoMs`,
 `elementos` e `acoes`. Consulte `js/visual-schema.mjs` para o JSON Schema completo
@@ -88,17 +93,17 @@ ocupação do território e mudanças políticas.
 
 ## Modo local de segurança
 
-As três experiências acima não dependem da chave nem da Netlify Function. O
-reconhecimento local inclui, entre outras, estas palavras:
+As três experiências acima servem como fallback e não dependem da chave. Outros
+temas recebem um diagrama animado local baseado no texto digitado. O
+reconhecimento das experiências especiais inclui, entre outras, estas palavras:
 
 - terremotos: `terremoto`, `placas tectônicas`, `abalo` e `ondas sísmicas`;
 - fotossíntese: `fotossíntese` e `clorofila`;
 - Brasil Colonial: `colonial`, `colônia`, `colonização` e `capitanias`.
 
 Se a chave não estiver configurada, for inválida, a cota terminar ou o serviço
-ficar indisponível, o site mantém essas experiências. Para outros assuntos, a
-interface informa a indisponibilidade e permite tentar novamente, sem expor
-detalhes internos.
+ficar indisponível, o site informa a indisponibilidade e exibe uma animação
+local para qualquer assunto, sem expor detalhes internos.
 
 ## Estrutura do projeto
 
@@ -161,18 +166,20 @@ curl -i http://localhost:8888/.netlify/functions/visualizar \
 Quando o projeto estiver vinculado ao site do Netlify, o Netlify Dev pode usar
 as variáveis cadastradas no ambiente remoto. Nunca imprima a variável em logs.
 
-## Cadastrar `VISULAB_API_KEY` no Netlify
+## Cadastrar as chaves no Netlify
 
-O único nome aceito pela função é `VISULAB_API_KEY`.
+O Gemini usa `VISULAB_API_KEY`. A alternativa NVIDIA NIM usa
+`NVIDIA_API_KEY`. A função tenta Gemini, NVIDIA e, por último, o fallback local.
 
 1. Abra o projeto no painel do Netlify.
 2. Entre em **Site configuration → Environment variables**.
 3. Crie `VISULAB_API_KEY` e informe o valor como secreto.
-4. Inclua o escopo de Functions quando essa opção estiver disponível.
-5. Faça um novo deploy para a função receber a variável.
+4. Opcionalmente, crie `NVIDIA_API_KEY` para habilitar o segundo provedor.
+5. Inclua o escopo de Functions quando essa opção estiver disponível.
+6. Faça um novo deploy para a função receber as variáveis.
 
-O arquivo `.env.example` contém somente um valor ilustrativo. Não coloque uma
-chave real nele, no README, no HTML, em `script.js`, em commits ou em comandos
+O arquivo `.env.example` contém somente os nomes das duas variáveis, com valores
+vazios. Não coloque uma chave real nele, no README, no HTML, em `script.js`, em commits ou em comandos
 que possam ficar no histórico do terminal. A chave nunca deve ir para o
 frontend.
 

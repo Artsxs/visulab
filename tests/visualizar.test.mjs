@@ -6,12 +6,15 @@ import visualizar from '../netlify/functions/visualizar.mjs';
 
 const originalFetch = globalThis.fetch;
 const originalVisuLabKey = process.env.VISULAB_API_KEY;
+const originalNvidiaKey = process.env.NVIDIA_API_KEY;
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
 
   if (originalVisuLabKey === undefined) delete process.env.VISULAB_API_KEY;
   else process.env.VISULAB_API_KEY = originalVisuLabKey;
+  if (originalNvidiaKey === undefined) delete process.env.NVIDIA_API_KEY;
+  else process.env.NVIDIA_API_KEY = originalNvidiaKey;
 
 });
 
@@ -29,12 +32,12 @@ const validExperience = {
   disciplina: 'ciencias',
   titulo: 'Ciclo da água',
   resumo: 'A água circula continuamente entre a superfície e a atmosfera.',
-  tipoVisual: 'processo_generico',
-  etapas: [
-    { titulo: 'Evaporação', explicacao: 'A água recebe energia e evapora.' },
-    { titulo: 'Condensação', explicacao: 'O vapor esfria e forma nuvens.' },
-    { titulo: 'Precipitação', explicacao: 'A água retorna à superfície.' },
+  tipoDeCena: 'ciclo',
+  cenas: [
+    { titulo: 'Evaporação', explicacao: 'A água recebe energia e evapora.', duracaoMs: 3000, elementos: [{ id: 'agua', tipo: 'particula', rotulo: 'Água', x: 30, y: 70, largura: 5, altura: 5, cor: 'azul' }], acoes: [{ alvo: 'agua', tipo: 'mover', paraX: 50, paraY: 20, duracaoMs: 2000, atrasoMs: 100 }] },
+    { titulo: 'Condensação', explicacao: 'O vapor esfria e forma nuvens.', duracaoMs: 3000, elementos: [{ id: 'nuvem', tipo: 'icone', icone: 'nuvem', rotulo: 'Nuvem', x: 50, y: 30, largura: 10, altura: 10, cor: 'claro' }], acoes: [{ alvo: 'nuvem', tipo: 'pulsar', duracaoMs: 1800, atrasoMs: 100 }] },
   ],
+  conclusao: 'A água circula continuamente.',
   curiosidade: 'A mesma água pode percorrer esse ciclo muitas vezes.',
 };
 
@@ -42,6 +45,9 @@ const geminiSuccess = (experience = validExperience) =>
   Response.json({
     candidates: [{ content: { parts: [{ text: JSON.stringify(experience) }] } }],
   });
+const nvidiaSuccess = (experience = validExperience) => Response.json({
+  choices: [{ message: { role: 'assistant', content: JSON.stringify(experience) } }],
+});
 
 const useSuccessfulGemini = (assertRequest) => {
   process.env.VISULAB_API_KEY = 'chave-ficticia-de-teste';
@@ -55,6 +61,7 @@ const assertSecurityHeaders = (response) => {
   assert.equal(response.headers.get('cache-control'), 'no-store');
   assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
   assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  assert.equal(response.headers.get('x-visulab-function'), 'visualizar');
   assert.equal(response.headers.has('access-control-allow-origin'), false);
 };
 
@@ -74,6 +81,7 @@ test('exige application/json, mas aceita o parâmetro charset', async () => {
   assert.equal((await invalid.json()).codigo, 'UNSUPPORTED_MEDIA_TYPE');
 
   delete process.env.VISULAB_API_KEY;
+  delete process.env.NVIDIA_API_KEY;
   const valid = await visualizar(makeRequest(
     { pergunta: 'Como chove?' },
     { headers: { 'Content-Type': 'Application/JSON; charset=utf-8' } },
@@ -138,13 +146,22 @@ test('rejeita propriedades de entrada fora do contrato', async () => {
 
 test('informa quando VISULAB_API_KEY não está configurada', async () => {
   delete process.env.VISULAB_API_KEY;
+  delete process.env.NVIDIA_API_KEY;
+  const originalConsoleError = console.error;
+  const logs = [];
+  console.error = (...args) => logs.push(args);
   globalThis.fetch = () => {
     throw new Error('A API não deveria ser chamada.');
   };
 
-  const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
-  assert.equal(response.status, 503);
-  assert.equal((await response.json()).codigo, 'API_NOT_CONFIGURED');
+  try {
+    const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+    assert.equal(response.status, 503);
+    assert.equal((await response.json()).codigo, 'API_NOT_CONFIGURED');
+    assert.match(logs.at(-1)[0], /Nenhuma chave de IA está configurada/);
+  } finally {
+    console.error = originalConsoleError;
+  }
 });
 
 test('usa modelo, header e schema estruturado solicitados sem expor a chave', async () => {
@@ -160,7 +177,8 @@ test('usa modelo, header e schema estruturado solicitados sem expor a chave', as
     assert.deepEqual(body.generationConfig.responseFormat.text.schema.properties.disciplina.enum, [
       'ciencias', 'historia', 'geografia', 'outro',
     ]);
-    assert.deepEqual(body.generationConfig.responseFormat.text.schema.properties.tipoVisual.enum, TYPES);
+    assert.deepEqual(body.generationConfig.responseFormat.text.schema.properties.tipoDeCena.enum, TYPES);
+    assert.ok(body.generationConfig.responseFormat.text.schema.required.includes('tipoDeCena'));
     assert.ok(body.generationConfig.responseFormat.text.schema.required.includes('curiosidade'));
     assert.ok(body.generationConfig.responseFormat.text.schema.properties.cenas.items.required.includes('explicacao'));
 
@@ -174,9 +192,57 @@ test('usa modelo, header e schema estruturado solicitados sem expor a chave', as
   const response = await visualizar(makeRequest({ pergunta: 'Como funciona o ciclo da água?' }));
   const payload = await response.json();
   assert.equal(response.status, 200);
-  assert.deepEqual(payload, { experiencia: validateVisualExperience(validExperience) });
+  assert.deepEqual(payload, { experiencia: validateVisualExperience(validExperience), provedor: 'gemini' });
   assert.equal(JSON.stringify(payload).includes('chave-ficticia-de-teste'), false);
   assertSecurityHeaders(response);
+});
+
+test('tenta Gemini primeiro e usa NVIDIA NIM quando o Gemini falha', async () => {
+  process.env.VISULAB_API_KEY = 'gemini-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  const calls = [];
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, options });
+    if (calls.length === 1) return Response.json({ error: { message: 'Falha simulada' } }, { status: 500 });
+    return nvidiaSuccess();
+  };
+  const response = await visualizar(makeRequest({ pergunta: 'Explique um eclipse.' }));
+  const payload = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(payload.provedor, 'nvidia');
+  assert.match(calls[0].url, /generativelanguage\.googleapis\.com/);
+  assert.equal(calls[1].url, 'https://integrate.api.nvidia.com/v1/chat/completions');
+  assert.equal(calls[1].options.headers.Authorization, 'Bearer nvidia-ficticia');
+  const body = JSON.parse(calls[1].options.body);
+  assert.equal(body.model, 'moonshotai/kimi-k3');
+  assert.deepEqual(body.response_format, { type: 'json_object' });
+  assert.equal(body.stream, false);
+  assert.equal(calls[1].options.body.includes('nvidia-ficticia'), false);
+});
+
+test('usa NVIDIA diretamente quando somente NVIDIA_API_KEY está configurada', async () => {
+  delete process.env.VISULAB_API_KEY;
+  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  let calls = 0;
+  globalThis.fetch = async (url) => { calls += 1; assert.match(url, /integrate\.api\.nvidia\.com/); return nvidiaSuccess(); };
+  const response = await visualizar(makeRequest({ pergunta: 'Explique um átomo.' }));
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).provedor, 'nvidia');
+  assert.equal(calls, 1);
+});
+
+test('retorna falhas dos dois provedores somente depois de tentar ambos', async () => {
+  process.env.VISULAB_API_KEY = 'gemini-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; return Response.json({ error: { message: 'Indisponível' } }, { status: 500 }); };
+  const response = await visualizar(makeRequest({ pergunta: 'Explique a gravidade.' }));
+  const payload = await response.json();
+  assert.equal(response.status, 503);
+  assert.equal(payload.codigo, 'AI_PROVIDERS_FAILED');
+  assert.deepEqual(payload.provedores.map(item => item.provider), ['gemini', 'nvidia']);
+  assert.equal(calls, 2);
+  assert.equal(JSON.stringify(payload).includes('ficticia'), false);
 });
 
 test('aceita disciplina outro e todos os tipos visuais permitidos', async () => {
@@ -187,7 +253,7 @@ test('aceita disciplina outro e todos os tipos visuais permitidos', async () => 
     globalThis.fetch = async () => geminiSuccess({
       ...validExperience,
       disciplina: 'outro',
-      tipoVisual,
+      tipoDeCena: tipoVisual,
     });
     const response = await visualizar(makeRequest({ pergunta: 'Explique este tema de estudo.' }));
     assert.equal(response.status, 200, tipoVisual);
@@ -199,13 +265,13 @@ test('descarta propriedades extras da IA e nunca devolve conteúdo executável',
   globalThis.fetch = async () => geminiSuccess({
     ...validExperience,
     codigo: '<script>executar()</script>',
-    etapas: validExperience.etapas.map((step) => ({ ...step, html: '<b>texto</b>' })),
+    cenas: validExperience.cenas.map((scene) => ({ ...scene, html: '<b>texto</b>' })),
   });
 
   const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
   const payload = await response.json();
   assert.equal(response.status, 200);
-  assert.deepEqual(payload, { experiencia: validateVisualExperience(validExperience) });
+  assert.deepEqual(payload, { experiencia: validateVisualExperience(validExperience), provedor: 'gemini' });
   assert.equal(JSON.stringify(payload).includes('<script>'), false);
 });
 
@@ -229,7 +295,8 @@ test('aceita etapas curtas e limita o excesso a seis', async () => {
     process.env.VISULAB_API_KEY = 'chave-ficticia-de-teste';
     globalThis.fetch = async () => geminiSuccess({
       ...validExperience,
-      etapas: Array.from({ length: amount }, (_, index) => ({
+      cenas: Array.from({ length: amount }, (_, index) => ({
+        ...validExperience.cenas[0],
         titulo: `Etapa ${index + 1}`,
         explicacao: 'Explicação segura.',
       })),
@@ -252,17 +319,27 @@ test('preserva o limite temporário sem expor o corpo externo', async () => {
   assert.equal(JSON.stringify(payload).includes('detalhe-interno-secreto'), false);
 });
 
-test('trata chave inválida, indisponibilidade e falha de rede com mensagens seguras', async () => {
+test('distingue formato recusado, chave inválida, modelo ausente e indisponibilidade', async () => {
   process.env.VISULAB_API_KEY = 'chave-ficticia-de-teste';
 
-  for (const status of [400, 401, 403]) {
+  globalThis.fetch = async () => Response.json({ error: { message: 'Schema inválido para chave-ficticia-de-teste' } }, { status: 400 });
+  const rejected = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal(rejected.status, 502);
+  assert.equal((await rejected.json()).codigo, 'API_REQUEST_REJECTED');
+
+  for (const status of [401, 403]) {
     globalThis.fetch = async () => new Response('segredo externo', { status });
     const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
     assert.equal(response.status, 503, String(status));
     assert.equal((await response.json()).codigo, 'API_CONFIGURATION_ERROR');
   }
 
-  for (const status of [404, 408, 500, 502, 503, 504]) {
+  globalThis.fetch = async () => Response.json({ error: { message: 'Modelo desconhecido' } }, { status: 404 });
+  const missingModel = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal(missingModel.status, 502);
+  assert.equal((await missingModel.json()).codigo, 'API_MODEL_NOT_FOUND');
+
+  for (const status of [408, 500, 502, 503, 504]) {
     globalThis.fetch = async () => new Response('segredo externo', { status });
     const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
     assert.equal(response.status, 503, String(status));

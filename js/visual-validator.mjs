@@ -1,5 +1,5 @@
 // Contrato compartilhado: somente propriedades explicitamente copiadas atravessam esta fronteira.
-export const TYPES = ['fluxo', 'ciclo', 'linha_do_tempo', 'comparacao', 'camadas', 'movimento', 'especial'];
+export const TYPES = ['fluxo', 'ciclo', 'linha_do_tempo', 'mapa', 'comparacao', 'sistema_biologico', 'microscopico', 'camadas', 'movimento', 'especial'];
 export const SPECIALS = ['terremoto', 'fotossintese', 'brasil_colonial'];
 export const ELEMENTS = ['circulo', 'elipse', 'retangulo', 'texto', 'seta', 'linha', 'onda', 'particula', 'icone'];
 export const ACTIONS = ['aparecer', 'desaparecer', 'mover', 'pulsar', 'girar', 'crescer', 'vibrar', 'destacar', 'fluir'];
@@ -12,8 +12,9 @@ const list = (v, max) => Array.isArray(v) ? v.slice(0, max) : [];
 const member = (v, choices, fallback) => choices.includes(v) ? v : fallback;
 export function validateVisualExperience(input) {
   const c = object(input) ? input : {};
-  const special = member(c.experienciaEspecial, SPECIALS, member(c.tipoVisual, SPECIALS, undefined));
-  let tipoVisual = special || member(c.tipoVisual, TYPES, 'fluxo');
+  const requestedType = c.tipoDeCena ?? c.tipoVisual;
+  const special = member(c.experienciaEspecial, SPECIALS, member(requestedType, SPECIALS, undefined));
+  let tipoVisual = special || member(requestedType, TYPES, 'fluxo');
   if (tipoVisual === 'especial' && !special) tipoVisual = 'fluxo';
   const source = Array.isArray(c.cenas) && c.cenas.length ? c.cenas : c.etapas;
   let fallback = false;
