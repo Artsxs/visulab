@@ -1212,7 +1212,6 @@ const setVisualizerLoading = (isLoading, phase = 'running', endMessage = null) =
       }
     }, 280);
   } else {
-    visualizerLoading.hidden = true;
     if (phase === 'success') {
       updateLiveActivity(
         100,
@@ -1220,6 +1219,9 @@ const setVisualizerLoading = (isLoading, phase = 'running', endMessage = null) =
         'Iniciando apresentação interativa...',
         'success',
       );
+      setTimeout(() => {
+        visualizerLoading.hidden = true;
+      }, 1200);
     } else if (phase === 'error') {
       updateLiveActivity(
         100,
@@ -1227,6 +1229,11 @@ const setVisualizerLoading = (isLoading, phase = 'running', endMessage = null) =
         endMessage || 'Ocorreu uma falha na geração do roteiro.',
         'error',
       );
+      setTimeout(() => {
+        visualizerLoading.hidden = true;
+      }, 2200);
+    } else {
+      visualizerLoading.hidden = true;
     }
   }
 
@@ -1378,3 +1385,115 @@ window.addEventListener('pagehide', () => {
   engine.destroy();
   visualizerIsPlaying = false;
 });
+
+// ==========================================================================
+// Efeito tátil de profundidade 3D (Press-Depth)
+// Adicionado a todos os botões da aplicação, exceto às abas de seleção
+// (Etapas, Controles, Complementos), aos filtros e ao seletor de tema.
+// ==========================================================================
+const setupPressDepthButtons = () => {
+  const depthSelector = [
+    '.button--primary',
+    '.button--secondary',
+    '.visualizer-control',
+    '.visualizer-quick-btn',
+    '.visualizer-speed-pill',
+    '.hero-search-bar__submit',
+    '.question-suggestions button',
+    '.dialog-close',
+    '#clear-search',
+    '#previous-step',
+    '#next-step',
+    '[data-press-depth]'
+  ].join(', ');
+
+  let activeBtn = null;
+  let activePointerId = null;
+
+  const isExcluded = (btn) => {
+    return Boolean(
+      btn.closest('.visualizer-tab') ||
+      btn.closest('.filter') ||
+      btn.closest('.theme-switch')
+    );
+  };
+
+  const handlePointerDown = (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const btn = e.target.closest(depthSelector);
+    if (!btn || btn.disabled || isExcluded(btn)) return;
+
+    activeBtn = btn;
+    activePointerId = e.pointerId;
+
+    const r = btn.getBoundingClientRect();
+    const x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+    const y = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+    const tilt = 7;
+
+    btn.style.setProperty('--lean-x', `${(x * tilt).toFixed(2)}deg`);
+    btn.style.setProperty('--lean-y', `${(-y * tilt).toFixed(2)}deg`);
+    btn.setAttribute('data-pressed', '');
+  };
+
+  const handlePointerMove = (e) => {
+    if (!activeBtn || e.pointerId !== activePointerId) return;
+    const r = activeBtn.getBoundingClientRect();
+    const inside = (
+      e.clientX >= r.left &&
+      e.clientX <= r.right &&
+      e.clientY >= r.top &&
+      e.clientY <= r.bottom
+    );
+    if (inside) {
+      const x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+      const y = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+      const tilt = 7;
+      activeBtn.style.setProperty('--lean-x', `${(x * tilt).toFixed(2)}deg`);
+      activeBtn.style.setProperty('--lean-y', `${(-y * tilt).toFixed(2)}deg`);
+      activeBtn.setAttribute('data-pressed', '');
+    } else {
+      activeBtn.removeAttribute('data-pressed');
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    if (!activeBtn || (e && e.pointerId !== activePointerId)) return;
+    activeBtn.removeAttribute('data-pressed');
+    activeBtn.style.removeProperty('--lean-x');
+    activeBtn.style.removeProperty('--lean-y');
+    activeBtn = null;
+    activePointerId = null;
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.repeat || (e.key !== ' ' && e.key !== 'Enter')) return;
+    const btn = e.target?.closest?.(depthSelector);
+    if (!btn || btn.disabled || isExcluded(btn)) return;
+    btn.style.setProperty('--lean-x', '0deg');
+    btn.style.setProperty('--lean-y', '0deg');
+    btn.setAttribute('data-pressed', '');
+  };
+
+  const handleKeyUp = (e) => {
+    if (e.key !== ' ' && e.key !== 'Enter' && e.key !== 'Escape') return;
+    const btn = e.target?.closest?.(depthSelector);
+    if (!btn) return;
+    btn.removeAttribute('data-pressed');
+    btn.style.removeProperty('--lean-x');
+    btn.style.removeProperty('--lean-y');
+  };
+
+  window.addEventListener('pointerdown', handlePointerDown, { passive: true });
+  window.addEventListener('pointermove', handlePointerMove, { passive: true });
+  window.addEventListener('pointerup', handlePointerUp, { passive: true });
+  window.addEventListener('pointercancel', handlePointerUp, { passive: true });
+  window.addEventListener('keydown', handleKeyDown, { passive: true });
+  window.addEventListener('keyup', handleKeyUp, { passive: true });
+  window.addEventListener('blur', handlePointerUp);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) handlePointerUp();
+  });
+};
+
+setupPressDepthButtons();
