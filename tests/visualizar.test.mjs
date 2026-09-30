@@ -6,7 +6,7 @@ import { RESPONSE_SCHEMA } from '../js/visual-schema.mjs';
 
 const originalFetch = globalThis.fetch;
 const originalEnvironment = Object.fromEntries(
-  ['VISULAB_API_KEY', 'NVIDIA_API_KEY', 'NVIDIA_MODEL'].map(name => [name, process.env[name]]),
+  ['VISULAB_API_KEY', 'GEMINI_API_KEY', 'NVIDIA_API_KEY', 'NVIDIA_MODEL'].map(name => [name, process.env[name]]),
 );
 let moduleVersion = 0;
 let visualizar;

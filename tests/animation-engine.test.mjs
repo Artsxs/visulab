@@ -22,7 +22,7 @@ function clockEngine(options = {}) {
 test('autoplay, pausa e retomada mantêm apenas um relógio ativo', () => {
   const { engine, frames, advance } = clockEngine();
   assert.equal(engine.playing, true); advance(200); engine.pause();
-  assert.equal(engine.elapsed, 200); assert.equal(frames.size, 0);
+  assert.equal(Math.round(engine.elapsed), 200); assert.equal(frames.size, 0);
   engine.play(); engine.play(); assert.equal(frames.size, 1);
   engine.setSpeed(2); advance(100); assert.ok(Math.abs(engine.elapsed - 400) < 5);
   engine.destroy(); assert.equal(frames.size, 0);

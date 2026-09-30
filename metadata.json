@@ -1,0 +1,8 @@
+{
+  "name": "VisuLab",
+  "description": "Transforme perguntas de Ciências, História e Geografia em explicações visuais, animadas e organizadas por etapas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

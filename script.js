@@ -10,7 +10,7 @@ document.documentElement.classList.add('has-js');
 
 const root = document.documentElement;
 const themeToggle = document.getElementById('theme-toggle');
-const themeIcon = themeToggle.querySelector('.theme-toggle__icon');
+const themeIcon = themeToggle ? themeToggle.querySelector('.theme-toggle__icon') : null;
 const themeColor = document.querySelector('meta[name="theme-color"]');
 const themePreference = window.matchMedia('(prefers-color-scheme: dark)');
 const reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -21,12 +21,21 @@ const resolvedTheme = () =>
 
 const updateThemeControl = () => {
   const isDark = resolvedTheme() === 'dark';
-  themeToggle.setAttribute(
-    'aria-label',
-    isDark ? 'Ativar tema claro' : 'Ativar tema escuro',
-  );
-  themeIcon.textContent = isDark ? '☀' : '☾';
-  themeColor.setAttribute('content', isDark ? '#101629' : '#1e4ed8');
+  if (themeToggle) {
+    if (themeToggle.type === 'checkbox') {
+      themeToggle.checked = isDark;
+    }
+    themeToggle.setAttribute(
+      'aria-label',
+      isDark ? 'Mudar para o dia (tema claro)' : 'Mudar para a noite (tema escuro)',
+    );
+    if (themeIcon) {
+      themeIcon.textContent = isDark ? '☀' : '☾';
+    }
+  }
+  if (themeColor) {
+    themeColor.setAttribute('content', isDark ? '#101629' : '#1e4ed8');
+  }
 };
 
 try {
@@ -38,8 +47,8 @@ try {
   // O site continua seguindo o tema do sistema quando o armazenamento é bloqueado.
 }
 
-themeToggle.addEventListener('click', () => {
-  root.dataset.theme = resolvedTheme() === 'dark' ? 'light' : 'dark';
+const toggleTheme = (nextTheme) => {
+  root.dataset.theme = nextTheme || (resolvedTheme() === 'dark' ? 'light' : 'dark');
   updateThemeControl();
 
   try {
@@ -47,7 +56,19 @@ themeToggle.addEventListener('click', () => {
   } catch {
     // A preferência fica ativa nesta visita mesmo sem acesso ao armazenamento.
   }
-});
+};
+
+if (themeToggle) {
+  themeToggle.addEventListener('change', () => {
+    toggleTheme(themeToggle.checked ? 'dark' : 'light');
+  });
+
+  themeToggle.addEventListener('click', (event) => {
+    if (themeToggle.type !== 'checkbox') {
+      toggleTheme();
+    }
+  });
+}
 
 themePreference.addEventListener('change', () => {
   if (!root.dataset.theme) {
@@ -148,6 +169,129 @@ clearSearchButton.addEventListener('click', () => {
   updateActiveFilter('todos');
   applyFilters();
 });
+
+// Efeito de afastamento progressivo da paisagem ao rolar (Zoom-out editorial)
+const heroStage = document.getElementById('inicio');
+const heroArtFrame = document.getElementById('hero-art-frame');
+const heroSearchOverlay = document.getElementById('hero-stage-content') || document.getElementById('hero-search-overlay');
+const heroScrollHint = document.getElementById('hero-scroll-hint');
+
+const updateHeroZoom = () => {
+  if (!heroStage || !heroArtFrame) return;
+
+  if (reducedMotionPreference.matches) {
+    heroArtFrame.style.transform = '';
+    heroArtFrame.style.borderRadius = '';
+    heroArtFrame.style.boxShadow = '';
+    if (heroSearchOverlay) {
+      heroSearchOverlay.style.opacity = '';
+      heroSearchOverlay.style.pointerEvents = '';
+    }
+    if (heroScrollHint) heroScrollHint.style.opacity = '';
+    return;
+  }
+
+  const rect = heroStage.getBoundingClientRect();
+  const windowHeight = window.innerHeight;
+  const totalScroll = rect.height - windowHeight;
+
+  if (totalScroll <= 0) return;
+
+  // Progresso relativo de 0.0 (início) a 1.0 (final da seção hero)
+  const currentScroll = -rect.top;
+  const progress = Math.min(Math.max(currentScroll / totalScroll, 0), 1);
+
+  // Afastamento suave: escala recua de 1.0 para ~0.83
+  const scale = 1 - progress * 0.17;
+  // Bordas ganham curvatura sutil (0 a 22px)
+  const radius = progress * 22;
+  // Sombra progressiva sutil
+  const shadowAlpha = progress * 0.12;
+
+  heroArtFrame.style.transform = `scale(${scale})`;
+  heroArtFrame.style.borderRadius = `${radius}px`;
+  heroArtFrame.style.boxShadow = progress > 0.02
+    ? `0 ${progress * 24}px ${progress * 50}px rgba(32, 46, 74, ${shadowAlpha})`
+    : '';
+
+  // Desvanecimento do formulário durante a transição, mantendo ativo se houver foco
+  const isInputFocused = searchInput && (document.activeElement === searchInput || (searchForm && searchForm.contains(document.activeElement)));
+  if (heroSearchOverlay) {
+    if (isInputFocused) {
+      heroSearchOverlay.style.opacity = '1';
+      heroSearchOverlay.style.pointerEvents = 'auto';
+    } else {
+      const overlayOpacity = Math.max(1 - progress * 2.3, 0);
+      heroSearchOverlay.style.opacity = String(overlayOpacity);
+      heroSearchOverlay.style.pointerEvents = overlayOpacity < 0.1 ? 'none' : 'auto';
+    }
+  }
+
+  if (heroScrollHint) {
+    heroScrollHint.style.opacity = String(Math.max(1 - progress * 4, 0));
+  }
+};
+
+let zoomScrollScheduled = false;
+window.addEventListener('scroll', () => {
+  if (!zoomScrollScheduled) {
+    requestAnimationFrame(() => {
+      updateHeroZoom();
+      zoomScrollScheduled = false;
+    });
+    zoomScrollScheduled = true;
+  }
+}, { passive: true });
+
+window.addEventListener('resize', updateHeroZoom, { passive: true });
+reducedMotionPreference.addEventListener('change', updateHeroZoom);
+updateHeroZoom();
+
+// Sugestões rápidas de temas da primeira tela
+document.querySelectorAll('[data-quick-topic]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const topic = button.dataset.quickTopic;
+    let question = '';
+    if (topic === 'terremotos') question = 'Como acontecem os terremotos?';
+    else if (topic === 'fotossintese') question = 'Como acontece o processo da fotossíntese?';
+    else if (topic === 'brasil-colonial') question = 'Quais foram os principais momentos do Brasil Colonial?';
+
+    if (!question) return;
+
+    if (searchInput) searchInput.value = question;
+    if (visualizerQuestion) {
+      visualizerQuestion.value = question;
+      visualizerQuestion.dispatchEvent(new Event('input'));
+    }
+    const target = document.getElementById('ver-acontecer');
+    if (target) {
+      target.scrollIntoView({
+        behavior: reducedMotionPreference.matches ? 'auto' : 'smooth',
+      });
+    }
+    if (visualizerForm) visualizerForm.requestSubmit();
+  });
+});
+
+// Botão de chamada final "Começar a explorar"
+const btnStartExploring = document.getElementById('btn-start-exploring');
+if (btnStartExploring) {
+  btnStartExploring.addEventListener('click', (event) => {
+    event.preventDefault();
+    const heroEl = document.getElementById('inicio');
+    if (heroEl) {
+      heroEl.scrollIntoView({
+        behavior: reducedMotionPreference.matches ? 'auto' : 'smooth',
+      });
+      setTimeout(() => {
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }, reducedMotionPreference.matches ? 50 : 500);
+    }
+  });
+}
 
 // Pequenas jornadas guiadas abertas a partir dos cartões.
 const experiences = {
@@ -466,6 +610,162 @@ const visualizerSuggestionButtons = [
   ...document.querySelectorAll('[data-visualizer-suggestion]'),
 ];
 
+const visualizerTabsContainer = document.getElementById('visualizer-tabs');
+const visualizerTabButtons = [...document.querySelectorAll('.visualizer-tab')];
+const visualizerPanels = {
+  etapas: document.getElementById('visualizer-panel-etapas'),
+  controles: document.getElementById('visualizer-panel-controles'),
+  complementos: document.getElementById('visualizer-panel-complementos'),
+};
+const visualizerTabsIndicator = document.getElementById('visualizer-tabs-indicator');
+const visualizerStepper = document.getElementById('visualizer-stepper');
+const visualizerStepPrev = document.getElementById('visualizer-step-prev');
+const visualizerStepNext = document.getElementById('visualizer-step-next');
+const visualizerStatusDot = document.getElementById('visualizer-status-dot');
+const visualizerStatusText = document.getElementById('visualizer-status-text');
+const visualizerStatusStep = document.getElementById('visualizer-status-step');
+const visualizerSpeedPills = document.getElementById('visualizer-speed-pills');
+
+const updateVisualizerTabIndicator = () => {
+  const activeBtn = document.querySelector('.visualizer-tab.is-active');
+  if (!activeBtn || !visualizerTabsIndicator) return;
+  const parent = activeBtn.parentElement;
+  if (!parent) return;
+  const parentRect = parent.getBoundingClientRect();
+  const btnRect = activeBtn.getBoundingClientRect();
+  if (btnRect.width === 0) return;
+  const left = btnRect.left - parentRect.left;
+  visualizerTabsIndicator.style.left = `${left}px`;
+  visualizerTabsIndicator.style.width = `${btnRect.width}px`;
+};
+
+const setActiveVisualizerTab = (tabName) => {
+  if (!visualizerPanels[tabName]) return;
+  visualizerTabButtons.forEach((btn) => {
+    const isTarget = btn.getAttribute('aria-controls') === `visualizer-panel-${tabName}`;
+    btn.classList.toggle('is-active', isTarget);
+    btn.setAttribute('aria-selected', String(isTarget));
+    btn.tabIndex = isTarget ? 0 : -1;
+  });
+
+  Object.entries(visualizerPanels).forEach(([name, panel]) => {
+    if (!panel) return;
+    const isTarget = name === tabName;
+    panel.hidden = !isTarget;
+    panel.classList.toggle('is-active', isTarget);
+  });
+
+  updateVisualizerTabIndicator();
+};
+
+visualizerTabButtons.forEach((tabBtn, index) => {
+  tabBtn.addEventListener('click', () => {
+    const targetPanel = tabBtn.getAttribute('aria-controls').replace('visualizer-panel-', '');
+    setActiveVisualizerTab(targetPanel);
+  });
+
+  tabBtn.addEventListener('keydown', (e) => {
+    let targetIndex = -1;
+    if (e.key === 'ArrowRight') {
+      targetIndex = (index + 1) % visualizerTabButtons.length;
+    } else if (e.key === 'ArrowLeft') {
+      targetIndex = (index - 1 + visualizerTabButtons.length) % visualizerTabButtons.length;
+    } else if (e.key === 'Home') {
+      targetIndex = 0;
+    } else if (e.key === 'End') {
+      targetIndex = visualizerTabButtons.length - 1;
+    }
+    if (targetIndex >= 0) {
+      e.preventDefault();
+      visualizerTabButtons[targetIndex].focus();
+      const targetPanel = visualizerTabButtons[targetIndex]
+        .getAttribute('aria-controls')
+        .replace('visualizer-panel-', '');
+      setActiveVisualizerTab(targetPanel);
+    }
+  });
+});
+
+window.addEventListener('resize', updateVisualizerTabIndicator);
+
+const renderVisualizerStepper = () => {
+  if (!visualizerStepper || !activeVisualExperience) return;
+  visualizerStepper.replaceChildren();
+  const steps = activeVisualExperience.etapas;
+  if (!steps || steps.length <= 1) {
+    visualizerStepper.hidden = true;
+    return;
+  }
+  visualizerStepper.hidden = false;
+  steps.forEach((step, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'visualizer-stepper__item';
+    btn.dataset.stepperIndex = String(idx);
+    btn.setAttribute('aria-label', `Ir para a etapa ${idx + 1}: ${step.titulo}`);
+
+    const badge = document.createElement('span');
+    badge.className = 'visualizer-stepper__badge';
+    badge.textContent = String(idx + 1);
+
+    const title = document.createElement('span');
+    title.className = 'visualizer-stepper__title';
+    title.textContent = step.titulo;
+
+    btn.append(badge, title);
+    btn.addEventListener('click', () => {
+      stopVisualizerPlayback();
+      engine.seek(idx);
+    });
+    visualizerStepper.append(btn);
+  });
+};
+
+const syncSpeedPills = () => {
+  if (!visualizerSpeedPills) return;
+  const currentVal = visualizerSpeed.value;
+  visualizerSpeedPills.querySelectorAll('.visualizer-speed-pill').forEach((pill) => {
+    const isSelected = pill.dataset.speed === currentVal;
+    pill.classList.toggle('is-active', isSelected);
+    pill.setAttribute('aria-checked', String(isSelected));
+  });
+};
+
+if (visualizerSpeedPills) {
+  visualizerSpeedPills.querySelectorAll('.visualizer-speed-pill').forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const speedVal = pill.dataset.speed;
+      if (visualizerSpeed.value !== speedVal) {
+        visualizerSpeed.value = speedVal;
+        visualizerSpeed.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+}
+
+const updatePlaybackStatus = () => {
+  if (!activeVisualExperience) return;
+  const stepCount = activeVisualExperience.etapas.length;
+  const isLast = activeVisualStep === stepCount - 1;
+  if (visualizerStatusStep) {
+    visualizerStatusStep.textContent = `Etapa ${activeVisualStep + 1} de ${stepCount}`;
+  }
+  if (visualizerStatusDot && visualizerStatusText) {
+    visualizerStatusDot.classList.remove('is-playing', 'is-paused', 'is-ended');
+    if (visualizerIsPlaying) {
+      visualizerStatusDot.classList.add('is-playing');
+      const speedVal = visualizerSpeed.value || '1';
+      visualizerStatusText.textContent = `Reproduzindo animação a ${speedVal.replace('.', ',')}×...`;
+    } else if (isLast) {
+      visualizerStatusDot.classList.add('is-ended');
+      visualizerStatusText.textContent = 'Experiência concluída';
+    } else {
+      visualizerStatusDot.classList.add('is-paused');
+      visualizerStatusText.textContent = `Pausado na etapa ${activeVisualStep + 1}`;
+    }
+  }
+};
+
 const visualizerTemplates = {
   terremoto: 'visual-template-placas',
   fotossintese: 'visual-template-fotossintese',
@@ -706,6 +1006,7 @@ const renderVisualizerPlayControl = () => {
     visualizerPause.disabled = true;
     visualizerSpeed.disabled = true;
     visualizerPlay.title = 'Reprodução automática desativada pela preferência de movimento reduzido';
+    updatePlaybackStatus();
     return;
   }
 
@@ -713,6 +1014,7 @@ const renderVisualizerPlayControl = () => {
   visualizerPause.disabled = !visualizerIsPlaying;
   visualizerSpeed.disabled = false;
   visualizerPlay.removeAttribute('title');
+  updatePlaybackStatus();
 };
 
 function renderVisualizerStep() {
@@ -738,6 +1040,25 @@ function renderVisualizerStep() {
   visualizerPrevious.disabled = activeVisualStep === 0;
   visualizerNext.disabled = isLastStep;
   visualizerRestart.disabled = false;
+  if (visualizerStepPrev) visualizerStepPrev.disabled = activeVisualStep === 0;
+  if (visualizerStepNext) {
+    visualizerStepNext.disabled = isLastStep;
+    visualizerStepNext.innerHTML = isLastStep
+      ? 'Concluído <span aria-hidden="true">✓</span>'
+      : 'Próxima etapa <span aria-hidden="true">→</span>';
+  }
+
+  if (visualizerStepper) {
+    visualizerStepper.querySelectorAll('.visualizer-stepper__item').forEach((item) => {
+      const idx = Number(item.dataset.stepperIndex);
+      const isCurrent = idx === activeVisualStep;
+      const isPast = idx < activeVisualStep;
+      item.classList.toggle('is-active', isCurrent);
+      item.classList.toggle('is-completed', isPast);
+      item.setAttribute('aria-current', isCurrent ? 'step' : 'false');
+    });
+  }
+
   visualizerCanvas.dataset.step = String(getVisualStepIndex());
   visualizerCanvas.dataset.playing = String(visualizerIsPlaying);
 
@@ -800,15 +1121,101 @@ const showVisualExperience = (candidate) => {
   visualizerCanvas.dataset.clock = 'elapsed';
   visualizerLegend.replaceChildren();
   renderVisualizerPeriods();
+  renderVisualizerStepper();
+  syncSpeedPills();
+  setActiveVisualizerTab('etapas');
   visualizerEmpty.hidden = true;
   visualizerExperience.hidden = false;
   engine.setSpeed(Number(visualizerSpeed.value));
   engine.load(activeVisualExperience);
-
+  requestAnimationFrame(() => updateVisualizerTabIndicator());
 };
 
-const setVisualizerLoading = (isLoading) => {
-  visualizerLoading.hidden = !isLoading;
+const liveActivityPod = document.getElementById('live-activity-pod');
+const liveActivityTitle = document.getElementById('live-activity-title');
+const liveActivityDetail = document.getElementById('live-activity-detail');
+const liveActivityFill = document.getElementById('live-activity-fill');
+const liveActivityPercent = document.getElementById('live-activity-percent');
+const liveActivitySpinner = document.getElementById('live-activity-spinner');
+const liveActivitySuccess = document.getElementById('live-activity-success');
+const liveActivityError = document.getElementById('live-activity-error');
+
+let loadingProgressTimer = null;
+let currentProgress = 0;
+
+const updateLiveActivity = (progress, title, detail, phase = 'running') => {
+  if (liveActivityFill) liveActivityFill.style.width = `${progress}%`;
+  if (liveActivityPercent) liveActivityPercent.textContent = `${progress}%`;
+  if (title && liveActivityTitle) liveActivityTitle.textContent = title;
+  if (detail && liveActivityDetail) liveActivityDetail.textContent = detail;
+
+  if (liveActivitySpinner) liveActivitySpinner.hidden = phase !== 'running';
+  if (liveActivitySuccess) liveActivitySuccess.hidden = phase !== 'success';
+  if (liveActivityError) liveActivityError.hidden = phase !== 'error';
+};
+
+const setVisualizerLoading = (isLoading, phase = 'running', endMessage = null) => {
+  if (loadingProgressTimer) {
+    clearInterval(loadingProgressTimer);
+    loadingProgressTimer = null;
+  }
+
+  if (isLoading) {
+    visualizerLoading.hidden = false;
+    currentProgress = 15;
+    updateLiveActivity(
+      currentProgress,
+      'Preparando a experiência...',
+      'Aguardando a IA preparar o roteiro visual · VisuLab',
+      'running',
+    );
+
+    loadingProgressTimer = setInterval(() => {
+      if (currentProgress < 35) {
+        currentProgress += 5;
+        updateLiveActivity(
+          currentProgress,
+          'Consultando inteligência artificial...',
+          'Iniciando análise do tema e contextualização pedagógica',
+          'running',
+        );
+      } else if (currentProgress < 70) {
+        currentProgress += 3;
+        updateLiveActivity(
+          currentProgress,
+          'Estruturando conceitos e cenas...',
+          'Organizando narrativa visual, temporalidade e metáforas',
+          'running',
+        );
+      } else if (currentProgress < 92) {
+        currentProgress += 1;
+        updateLiveActivity(
+          currentProgress,
+          'Construindo diagramas e animações...',
+          'Sintetizando gráficos vetoriais interativos e legendas',
+          'running',
+        );
+      }
+    }, 280);
+  } else {
+    visualizerLoading.hidden = true;
+    if (phase === 'success') {
+      updateLiveActivity(
+        100,
+        'Visualização pronta!',
+        'Iniciando apresentação interativa...',
+        'success',
+      );
+    } else if (phase === 'error') {
+      updateLiveActivity(
+        100,
+        'Não foi possível concluir',
+        endMessage || 'Ocorreu uma falha na geração do roteiro.',
+        'error',
+      );
+    }
+  }
+
   visualizerForm.setAttribute('aria-busy', String(isLoading));
   visualizerSubmit.disabled = isLoading;
   visualizerQuestion.disabled = false;
@@ -926,10 +1333,16 @@ visualizerForm.addEventListener('submit', async (event) => {
 
 visualizerPrevious.addEventListener('click', () => engine.seek(engine.index - 1));
 visualizerNext.addEventListener('click', () => engine.seek(engine.index + 1));
+if (visualizerStepPrev) visualizerStepPrev.addEventListener('click', () => engine.seek(engine.index - 1));
+if (visualizerStepNext) visualizerStepNext.addEventListener('click', () => engine.seek(engine.index + 1));
 visualizerPlay.addEventListener('click', () => engine.play());
 visualizerPause.addEventListener('click', () => engine.pause());
 visualizerRestart.addEventListener('click', () => engine.restart());
-visualizerSpeed.addEventListener('change', () => engine.setSpeed(Number(visualizerSpeed.value)));
+visualizerSpeed.addEventListener('change', () => {
+  engine.setSpeed(Number(visualizerSpeed.value));
+  syncSpeedPills();
+  updatePlaybackStatus();
+});
 
 reducedMotionPreference.addEventListener('change', () => {
   engine.setReducedMotion(reducedMotionPreference.matches);

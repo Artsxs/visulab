@@ -16,7 +16,7 @@ const NVIDIA_MODEL_ERROR = 'Corrija NVIDIA_MODEL no Netlify: use um identificado
 
 const readNvidiaModel = () => {
   const model = process.env.NVIDIA_MODEL?.trim() || DEFAULT_NVIDIA_MODEL;
-  const keys = [process.env.NVIDIA_API_KEY, process.env.VISULAB_API_KEY]
+  const keys = [process.env.NVIDIA_API_KEY, process.env.VISULAB_API_KEY, process.env.GEMINI_API_KEY]
     .map(key => key?.trim()).filter(Boolean);
   // Não basta aceitar letras e hífens: uma chave nvapi- também satisfaz isso.
   if (model.length > 100 || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\/[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(model)
@@ -367,7 +367,7 @@ export default async (request) => {
     return errorResponse(400, 'INVALID_QUESTION', validation.error);
   }
 
-  const geminiKey = process.env.VISULAB_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY || process.env.VISULAB_API_KEY;
   const nvidiaKey = process.env.NVIDIA_API_KEY;
   console.info('[VisuLab Function] Provedores configurados', {
     gemini: Boolean(geminiKey),

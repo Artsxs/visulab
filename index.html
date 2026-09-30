@@ -51,89 +51,210 @@
         </a>
 
         <nav class="site-nav" aria-label="Navegação principal">
-          <a href="#ver-acontecer">Ver acontecer</a>
-          <a href="#explorar">Explorar</a>
+          <a href="#inicio" id="nav-inicio">Início</a>
+          <a href="#apresentacao">Sobre</a>
           <a href="#como-funciona">Como funciona</a>
+          <a href="#ver-acontecer">Laboratório</a>
+          <a href="#explorar">Explorar</a>
         </nav>
 
-        <button
-          class="theme-toggle"
-          id="theme-toggle"
-          type="button"
-          aria-label="Ativar tema escuro"
-          title="Alternar tema"
+        <label
+          class="theme-switch"
+          for="theme-toggle"
+          id="theme-switch"
+          title="Mudar de dia para noite / noite para dia"
         >
-          <span class="theme-toggle__icon" aria-hidden="true">☾</span>
-        </button>
+          <span class="sr-only">Alternar entre tema dia e noite</span>
+          <input
+            type="checkbox"
+            class="theme-switch__checkbox"
+            id="theme-toggle"
+            aria-label="Mudar de dia para noite"
+          />
+          <div class="theme-switch__container" aria-hidden="true">
+            <div class="theme-switch__clouds"></div>
+            <div class="theme-switch__stars-container">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M135.831 3.00688C135.055 3.85027 134.111 4.29946 133 4.35447C134.111 4.40947 135.055 4.85867 135.831 5.71123C136.607 6.55462 136.996 7.56303 136.996 8.72727C136.996 7.95722 137.172 7.25134 137.525 6.59129C137.886 5.93124 138.372 5.39954 138.98 5.00535C139.598 4.60199 140.268 4.39114 141 4.35447C139.88 4.2903 138.936 3.85027 138.16 3.00688C137.384 2.16348 136.996 1.16425 136.996 0C136.996 1.16425 136.607 2.16348 135.831 3.00688ZM31 23.3545C32.1114 23.2995 33.0551 22.8503 33.8313 22.0069C34.6075 21.1635 34.9956 20.1642 34.9956 19C34.9956 20.1642 35.3837 21.1635 36.1599 22.0069C36.9361 22.8503 37.8798 23.2903 39 23.3545C38.2679 23.3911 37.5976 23.602 36.9802 24.0053C36.3716 24.3995 35.8864 24.9312 35.5248 25.5913C35.172 26.2513 34.9956 26.9572 34.9956 27.7273C34.9956 26.563 34.6075 25.5546 33.8313 24.7112C33.0551 23.8587 32.1114 23.4095 31 23.3545ZM0 36.3545C1.11136 36.2995 2.05513 35.8503 2.83131 35.0069C3.6075 34.1635 3.99559 33.1642 3.99559 32C3.99559 33.1642 4.38368 34.1635 5.15987 35.0069C5.93605 35.8503 6.87982 36.2903 8 36.3545C7.26792 36.3911 6.59757 36.602 5.98015 37.0053C5.37155 37.3995 4.88644 37.9312 4.52481 38.5913C4.172 39.2513 3.99559 39.9572 3.99559 40.7273C3.99559 39.563 3.6075 38.5546 2.83131 37.7112C2.05513 36.8587 1.11136 36.4095 0 36.3545ZM56.8313 24.0069C56.0551 24.8503 55.1114 25.2995 54 25.3545C55.1114 25.4095 56.0551 25.8587 56.8313 26.7112C57.6075 27.5546 57.9956 28.563 57.9956 29.7273C57.9956 28.9572 58.172 28.2513 58.5248 27.5913C58.8864 26.9312 59.3716 26.3995 59.9802 26.0053C60.5976 25.602 61.2679 25.3911 62 25.3545C60.8798 25.2903 59.9361 24.8503 59.1599 24.0069C58.3837 23.1635 57.9956 22.1642 57.9956 21C57.9956 22.1642 57.6075 23.1635 56.8313 24.0069ZM81 25.3545C82.1114 25.2995 83.0551 24.8503 83.8313 24.0069C84.6075 23.1635 84.9956 22.1642 84.9956 21C84.9956 22.1642 85.3837 23.1635 86.1599 24.0069C86.9361 24.8503 87.8798 25.2903 89 25.3545C88.2679 25.3911 87.5976 25.602 86.9802 26.0053C86.3716 26.3995 85.8864 26.9312 85.5248 27.5913C85.172 28.2513 84.9956 28.9572 84.9956 29.7273C84.9956 28.563 84.6075 27.5546 83.8313 26.7112C83.0551 25.8587 82.1114 25.4095 81 25.3545ZM136 36.3545C137.111 36.2995 138.055 35.8503 138.831 35.0069C139.607 34.1635 139.996 33.1642 139.996 32C139.996 33.1642 140.384 34.1635 141.16 35.0069C141.936 35.8503 142.88 36.2903 144 36.3545C143.268 36.3911 142.598 36.602 141.98 37.0053C141.372 37.3995 140.886 37.9312 140.525 38.5913C140.172 39.2513 139.996 39.9572 139.996 40.7273C139.996 39.563 139.607 38.5546 138.831 37.7112C138.055 36.8587 137.111 36.4095 136 36.3545ZM101.831 49.0069C101.055 49.8503 100.111 50.2995 99 50.3545C100.111 50.4095 101.055 50.8587 101.831 51.7112C102.607 52.5546 102.996 53.563 102.996 54.7273C102.996 53.9572 103.172 53.2513 103.525 52.5913C103.886 51.9312 104.372 51.3995 104.98 51.0053C105.598 50.602 106.268 50.3911 107 50.3545C105.88 50.2903 104.936 49.8503 104.16 49.0069C103.384 48.1635 102.996 47.1642 102.996 46C102.996 47.1642 102.607 48.1635 101.831 49.0069Z" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="theme-switch__circle-container">
+              <div class="theme-switch__sun-moon-container">
+                <div class="theme-switch__moon">
+                  <div class="theme-switch__spot"></div>
+                  <div class="theme-switch__spot"></div>
+                  <div class="theme-switch__spot"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </label>
       </div>
     </header>
 
     <main id="main">
-      <section class="hero shell" aria-labelledby="hero-title">
-        <div class="hero__copy" data-reveal>
-          <p class="eyebrow"><span aria-hidden="true">✦</span> Pergunte, observe, compreenda</p>
-          <h1 id="hero-title">Veja o conhecimento<br /><em>acontecer.</em></h1>
-          <p class="hero__subtitle">Perguntas viram experiências visuais.</p>
-          <p class="hero__description">
-            O VisuLab transforma conteúdos difíceis de Ciências, História e
-            Geografia em animações guiadas, com uma explicação de cada vez.
-          </p>
+      <!-- PRIMEIRA TELA: Identidade editorial da imagem aprovada com zoom-out na rolagem e ambientação Dia / Noite -->
+      <section class="hero-stage" id="inicio" aria-label="Apresentação inicial do VisuLab">
+        <div class="hero-stage__sticky" id="hero-stage-sticky">
+          <div class="hero-stage__art-frame" id="hero-art-frame">
+            <div class="hero-stage__art-wrapper" id="hero-art-wrapper">
+              <!-- Camadas de cenário artístico: Dia e Noite com transição suave -->
+              <div class="hero-stage__scenery" aria-hidden="true">
+                <picture class="hero-stage__picture hero-stage__picture--day">
+                  <source srcset="assets/hero-day.webp" type="image/webp">
+                  <img
+                    src="assets/hero-day.png"
+                    alt=""
+                    class="hero-stage__image hero-stage__image--day"
+                    id="hero-art-image-day"
+                    width="1200"
+                    height="630"
+                    fetchpriority="high"
+                  />
+                </picture>
+                <picture class="hero-stage__picture hero-stage__picture--night">
+                  <source srcset="assets/hero-night.webp" type="image/webp">
+                  <img
+                    src="assets/hero-night.jpg"
+                    alt=""
+                    class="hero-stage__image hero-stage__image--night"
+                    id="hero-art-image-night"
+                    width="1200"
+                    height="630"
+                    loading="eager"
+                  />
+                </picture>
+              </div>
 
-          <form class="search" id="search-form">
-            <label class="sr-only" for="search-input">Faça uma pergunta ao VisuLab</label>
-            <span class="search__icon" aria-hidden="true"></span>
-            <input
-              id="search-input"
-              name="pergunta-inicial"
-              type="text"
-              maxlength="250"
-              autocomplete="off"
-              placeholder="Ex.: Como acontecem os terremotos?"
-              required
-            />
-            <button type="submit">Ver acontecer</button>
-          </form>
+              <!-- Conteúdo em fluxo estruturado: Marca -> Slogan -> Busca -> Sugestões (Sem risco de sobreposição) -->
+              <div class="hero-stage__content hero-search-overlay" id="hero-stage-content">
+                <div class="hero-brand-group">
+                  <h1 class="hero-brand" id="hero-brand-title">VisuLab</h1>
+                  <p class="hero-slogan">Veja o conhecimento acontecer.</p>
+                </div>
 
-          <div class="hero__actions">
-            <a class="button button--primary" id="start-journey" href="#ver-acontecer">
-              Fazer uma pergunta <span aria-hidden="true">→</span>
-            </a>
-            <span class="hero__note">
-              <span class="hero__note-dot" aria-hidden="true"></span>
-              Seis experiências funcionam mesmo sem IA
-            </span>
+                <form class="search hero-search-bar" id="search-form" role="search" aria-label="Pesquisar tema para visualização">
+                  <label class="hero-search-bar__label" for="search-input">
+                    O que você quer aprender hoje?
+                  </label>
+                  <div class="hero-search-bar__inner">
+                    <span class="search__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                    </span>
+                    <input
+                      id="search-input"
+                      name="pergunta-inicial"
+                      type="text"
+                      maxlength="250"
+                      autocomplete="off"
+                      placeholder="Ex.: Como os vulcões entram em erupção?"
+                      required
+                    />
+                    <button class="hero-search-bar__submit" type="submit" aria-label="Ver animação sobre o tema digitado">
+                      <span>Ver animação</span>
+                      <span class="btn-arrow" aria-hidden="true">→</span>
+                    </button>
+                  </div>
+                  <p class="hero-search-bar__meta">
+                    <span class="meta-tag">Gratuito para estudantes e pessoas curiosas.</span>
+                  </p>
+                </form>
+
+                <div class="hero-quick-topics" aria-label="Sugestões de temas já disponíveis">
+                  <span class="hero-quick-topics__caption">Sugestões:</span>
+                  <div class="hero-quick-topics__list">
+                    <button type="button" class="hero-quick-pill" data-quick-topic="terremotos">Terremotos</button>
+                    <span class="quick-sep" aria-hidden="true">·</span>
+                    <button type="button" class="hero-quick-pill" data-quick-topic="fotossintese">Fotossíntese</button>
+                    <span class="quick-sep" aria-hidden="true">·</span>
+                    <button type="button" class="hero-quick-pill" data-quick-topic="brasil-colonial">Brasil Colonial</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="hero-visual" aria-label="Ideias conectadas em movimento" data-reveal>
-          <span class="hero-visual__label hero-visual__label--top">Observe</span>
-          <span class="hero-visual__label hero-visual__label--right">Experimente</span>
-          <span class="hero-visual__label hero-visual__label--bottom">Entenda</span>
-
-          <div class="orbit orbit--outer" aria-hidden="true">
-            <span class="orbit__dot orbit__dot--yellow"></span>
-          </div>
-          <div class="orbit orbit--inner" aria-hidden="true">
-            <span class="orbit__dot orbit__dot--coral"></span>
-          </div>
-
-          <div class="hero-visual__core" aria-hidden="true">
-            <span class="hero-visual__spark">✦</span>
-            <strong>Por quê?</strong>
-            <small>é onde tudo começa</small>
-          </div>
-
-          <span class="hero-visual__shape hero-visual__shape--one" aria-hidden="true"></span>
-          <span class="hero-visual__shape hero-visual__shape--two" aria-hidden="true"></span>
-          <span class="hero-visual__shape hero-visual__shape--three" aria-hidden="true"></span>
+          <!-- Indicação discreta de rolagem -->
+          <a href="#apresentacao" class="hero-scroll-hint" id="hero-scroll-hint" aria-label="Rolar para conhecer o projeto">
+            <span>Role para conhecer o projeto</span>
+            <span class="scroll-chevron" aria-hidden="true">↓</span>
+          </a>
         </div>
       </section>
 
-      <section class="subject-strip" aria-label="Áreas do conhecimento">
-        <div class="shell subject-strip__inner">
-          <span><i class="subject-dot subject-dot--science" aria-hidden="true"></i> Ciências</span>
-          <span><i class="subject-dot subject-dot--history" aria-hidden="true"></i> História</span>
-          <span><i class="subject-dot subject-dot--geography" aria-hidden="true"></i> Geografia</span>
+      <!-- APRESENTAÇÃO EDITORIAL APÓS A TRANSIÇÃO (Os três blocos fundamentais) -->
+      <section class="presentation section" id="apresentacao" aria-labelledby="apresentacao-title">
+        <div class="shell">
+          <div class="presentation__grid">
+            <!-- Primeiro Bloco: Compreensão antes da cópia -->
+            <article class="presentation-card presentation-card--lead" data-reveal>
+              <div class="presentation-card__accent presentation-card__accent--blue" aria-hidden="true">
+                <svg viewBox="0 0 100 24" width="100" height="24" fill="none">
+                  <path d="M0 12 Q25 4 50 12 T100 12" stroke="var(--color-blue)" stroke-width="3" fill="none" />
+                  <circle cx="50" cy="12" r="5" fill="var(--color-blue)" />
+                </svg>
+              </div>
+              <p class="eyebrow"><span aria-hidden="true">✦</span> Compreensão antes da cópia</p>
+              <h2 id="apresentacao-title">Não basta receber uma resposta. É preciso compreender.</h2>
+              <p class="presentation-card__lead">
+                Uma resposta pronta pode encerrar uma tarefa sem despertar a compreensão. O VisuLab nasce da vontade de mudar essa experiência: usar a inteligência artificial como apoio para investigar, visualizar processos e aprender — não apenas copiar.
+              </p>
+              <p>
+                Em vez de parar no texto, a proposta é acompanhar o conhecimento acontecendo, com explicações visuais que convidam à observação e a novas perguntas.
+              </p>
+            </article>
+
+            <!-- Segundo Bloco: Curiosidade como ponto de partida -->
+            <article class="presentation-card" data-reveal>
+              <div class="presentation-card__accent presentation-card__accent--terracotta" aria-hidden="true">
+                <svg viewBox="0 0 100 24" width="100" height="24" fill="none">
+                  <path d="M0 16 Q30 6 60 16 T100 16" stroke="var(--color-terracotta)" stroke-width="3" fill="none" />
+                  <circle cx="60" cy="16" r="5" fill="var(--color-terracotta)" />
+                </svg>
+              </div>
+              <p class="eyebrow"><span aria-hidden="true">✦</span> Exploração aberta</p>
+              <h3>Sua curiosidade é o ponto de partida.</h3>
+              <p>
+                Digite o que você quer aprender e explore uma explicação animada sobre o assunto. De fenômenos naturais a acontecimentos históricos, o VisuLab transforma perguntas em oportunidades de descoberta, gratuitamente, para estudantes e pessoas curiosas.
+              </p>
+              <div class="presentation-card__footer">
+                <a href="#ver-acontecer" class="link-action">
+                  Experimentar no laboratório <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </article>
+
+            <!-- Terceiro Bloco: Viagem no espaço-tempo e Unicamp -->
+            <article class="presentation-card" data-reveal>
+              <div class="presentation-card__accent presentation-card__accent--yellow" aria-hidden="true">
+                <svg viewBox="0 0 100 24" width="100" height="24" fill="none">
+                  <path d="M0 8 Q35 18 70 8 T100 8" stroke="var(--color-yellow)" stroke-width="3" fill="none" />
+                  <circle cx="70" cy="8" r="5" fill="var(--color-yellow)" />
+                </svg>
+              </div>
+              <p class="eyebrow"><span aria-hidden="true">✦</span> Espaço-tempo e ciências</p>
+              <h3>Uma viagem pelo conhecimento, através do tempo.</h3>
+              <p>
+                Criado para o Grande Desafio da Unicamp 2026, o VisuLab interpreta a viagem pelo espaço-tempo como uma experiência de aprendizagem: revisitar o passado, compreender o presente e explorar possibilidades futuras com o apoio das ciências.
+              </p>
+              <p>
+                Aqui, viajar é mudar de perspectiva, observar transformações e conectar ideias de diferentes épocas e lugares.
+              </p>
+              <div class="presentation-notice">
+                <p class="presentation-notice__text">
+                  <strong>Observação:</strong> Ao explorar o futuro, apresentamos possibilidades e hipóteses, não certezas sobre o que acontecerá.
+                </p>
+              </div>
+              <div class="presentation-card__footer">
+                <a href="https://museu.harena.org/gd/" target="_blank" rel="noopener noreferrer" class="link-challenge">
+                  Conheça o Grande Desafio <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -197,10 +318,39 @@
               </div>
 
               <div class="visualizer-loading" id="visualizer-loading" role="status" hidden>
-                <span class="visualizer-loading__spinner" aria-hidden="true"></span>
-                <div>
-                  <strong>Preparando a experiência...</strong>
-                  <p>Aguardando a IA preparar o roteiro. A reprodução começará quando a experiência estiver pronta.</p>
+                <div class="live-activity-pod" id="live-activity-pod">
+                  <div class="live-activity-header">
+                    <div class="live-activity-glyph" id="live-activity-glyph">
+                      <svg class="live-activity-glyph__spinner" id="live-activity-spinner" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" fill="none" opacity="0.25" />
+                        <path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
+                      </svg>
+                      <svg class="live-activity-glyph__success" id="live-activity-success" viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true" hidden>
+                        <path d="M3.5 8.5l3.2 3.2 5.8 -7.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <svg class="live-activity-glyph__error" id="live-activity-error" viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true" hidden>
+                        <path d="M8 3.5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <circle cx="8" cy="12" r="1.1" fill="currentColor" />
+                      </svg>
+                    </div>
+
+                    <div class="live-activity-info">
+                      <strong class="live-activity-title" id="live-activity-title">Preparando a experiência...</strong>
+                      <p class="live-activity-detail" id="live-activity-detail">Aguardando a IA preparar o roteiro. A reprodução começará quando a experiência estiver pronta.</p>
+                    </div>
+
+                    <span class="live-activity-badge">
+                      <span class="live-activity-badge__pulse" aria-hidden="true"></span>
+                      <span>IA ativa</span>
+                    </span>
+                  </div>
+
+                  <div class="live-activity-progress-row">
+                    <div class="live-activity-track">
+                      <div class="live-activity-fill" id="live-activity-fill" style="width: 12%;"></div>
+                    </div>
+                    <span class="live-activity-percent" id="live-activity-percent">12%</span>
+                  </div>
                 </div>
               </div>
               <p class="visualizer-feedback" id="visualizer-feedback" aria-live="polite"></p>
@@ -240,79 +390,221 @@
                   hidden
                 ></nav>
 
-                <div class="visualizer-step" id="visualizer-step">
-                  <span id="visualizer-step-number" aria-hidden="true"></span>
-                  <div>
-                    <p id="visualizer-step-label"></p>
-                    <h4 id="visualizer-step-title"></h4>
-                    <p id="visualizer-step-description"></p>
+                <div class="visualizer-tabs" id="visualizer-tabs">
+                  <div
+                    class="visualizer-tablist"
+                    role="tablist"
+                    aria-orientation="horizontal"
+                    aria-label="Informações e controles da experiência"
+                  >
+                    <span class="visualizer-tabs__indicator" id="visualizer-tabs-indicator" aria-hidden="true"></span>
+                    <button
+                      class="visualizer-tab is-active"
+                      id="visualizer-tab-etapas"
+                      role="tab"
+                      type="button"
+                      aria-selected="true"
+                      aria-controls="visualizer-panel-etapas"
+                      tabindex="0"
+                    >
+                      <svg class="visualizer-tab__icon" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M3 5h14M3 10h14M3 15h9" stroke-linecap="round"/>
+                      </svg>
+                      <span>Etapas</span>
+                    </button>
+                    <button
+                      class="visualizer-tab"
+                      id="visualizer-tab-controles"
+                      role="tab"
+                      type="button"
+                      aria-selected="false"
+                      aria-controls="visualizer-panel-controles"
+                      tabindex="-1"
+                    >
+                      <svg class="visualizer-tab__icon" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <polygon points="6,4 16,10 6,16" fill="currentColor" stroke="none"/>
+                      </svg>
+                      <span>Controles</span>
+                    </button>
+                    <button
+                      class="visualizer-tab"
+                      id="visualizer-tab-complementos"
+                      role="tab"
+                      type="button"
+                      aria-selected="false"
+                      aria-controls="visualizer-panel-complementos"
+                      tabindex="-1"
+                    >
+                      <svg class="visualizer-tab__icon" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <circle cx="10" cy="10" r="7.5"/>
+                        <line x1="10" y1="9" x2="10" y2="14" stroke-linecap="round"/>
+                        <circle cx="10" cy="6" r="0.8" fill="currentColor"/>
+                      </svg>
+                      <span>Mais complementos</span>
+                    </button>
+                  </div>
+
+                  <!-- Aba 1: Etapas da experiência -->
+                  <div
+                    class="visualizer-panel is-active"
+                    id="visualizer-panel-etapas"
+                    role="tabpanel"
+                    aria-labelledby="visualizer-tab-etapas"
+                    tabindex="0"
+                  >
+                    <div class="visualizer-step" id="visualizer-step">
+                      <span id="visualizer-step-number" aria-hidden="true"></span>
+                      <div class="visualizer-step__content">
+                        <p id="visualizer-step-label"></p>
+                        <h4 id="visualizer-step-title"></h4>
+                        <p id="visualizer-step-description"></p>
+                      </div>
+                    </div>
+
+                    <!-- Indicador visual interativo de passos (stepper) -->
+                    <div class="visualizer-stepper" id="visualizer-stepper" aria-label="Navegar diretamente pelas etapas"></div>
+
+                    <div
+                      class="visualizer-progress"
+                      id="visualizer-progress"
+                      role="progressbar"
+                      aria-label="Progresso da experiência"
+                      aria-valuemin="1"
+                      aria-valuemax="1"
+                      aria-valuenow="1"
+                    >
+                      <span id="visualizer-progress-bar"></span>
+                    </div>
+                    <p
+                      class="visualizer-progress-label"
+                      id="visualizer-progress-label"
+                      role="status"
+                      aria-live="polite"
+                      aria-atomic="true"
+                    ></p>
+
+                    <!-- Navegação fluida e clean na aba de etapas -->
+                    <div class="visualizer-step-nav" aria-label="Navegar entre etapas">
+                      <button class="visualizer-quick-btn" id="visualizer-step-prev" type="button" aria-label="Etapa anterior">
+                        <span aria-hidden="true">←</span> Etapa anterior
+                      </button>
+                      <button class="visualizer-quick-btn visualizer-quick-btn--next" id="visualizer-step-next" type="button" aria-label="Próxima etapa">
+                        Próxima etapa <span aria-hidden="true">→</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Aba 2: Controles e Reprodução interativa -->
+                  <div
+                    class="visualizer-panel"
+                    id="visualizer-panel-controles"
+                    role="tabpanel"
+                    aria-labelledby="visualizer-tab-controles"
+                    tabindex="0"
+                    hidden
+                  >
+                    <div class="visualizer-playback-card">
+                      <div class="visualizer-playback-header">
+                        <div class="visualizer-status-indicator">
+                          <span class="visualizer-status-dot" id="visualizer-status-dot" aria-hidden="true"></span>
+                          <span class="visualizer-status-text" id="visualizer-status-text">Pronto para reproduzir</span>
+                        </div>
+                        <span class="visualizer-status-step" id="visualizer-status-step"></span>
+                      </div>
+
+                      <div class="visualizer-controls" role="group" aria-label="Controles da experiência">
+                        <button class="visualizer-control visualizer-control--prev" id="visualizer-previous" type="button" title="Etapa anterior">
+                          <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12.5 15L7.5 10l5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          <span>Etapa anterior</span>
+                        </button>
+                        <button class="visualizer-control visualizer-control--play" id="visualizer-play" type="button" title="Reproduzir animação">
+                          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><polygon points="6.5,4.5 15.5,10 6.5,15.5"/></svg>
+                          <span>Reproduzir</span>
+                        </button>
+                        <button class="visualizer-control visualizer-control--pause" id="visualizer-pause" type="button" title="Pausar animação">
+                          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="5.5" y="4.5" width="3" height="11" rx="1"/><rect x="11.5" y="4.5" width="3" height="11" rx="1"/></svg>
+                          <span>Pausar</span>
+                        </button>
+                        <button class="visualizer-control visualizer-control--next" id="visualizer-next" type="button" title="Próxima etapa">
+                          <span>Próxima etapa</span>
+                          <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7.5 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button class="visualizer-control visualizer-control--restart" id="visualizer-restart" type="button" title="Reiniciar desde a primeira etapa">
+                          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3.5 10a6.5 6.5 0 1 1 1.9 4.6M3.5 15v-5h5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          <span>Reiniciar</span>
+                        </button>
+                      </div>
+
+                      <div class="visualizer-speed-bar">
+                        <span class="visualizer-speed-title">
+                          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10" cy="10" r="7"/><polyline points="10,6 10,10 13,12"/></svg>
+                          Velocidade:
+                        </span>
+                        <div class="visualizer-speed-pills" id="visualizer-speed-pills" role="radiogroup" aria-label="Velocidade da reprodução">
+                          <button type="button" class="visualizer-speed-pill" data-speed="0.5" role="radio" aria-checked="false">0,5×</button>
+                          <button type="button" class="visualizer-speed-pill is-active" data-speed="1" role="radio" aria-checked="true">1×</button>
+                          <button type="button" class="visualizer-speed-pill" data-speed="1.5" role="radio" aria-checked="false">1,5×</button>
+                          <button type="button" class="visualizer-speed-pill" data-speed="2" role="radio" aria-checked="false">2×</button>
+                        </div>
+
+                        <label class="visualizer-speed" for="visualizer-speed">
+                          <span class="sr-only">Seletor de velocidade</span>
+                          <select id="visualizer-speed" aria-label="Velocidade da animação">
+                            <option value="0.5">0,5×</option>
+                            <option value="1" selected>1×</option>
+                            <option value="1.5">1,5×</option>
+                            <option value="2">2×</option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Aba 3: Mais complementos e aprofundamento -->
+                  <div
+                    class="visualizer-panel"
+                    id="visualizer-panel-complementos"
+                    role="tabpanel"
+                    aria-labelledby="visualizer-tab-complementos"
+                    tabindex="0"
+                    hidden
+                  >
+                    <aside class="visualizer-curiosity" aria-labelledby="visualizer-curiosity-title">
+                      <span aria-hidden="true">✦</span>
+                      <div>
+                        <h4 id="visualizer-curiosity-title">Para compreender melhor</h4>
+                        <p id="visualizer-curiosity"></p>
+                      </div>
+                    </aside>
+
+                    <div class="visualizer-complements-section">
+                      <div class="visualizer-complement-block">
+                        <h5 class="visualizer-complement-title">
+                          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><line x1="8" y1="5" x2="8" y2="8.5"/><circle cx="8" cy="11" r="0.5" fill="currentColor"/></svg>
+                          Esquema didático &amp; simplificações
+                        </h5>
+                        <p class="visualizer-simplifications" id="visualizer-simplifications"></p>
+                      </div>
+
+                      <div class="visualizer-complement-block">
+                        <h5 class="visualizer-complement-title">
+                          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 2h10a1 1 0 0 1 1 1v11l-3-2-3 2-3-2-3 2V3a1 1 0 0 1 1-1z"/></svg>
+                          Fontes e referências consultadas
+                        </h5>
+                        <div class="visualizer-references" id="visualizer-references"></div>
+                      </div>
+                    </div>
+
+                    <details class="visualizer-transcript">
+                      <summary>Descrição textual e acessibilidade da animação</summary>
+                      <p id="visualizer-alternative"></p>
+                    </details>
+
+                    <p class="visualizer-ai-notice" id="visualizer-ai-notice" hidden>
+                      Roteiro de IA ainda não revisado. Confira as informações com seu professor e com materiais de referência.
+                    </p>
                   </div>
                 </div>
-
-                <div
-                  class="visualizer-progress"
-                  id="visualizer-progress"
-                  role="progressbar"
-                  aria-label="Progresso da experiência"
-                  aria-valuemin="1"
-                  aria-valuemax="1"
-                  aria-valuenow="1"
-                >
-                  <span id="visualizer-progress-bar"></span>
-                </div>
-                <p
-                  class="visualizer-progress-label"
-                  id="visualizer-progress-label"
-                  role="status"
-                  aria-live="polite"
-                  aria-atomic="true"
-                ></p>
-
-                <div class="visualizer-controls" role="group" aria-label="Controles da experiência">
-                  <button class="visualizer-control" id="visualizer-previous" type="button">
-                    <span aria-hidden="true">←</span> Etapa anterior
-                  </button>
-                  <button class="visualizer-control visualizer-control--play" id="visualizer-play" type="button">
-                    <span aria-hidden="true">▶</span> Reproduzir
-                  </button>
-                  <button class="visualizer-control" id="visualizer-pause" type="button">
-                    <span aria-hidden="true">Ⅱ</span> Pausar
-                  </button>
-                  <button class="visualizer-control" id="visualizer-next" type="button">
-                    Próxima etapa <span aria-hidden="true">→</span>
-                  </button>
-                  <button class="visualizer-control" id="visualizer-restart" type="button">
-                    <span aria-hidden="true">↺</span> Reiniciar
-                  </button>
-                  <label class="visualizer-speed" for="visualizer-speed">
-                    Velocidade
-                    <select id="visualizer-speed">
-                      <option value="0.5">0,5×</option>
-                      <option value="1" selected>1×</option>
-                      <option value="1.5">1,5×</option>
-                      <option value="2">2×</option>
-                    </select>
-                  </label>
-                </div>
-
-                <aside class="visualizer-curiosity" aria-labelledby="visualizer-curiosity-title">
-                  <span aria-hidden="true">✦</span>
-                  <div>
-                    <h4 id="visualizer-curiosity-title">Para compreender melhor</h4>
-                    <p id="visualizer-curiosity"></p>
-                  </div>
-                </aside>
-
-                <p class="visualizer-simplifications" id="visualizer-simplifications"></p>
-                <div class="visualizer-references" id="visualizer-references"></div>
-                <details class="visualizer-transcript">
-                  <summary>Descrição textual da animação</summary>
-                  <p id="visualizer-alternative"></p>
-                </details>
-
-                <p class="visualizer-ai-notice" id="visualizer-ai-notice" hidden>
-                  Roteiro de IA ainda não revisado. Confira as informações com seu professor e com materiais de referência.
-                </p>
               </div>
             </article>
 
@@ -448,56 +740,83 @@
         </div>
       </section>
 
-      <section class="about section" id="como-funciona" aria-labelledby="about-title">
-        <div class="shell about__inner">
-          <div class="about__copy" data-reveal>
-            <p class="eyebrow eyebrow--light">Como funciona</p>
-            <h2 id="about-title">Da pergunta à compreensão.</h2>
-            <p class="about__lead">
-              Conteúdos difíceis não precisam parecer distantes. O VisuLab transforma
-              conceitos abstratos em experiências visuais que despertam curiosidade,
-              convidam à experimentação e respeitam o ritmo de cada estudante.
-            </p>
+      <section class="how-it-works section" id="como-funciona" aria-labelledby="how-it-works-title">
+        <div class="shell">
+          <div class="section-heading" data-reveal>
+            <div>
+              <p class="eyebrow"><span aria-hidden="true">✦</span> Método educativo</p>
+              <h2 id="how-it-works-title">Como funciona a aprendizagem visual</h2>
+            </div>
             <p>
-              Nosso objetivo é criar pontes entre a pergunta e a compreensão, sem
-              substituir professores ou livros, mas oferecendo um novo jeito de ver,
-              tocar e conectar ideias.
+              Aprender é uma jornada de observação e raciocínio. Em vez de entregar respostas prontas para cópia, organizamos a descoberta em três momentos integrados.
             </p>
           </div>
 
-          <ol class="learning-path" aria-label="Jornada de aprendizagem" data-reveal>
-            <li>
-              <span>01</span>
-              <div>
-                <strong>Pergunte</strong>
-                <p>Escreva o conteúdo que você quer compreender.</p>
-              </div>
-            </li>
-            <li>
-              <span>02</span>
-              <div>
-                <strong>Veja acontecer</strong>
-                <p>Acompanhe a animação e avance no seu ritmo.</p>
-              </div>
-            </li>
-            <li>
-              <span>03</span>
-              <div>
-                <strong>Conecte as ideias</strong>
-                <p>Leia o resumo, as etapas e a curiosidade final.</p>
-              </div>
-            </li>
-          </ol>
+          <!-- Trajetória conectada inspirada na linha curva e pontos coloridos da identidade -->
+          <div class="journey-track" data-reveal>
+            <div class="journey-track__line" aria-hidden="true">
+              <svg viewBox="0 0 1000 120" preserveAspectRatio="none" class="journey-track__svg">
+                <path d="M 60 70 Q 250 20, 500 80 T 940 40" fill="none" stroke="var(--color-yellow)" stroke-width="4" stroke-linecap="round" />
+              </svg>
+            </div>
+
+            <ol class="journey-moments" aria-label="Os três momentos da aprendizagem">
+              <li class="journey-moment">
+                <div class="journey-moment__node journey-moment__node--blue" aria-hidden="true">
+                  <span class="journey-moment__dot"></span>
+                  <span class="journey-moment__num">01</span>
+                </div>
+                <div class="journey-moment__body">
+                  <span class="journey-moment__tag">Ponto de partida</span>
+                  <h3>Faça uma pergunta.</h3>
+                  <p>
+                    Digite o que você deseja compreender: acontecimentos do passado, fenômenos do presente ou cenários e hipóteses futuras investigadas pelas ciências.
+                  </p>
+                </div>
+              </li>
+
+              <li class="journey-moment">
+                <div class="journey-moment__node journey-moment__node--terracotta" aria-hidden="true">
+                  <span class="journey-moment__dot"></span>
+                  <span class="journey-moment__num">02</span>
+                </div>
+                <div class="journey-moment__body">
+                  <span class="journey-moment__tag">Observação ativa</span>
+                  <h3>Acompanhe a explicação visual.</h3>
+                  <p>
+                    O VisuLab organiza a resposta em etapas sequenciais e constrói uma animação clara no seu navegador, permitindo pausar, avançar e explorar a relação de causa e efeito.
+                  </p>
+                </div>
+              </li>
+
+              <li class="journey-moment">
+                <div class="journey-moment__node journey-moment__node--green" aria-hidden="true">
+                  <span class="journey-moment__dot"></span>
+                  <span class="journey-moment__num">03</span>
+                </div>
+                <div class="journey-moment__body">
+                  <span class="journey-moment__tag">Consolidação</span>
+                  <h3>Revise o que aprendeu e explore novas perguntas.</h3>
+                  <p>
+                    Aprofunde o assunto com o resumo conceitual, as fontes consultadas e as curiosidades científicas. A compreensão verdadeira estimula novas perguntas.
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
         </div>
       </section>
 
       <section class="closing shell" aria-labelledby="closing-title" data-reveal>
-        <div>
-          <p class="eyebrow">A curiosidade é o seu mapa</p>
-          <h2 id="closing-title">Qual será a sua<br />próxima descoberta?</h2>
+        <div class="closing__content">
+          <p class="eyebrow"><span aria-hidden="true">✦</span> Gratuito e aberto à curiosidade</p>
+          <h2 id="closing-title">Qual descoberta começa com a sua próxima pergunta?</h2>
+          <p class="closing__subtitle">
+            Explore fenômenos da Terra, momentos históricos e modelos científicos com explicações visuais feitas para compreender de verdade.
+          </p>
         </div>
-        <a class="button button--primary" href="#ver-acontecer">
-          Ver acontecer <span aria-hidden="true">→</span>
+        <a class="button button--primary" id="btn-start-exploring" href="#inicio">
+          Começar a explorar <span aria-hidden="true">→</span>
         </a>
       </section>
     </main>
@@ -508,8 +827,10 @@
           <img src="assets/visulab-logo.svg" alt="" width="36" height="36" />
           <span>VisuLab</span>
         </a>
-        <p>VisuLab é um projeto educacional. Veja o conhecimento acontecer.</p>
-        <p class="site-footer__challenge">Grande Desafio <strong>2026</strong></p>
+        <p>VisuLab é um projeto educacional gratuito para estudantes e pessoas curiosas. Veja o conhecimento acontecer.</p>
+        <p class="site-footer__challenge">
+          Inspirado pelo <a href="https://museu.harena.org/gd/" target="_blank" rel="noopener noreferrer">Grande Desafio Unicamp 2026</a>
+        </p>
       </div>
     </footer>
 
