@@ -47,7 +47,7 @@ framework, gerenciador de pacotes ou etapa de build.
 7. Se Gemini e NVIDIA falharem, o navegador cria um roteiro de apoio e informa
    **Animação local**. Esse fallback continua disponível para qualquer tema.
 
-A NVIDIA usa `process.env.NVIDIA_MODEL`, com `meta/llama-3.1-8b-instruct`
+A NVIDIA usa `process.env.NVIDIA_MODEL`, com `google/gemma-4-31b-it`
 como padrão. As chaves continuam somente no backend.
 
 O contrato de roteiro versão `1.0` contém disciplina, título, resumo,
@@ -129,8 +129,8 @@ local para qualquer assunto, sem expor detalhes internos.
 │   └── visulab-logo.svg
 ├── favicon.svg
 ├── index.html
-├── netlify/
-│   └── functions/
+├── api/
+│   └── visualizar.mjs
 │       └── visualizar.mjs
 ├── vercel.json
 ├── script.js
@@ -187,7 +187,7 @@ O Gemini usa `VISULAB_API_KEY`. A alternativa NVIDIA NIM usa
 3. Crie `VISULAB_API_KEY` e informe o valor como secreto.
 4. Opcionalmente, crie `NVIDIA_API_KEY` para habilitar o segundo provedor.
 5. Opcionalmente, defina `NVIDIA_MODEL` com o identificador do modelo desejado.
-   Por exemplo: `meta/llama-3.1-8b-instruct`. Sem essa variável ou com valor vazio,
+   Por exemplo: `google/gemma-4-31b-it`. Sem essa variável ou com valor vazio,
    a função usa esse modelo padrão. Nunca coloque uma chave em `NVIDIA_MODEL`.
 6. Inclua o escopo de Functions quando essa opção estiver disponível.
 7. Faça um novo deploy para a função receber as variáveis.

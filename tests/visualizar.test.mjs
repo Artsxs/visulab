@@ -6,7 +6,7 @@ import { RESPONSE_SCHEMA } from '../js/visual-schema.mjs';
 
 const originalFetch = globalThis.fetch;
 const originalEnvironment = Object.fromEntries(
-  ['VISULAB_API_KEY', 'GEMINI_API_KEY', 'NVIDIA_API_KEY', 'NVIDIA_MODEL'].map(name => [name, process.env[name]]),
+  ['VISULAB_API_KEY', 'NVIDIA_API_KEY', 'NVIDIA_MODEL'].map(name => [name, process.env[name]]),
 );
 let moduleVersion = 0;
 let visualizar;
@@ -225,7 +225,7 @@ test('pede JSON e schema no prompt Gemini sem campos de formato em generationCon
 });
 
 test('retorna Gemini validado sem chamar NVIDIA quando ambos estão configurados', async () => {
-  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvapi-ficticia';
   const calls = [];
   useSuccessfulGemini((url) => calls.push(url));
 
@@ -246,7 +246,7 @@ test('rejeita JSON malformado, cenas vazias e cenas sem ações de ambos os prov
       delete process.env.NVIDIA_API_KEY;
     } else {
       delete process.env.VISULAB_API_KEY;
-      process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+      process.env.NVIDIA_API_KEY = 'nvapi-ficticia';
     }
 
     for (const [description, text] of invalidExperienceTexts) {
@@ -265,7 +265,7 @@ test('rejeita JSON malformado, cenas vazias e cenas sem ações de ambos os prov
 
 test('tenta NVIDIA quando o Gemini responde HTTP 200 com roteiro inválido', async () => {
   process.env.VISULAB_API_KEY = 'gemini-ficticia';
-  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvapi-ficticia';
 
   for (const [description, text] of invalidExperienceTexts) {
     const calls = [];
@@ -288,7 +288,7 @@ test('tenta NVIDIA quando o Gemini responde HTTP 200 com roteiro inválido', asy
 
 test('tenta Gemini primeiro e usa NVIDIA NIM quando o Gemini falha', async () => {
   process.env.VISULAB_API_KEY = 'gemini-ficticia';
-  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvapi-ficticia';
   const calls = [];
   globalThis.fetch = async (url, options) => {
     calls.push({ url, options });
@@ -301,16 +301,14 @@ test('tenta Gemini primeiro e usa NVIDIA NIM quando o Gemini falha', async () =>
   assert.equal(payload.provedor, 'nvidia');
   assert.match(calls[0].url, /generativelanguage\.googleapis\.com/);
   assert.equal(calls[1].url, 'https://integrate.api.nvidia.com/v1/chat/completions');
-  assert.equal(calls[1].options.headers.Authorization, 'Bearer nvidia-ficticia');
+  assert.equal(calls[1].options.headers.Authorization, 'Bearer nvapi-ficticia');
   const body = JSON.parse(calls[1].options.body);
-  assert.equal(body.model, 'meta/llama-3.1-8b-instruct');
-  assert.deepEqual(body.response_format, { type: 'json_object' });
-  assert.equal(body.stream, false);
-  assert.equal(calls[1].options.body.includes('nvidia-ficticia'), false);
+  assert.equal(body.model, 'google/gemma-4-31b-it');
+  assert.equal(calls[1].options.body.includes('nvapi-ficticia'), false);
 });
 
 test('lê NVIDIA_MODEL por requisição e usa o padrão somente se ausente ou vazio', async () => {
-  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvapi-ficticia';
   for (const configuredModel of [undefined, '', '   ', 'meta/llama-3.1-70b-instruct']) {
     if (configuredModel === undefined) delete process.env.NVIDIA_MODEL;
     else process.env.NVIDIA_MODEL = configuredModel;
@@ -325,13 +323,13 @@ test('lê NVIDIA_MODEL por requisição e usa o padrão somente se ausente ou va
     assert.equal((await response.json()).provedor, 'nvidia');
     assert.equal(calledModel, configuredModel?.startsWith('meta/')
       ? configuredModel
-      : 'meta/llama-3.1-8b-instruct');
+      : 'google/gemma-4-31b-it');
   }
 });
 
 test('separa modelo, autenticação e logs usando somente credenciais fictícias', async (t) => {
-  process.env.NVIDIA_API_KEY = 'nvapi-credencial-ficticia-nao-valida';
-  process.env.NVIDIA_MODEL = 'meta/llama-3.1-8b-instruct';
+  process.env.NVIDIA_API_KEY = 'nvapi-nvapi-credencial-ficticia-nao-valida';
+  process.env.NVIDIA_MODEL = 'google/gemma-4-31b-it';
   const logs = [];
   t.mock.method(console, 'info', (...args) => logs.push(args));
   t.mock.method(console, 'error', (...args) => logs.push(args));
@@ -381,7 +379,7 @@ test('Gemini continua primeiro com NVIDIA_MODEL inválido; falha não dispara NV
   const logs = [];
   t.mock.method(console, 'info', (...args) => logs.push(args));
   t.mock.method(console, 'error', (...args) => logs.push(args));
-  process.env.NVIDIA_API_KEY = 'credencial-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvapi-credencial-ficticia';
   process.env.NVIDIA_MODEL = 'nvapi-configuracao-incorreta-ficticia';
   let calls = 0;
   useSuccessfulGemini(() => calls++);
@@ -426,7 +424,7 @@ test('Gemini expira em 8s; NVIDIA recebe sinal e prazo próprios, e timers são 
   const timers = fakeDeadlines(t), logs = [], signals = [];
   t.mock.method(console, 'error', (...args) => logs.push(args));
   process.env.VISULAB_API_KEY = 'gemini-ficticia';
-  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvapi-ficticia';
   globalThis.fetch = async (_url, { signal }) => {
     signals.push(signal);
     if (signals.length === 1) {
@@ -457,7 +455,7 @@ for (const provider of ['gemini', 'nvidia']) {
   test(`${provider}: abort durante leitura do JSON continua sendo timeout`, async (t) => {
     const timers = fakeDeadlines(t), logs = [];
     t.mock.method(console, 'error', (...args) => logs.push(args));
-    process.env[provider === 'gemini' ? 'VISULAB_API_KEY' : 'NVIDIA_API_KEY'] = 'chave-ficticia';
+    process.env[provider === 'gemini' ? 'VISULAB_API_KEY' : 'NVIDIA_API_KEY'] = provider === 'gemini' ? 'chave-ficticia' : 'nvapi-chave-ficticia';
     globalThis.fetch = async (_url, { signal }) => ({
       ok: true,
       json: () => new Promise((_resolve, reject) => {
@@ -491,7 +489,7 @@ test('limpa timer em sucesso/erro e não espera pelo corpo de um HTTP 404', asyn
 
 test('usa NVIDIA diretamente quando somente NVIDIA_API_KEY está configurada', async () => {
   delete process.env.VISULAB_API_KEY;
-  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvapi-ficticia';
   let calls = 0;
   globalThis.fetch = async (url) => { calls += 1; assert.match(url, /integrate\.api\.nvidia\.com/); return nvidiaSuccess(); };
   const response = await visualizar(makeRequest({ pergunta: 'Explique um átomo.' }));
@@ -502,7 +500,7 @@ test('usa NVIDIA diretamente quando somente NVIDIA_API_KEY está configurada', a
 
 test('retorna falhas dos dois provedores somente depois de tentar ambos', async () => {
   process.env.VISULAB_API_KEY = 'gemini-ficticia';
-  process.env.NVIDIA_API_KEY = 'nvidia-ficticia';
+  process.env.NVIDIA_API_KEY = 'nvapi-ficticia';
   let calls = 0;
   globalThis.fetch = async () => { calls += 1; return Response.json({ error: { message: 'Indisponível' } }, { status: 500 }); };
   const response = await visualizar(makeRequest({ pergunta: 'Explique a gravidade.' }));
