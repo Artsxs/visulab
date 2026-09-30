@@ -47,7 +47,7 @@ framework, gerenciador de pacotes ou etapa de build.
 7. Se Gemini e NVIDIA falharem, o navegador cria um roteiro de apoio e informa
    **Animação local**. Esse fallback continua disponível para qualquer tema.
 
-A NVIDIA usa `process.env.NVIDIA_MODEL`, com `google/gemma-4-31b-it`
+A NVIDIA usa `process.env.NVIDIA_MODEL`, com `meta/llama-3.1-8b-instruct`
 como padrão. As chaves continuam somente no backend.
 
 O contrato de roteiro versão `1.0` contém disciplina, título, resumo,
@@ -179,17 +179,17 @@ as variáveis cadastradas no ambiente remoto. Nunca imprima a variável em logs.
 
 ## Cadastrar as chaves no Vercel
 
-O Gemini usa `VISULAB_API_KEY`. A alternativa NVIDIA NIM usa
+O Gemini usa `GEMINI_API_KEY` (ou `VISULAB_API_KEY` como alternativa legada). A alternativa NVIDIA NIM usa
 `NVIDIA_API_KEY`. A função tenta Gemini, NVIDIA e, por último, o fallback local.
 
 1. Abra o projeto no painel do Vercel.
-2. Entre em **Site configuration → Environment variables**.
-3. Crie `VISULAB_API_KEY` e informe o valor como secreto.
-4. Opcionalmente, crie `NVIDIA_API_KEY` para habilitar o segundo provedor.
+2. Entre em **Site configuration → Environment variables** (ou **Settings → Environment Variables**).
+3. Crie `GEMINI_API_KEY` (ou `VISULAB_API_KEY`) e informe a sua chave secreta do Google AI Studio / Gemini.
+4. Opcionalmente, crie `NVIDIA_API_KEY` para habilitar o provedor de contingência da NVIDIA (chave que começa com `nvapi-`).
 5. Opcionalmente, defina `NVIDIA_MODEL` com o identificador do modelo desejado.
-   Por exemplo: `google/gemma-4-31b-it`. Sem essa variável ou com valor vazio,
+   Por exemplo: `meta/llama-3.1-8b-instruct`. Sem essa variável ou com valor vazio,
    a função usa esse modelo padrão. Nunca coloque uma chave em `NVIDIA_MODEL`.
-6. Inclua o escopo de Functions quando essa opção estiver disponível.
+6. Inclua o escopo de Functions/Production/Preview.
 7. Faça um novo deploy para a função receber as variáveis.
 
 O arquivo `.env.example` contém os nomes das duas chaves e de `NVIDIA_MODEL`, com valores

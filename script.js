@@ -905,6 +905,13 @@ const requestVisualExperience = async (question) => {
       const error = new Error(payload.esclarecimento); error.code = 'CLARIFICATION'; throw error;
     }
 
+    if (payload?.codigo) {
+      const error = new Error(payload?.mensagem || 'O provedor de IA não conseguiu gerar a animação.');
+      error.code = payload.codigo;
+      error.status = response.status;
+      throw error;
+    }
+
     if (!payload?.experiencia || !Array.isArray(payload.experiencia.cenas)) {
       const error = new Error('A função respondeu sem um roteiro visual válido.');
       error.code = 'INVALID_FUNCTION_RESPONSE';
@@ -913,7 +920,7 @@ const requestVisualExperience = async (question) => {
     }
 
     const result = validateVisualExperience({ ...payload.experiencia, origem: 'ia', revisao: '', fontes: [] });
-    if (result.fallback && !localVisualExperiences[result.tipoVisual]) { const error = new Error('Roteiro sem elementos visuais.'); error.code = 'INVALID_FUNCTION_RESPONSE'; throw error; }
+    if (result.fallback && !localVisualExperiences[result.tipoVisual]) { const error = new Error('Roteiro sem elementos visuais.'); error.code = 'INVALID_API_RESPONSE'; error.status = response.status; throw error; }
     return result;
   } catch (error) {
     if (error.name === 'AbortError') {

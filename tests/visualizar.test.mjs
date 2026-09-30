@@ -6,7 +6,7 @@ import { RESPONSE_SCHEMA } from '../js/visual-schema.mjs';
 
 const originalFetch = globalThis.fetch;
 const originalEnvironment = Object.fromEntries(
-  ['VISULAB_API_KEY', 'NVIDIA_API_KEY', 'NVIDIA_MODEL'].map(name => [name, process.env[name]]),
+  ['VISULAB_API_KEY', 'GEMINI_API_KEY', 'NVIDIA_API_KEY', 'NVIDIA_MODEL'].map(name => [name, process.env[name]]),
 );
 let moduleVersion = 0;
 let visualizar;
@@ -168,7 +168,8 @@ test('rejeita propriedades de entrada fora do contrato', async () => {
   assert.equal((await response.json()).codigo, 'INVALID_QUESTION');
 });
 
-test('informa quando VISULAB_API_KEY não está configurada', async () => {
+test('informa quando nenhuma chave de IA está configurada', async () => {
+  delete process.env.GEMINI_API_KEY;
   delete process.env.VISULAB_API_KEY;
   delete process.env.NVIDIA_API_KEY;
   const originalConsoleError = console.error;
@@ -186,6 +187,27 @@ test('informa quando VISULAB_API_KEY não está configurada', async () => {
   } finally {
     console.error = originalConsoleError;
   }
+});
+
+test('GEMINI_API_KEY tem prioridade sobre VISULAB_API_KEY e normaliza espaços', async () => {
+  let calledApiKey = null;
+  useSuccessfulGemini((_url, options) => {
+    calledApiKey = options.headers['x-goog-api-key'];
+  });
+  process.env.GEMINI_API_KEY = '   chave-gemini-prioritaria   ';
+  process.env.VISULAB_API_KEY = 'chave-legada-visulab';
+
+  const response = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal(response.status, 200);
+  assert.equal(calledApiKey, 'chave-gemini-prioritaria');
+
+  // Quando GEMINI_API_KEY for composta apenas por espaços, deve ser tratada como ausente e usar VISULAB_API_KEY
+  process.env.GEMINI_API_KEY = '     ';
+  process.env.VISULAB_API_KEY = 'chave-legada-visulab';
+  calledApiKey = null;
+  const responseLegacy = await visualizar(makeRequest({ pergunta: 'Como chove?' }));
+  assert.equal(responseLegacy.status, 200);
+  assert.equal(calledApiKey, 'chave-legada-visulab');
 });
 
 test('pede JSON e schema no prompt Gemini sem campos de formato em generationConfig', async () => {
@@ -303,7 +325,7 @@ test('tenta Gemini primeiro e usa NVIDIA NIM quando o Gemini falha', async () =>
   assert.equal(calls[1].url, 'https://integrate.api.nvidia.com/v1/chat/completions');
   assert.equal(calls[1].options.headers.Authorization, 'Bearer nvapi-ficticia');
   const body = JSON.parse(calls[1].options.body);
-  assert.equal(body.model, 'google/gemma-4-31b-it');
+  assert.equal(body.model, 'meta/llama-3.1-8b-instruct');
   assert.equal(calls[1].options.body.includes('nvapi-ficticia'), false);
 });
 
@@ -323,13 +345,13 @@ test('lê NVIDIA_MODEL por requisição e usa o padrão somente se ausente ou va
     assert.equal((await response.json()).provedor, 'nvidia');
     assert.equal(calledModel, configuredModel?.startsWith('meta/')
       ? configuredModel
-      : 'google/gemma-4-31b-it');
+      : 'meta/llama-3.1-8b-instruct');
   }
 });
 
 test('separa modelo, autenticação e logs usando somente credenciais fictícias', async (t) => {
   process.env.NVIDIA_API_KEY = 'nvapi-nvapi-credencial-ficticia-nao-valida';
-  process.env.NVIDIA_MODEL = 'google/gemma-4-31b-it';
+  process.env.NVIDIA_MODEL = 'meta/llama-3.1-8b-instruct';
   const logs = [];
   t.mock.method(console, 'info', (...args) => logs.push(args));
   t.mock.method(console, 'error', (...args) => logs.push(args));
@@ -346,6 +368,8 @@ test('separa modelo, autenticação e logs usando somente credenciais fictícias
 });
 
 test('bloqueia modelo inválido ou contendo chave antes do fetch, sem expor valores', async (t) => {
+  delete process.env.GEMINI_API_KEY;
+  delete process.env.VISULAB_API_KEY;
   process.env.NVIDIA_API_KEY = 'nvapi-segredo-ficticio-nao-valido';
   const logs = [];
   t.mock.method(console, 'info', (...args) => logs.push(args));
@@ -356,6 +380,7 @@ test('bloqueia modelo inválido ou contendo chave antes do fetch, sem expor valo
     'nvapi-outra-chave-ficticia', `meta/${process.env.NVIDIA_API_KEY}`,
     `Bearer ${process.env.NVIDIA_API_KEY}`, 'NVAPI-FICTICIA',
     process.env.NVIDIA_API_KEY, 'modelo invalido', 'meta/AIzaFicticia',
+    'https://api.nvidia.com/v1', 'curl -X POST https://api.nvidia.com',
   ]) {
     process.env.NVIDIA_MODEL = model;
     const response = await visualizar(makeRequest({ pergunta: 'Explique um átomo.' }));

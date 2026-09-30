@@ -1,7 +1,7 @@
 import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import visualizar from './netlify/functions/visualizar.mjs';
+import visualizar from './api/visualizar.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
