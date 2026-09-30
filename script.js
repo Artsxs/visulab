@@ -868,7 +868,7 @@ let visualizerIsPlaying = false;
 let activeNetworkController = null;
 let visualizerRequestId = 0;
 let pendingQuestion = '';
-const VISUALIZER_FUNCTION_URL = '/.netlify/functions/visualizar';
+const VISUALIZER_FUNCTION_URL = '/api/visualizar';
 
 const hasMarkup = (value) => /[<>]/.test(value);
 const characterCount = (value) => [...value].length;
@@ -932,6 +932,20 @@ const requestVisualExperience = async (question) => {
     }
   }
 };
+
+const createLocalFallback = (question) => validateVisualExperience({
+  versao: "1.0", disciplina: "outro", titulo: "Uma explicação visual local",
+  resumo: "Roteiro local de apoio para: " + question, tipoDeCena: "fluxo",
+  simplificacoes: "Diagrama de apoio criado localmente; não representa escala ou todos os detalhes do tema.",
+  cenas: [1, 2, 3].map((number, index) => ({
+    titulo: "Etapa " + number, objetivo: "Organizar a ideia principal em uma sequência visual.",
+    explicacao: index === 0 ? "Comece pela pergunta: " + question : index === 1 ? "Relacione a causa ao processo observado." : "Conecte o processo ao resultado e revise a ideia principal.",
+    duracaoMs: 4000, elementos: [{ id: "etapa-" + number, tipo: "retangulo", rotulo: "Etapa " + number, x: 25 + index * 25, y: 48, largura: 18, altura: 24, cor: index === 1 ? "amarelo" : "azul" }],
+    acoes: [{ alvo: "etapa-" + number, tipo: "aparecer", duracaoMs: 900, atrasoMs: 100 }],
+  })),
+  conclusao: "A resposta detalhada pode ser tentada novamente quando um provedor estiver disponível.",
+  curiosidade: "As experiências revisadas continuam disponíveis sem conexão com a IA.", origem: "local",
+});
 
 const renderVisualizerLegend = (visualType) => {
   const items = visualizerLegends[visualType] || visualizerLegends.processo_generico;
@@ -1290,19 +1304,19 @@ visualizerForm.addEventListener('submit', async (event) => {
     }
   } catch (error) {
     const messages = {
-      API_NOT_CONFIGURED: 'A chave da IA não está configurada no ambiente da função Netlify.',
-      AI_PROVIDERS_FAILED: 'Gemini e NVIDIA não conseguiram gerar a animação. Consulte os logs da função Netlify.',
-      API_CONFIGURATION_ERROR: 'O provedor de IA recusou a chave ou as permissões configuradas no Netlify.',
-      NVIDIA_MODEL_CONFIGURATION_ERROR: 'Corrija NVIDIA_MODEL no Netlify: informe o nome do modelo; a chave deve ficar somente em NVIDIA_API_KEY.',
-      API_REQUEST_REJECTED: 'O provedor de IA recusou o modelo ou o formato do roteiro. Consulte os logs da função Netlify.',
-      API_MODEL_NOT_FOUND: 'O modelo configurado não foi encontrado pelo provedor de IA. Consulte os logs da função Netlify.',
+      API_NOT_CONFIGURED: 'Nenhum provedor de IA está configurado na Vercel; a animação local continua disponível.',
+      AI_PROVIDERS_FAILED: 'Gemini e NVIDIA falharam; a animação local foi preparada.',
+      API_CONFIGURATION_ERROR: 'O provedor de IA recusou a chave ou as permissões configuradas na Vercel.',
+      NVIDIA_MODEL_CONFIGURATION_ERROR: 'Corrija NVIDIA_MODEL na Vercel: informe o nome do modelo; a chave deve ficar somente em NVIDIA_API_KEY.',
+      API_REQUEST_REJECTED: 'O provedor de IA recusou o modelo ou o formato do roteiro.',
+      API_MODEL_NOT_FOUND: 'O modelo configurado não foi encontrado pelo provedor de IA.',
       API_LIMIT: 'Muitas visualizações foram solicitadas agora. Aguarde um pouco e tente novamente.',
       API_UNAVAILABLE: 'O provedor de IA está temporariamente indisponível.',
       API_TIMEOUT: 'A criação demorou mais que o esperado. Tente novamente.',
       INVALID_API_RESPONSE: 'O provedor respondeu fora do formato visual esperado.',
-      INVALID_FUNCTION_RESPONSE: 'A função Netlify respondeu fora do formato esperado.',
-      FUNCTION_NOT_FOUND: 'A função visualizar não está presente neste deploy do Netlify.',
-      NETWORK_ERROR: 'Não foi possível alcançar a função Netlify. Em desenvolvimento local, execute o site com Netlify Dev.',
+      INVALID_FUNCTION_RESPONSE: 'A função da Vercel respondeu fora do formato esperado.',
+      FUNCTION_NOT_FOUND: 'A função visualizar não está presente neste deploy da Vercel.',
+      NETWORK_ERROR: 'Não foi possível alcançar a função da Vercel. Verifique o deploy e tente novamente.',
       TIMEOUT: 'A criação demorou mais que o esperado. Tente novamente.',
     };
     if (requestId === visualizerRequestId) {
@@ -1317,7 +1331,8 @@ visualizerForm.addEventListener('submit', async (event) => {
         visualizerEmpty.hidden = false;
         visualizerQuestion.focus();
       } else if (isAiFailure) {
-        visualizerFeedback.textContent = `${messages[error.code]} Não foi possível preparar uma explicação para esta pergunta. Tente novamente ou escolha uma das experiências revisadas nas sugestões.`;
+        showVisualExperience(createLocalFallback(question));
+        visualizerFeedback.textContent = messages[error.code] + " Exibindo uma Animação local de apoio; tente novamente quando quiser gerar com IA.";
         visualizerEmpty.hidden = false;
       } else {
         visualizerFeedback.textContent = 'Ocorreu um erro ao mostrar a animação. Consulte o console e tente novamente.';

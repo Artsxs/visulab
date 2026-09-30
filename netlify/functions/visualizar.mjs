@@ -12,7 +12,7 @@ const MAX_REQUEST_BYTES = 2048;
 const GEMINI_TIMEOUT_MS = 8000;
 const NVIDIA_TIMEOUT_MS = 15000;
 
-const NVIDIA_MODEL_ERROR = 'Corrija NVIDIA_MODEL no Netlify: use um identificador de modelo (fabricante/modelo), nunca uma chave. Configure a chave somente em NVIDIA_API_KEY.';
+const NVIDIA_MODEL_ERROR = 'Corrija NVIDIA_MODEL na Vercel: use um identificador de modelo (fabricante/modelo), nunca uma chave. Configure a chave somente em NVIDIA_API_KEY.';
 
 const readNvidiaModel = () => {
   const model = process.env.NVIDIA_MODEL?.trim() || DEFAULT_NVIDIA_MODEL;

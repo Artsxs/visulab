@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve, extname, sep } from 'node:path';
-import visualizar from '../netlify/functions/visualizar.mjs';
+import visualizar from '../api/visualizar.mjs';
 import { fixtureFor } from './fixtures.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtures = process.argv.includes('--fixtures');
@@ -11,7 +11,7 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/jav
 createServer(async (req, res) => {
   try {
     const pathname = new URL(req.url, 'http://localhost').pathname;
-    if (pathname === '/.netlify/functions/visualizar') {
+    if (pathname === '/api/visualizar') {
       const chunks = []; for await (const chunk of req) chunks.push(chunk);
       const body = Buffer.concat(chunks).toString();
       let response;

@@ -5,7 +5,7 @@
 O VisuLab é um projeto educacional que transforma perguntas sobre Ciências,
 História e Geografia em explicações visuais organizadas por etapas. A primeira
 versão gera animações para qualquer tema escolar com o Gemini e, opcionalmente,
-com a NVIDIA NIM, acessados somente por uma Netlify Function. Animações locais
+com a NVIDIA NIM, acessados somente por uma Vercel Function. Animações locais
 mantêm o laboratório funcionando quando os provedores estão indisponíveis.
 
 O frontend usa HTML semântico, CSS responsivo, JavaScript e SVG local. Não há
@@ -33,7 +33,7 @@ framework, gerenciador de pacotes ou etapa de build.
    capitanias hereditárias) usam os templates manuais, sem chamada à IA.
    A interface identifica esses roteiros como **Animação premium**.
 3. Nos demais assuntos, o navegador envia `{ "pergunta": "..." }` por `POST`
-   para `/.netlify/functions/visualizar`. A função tenta Gemini e depois NVIDIA.
+   para `/api/visualizar`. A função tenta Gemini e depois NVIDIA.
    O esquema JSON vai no prompt do Gemini, sem campos de formato em `generationConfig`.
 4. O prompt pede pelo menos cinco elementos relevantes por cena, protagonistas
    grandes, rótulos curtos, setas, transformações e cores consistentes entre etapas.
@@ -132,7 +132,7 @@ local para qualquer assunto, sem expor detalhes internos.
 ├── netlify/
 │   └── functions/
 │       └── visualizar.mjs
-├── netlify.toml
+├── vercel.json
 ├── script.js
 ├── styles.css
 └── tests/
@@ -151,38 +151,38 @@ Abra `http://localhost:8080`. Nesse modo, as três experiências locais funciona
 normalmente. Perguntas fora desses temas exibem o modo de segurança porque a
 função não está em execução.
 
-## Testar com Netlify Dev
+## Testar com Vercel local
 
-Com o Netlify CLI instalado, execute na raiz do projeto:
+Com o Vercel CLI instalado, execute na raiz do projeto:
 
 ```bash
-netlify dev
+vercel dev
 ```
 
 Abra o endereço informado pelo CLI, normalmente `http://localhost:8888`. A
 função ficará disponível em:
 
 ```text
-http://localhost:8888/.netlify/functions/visualizar
+http://localhost:8888/api/visualizar
 ```
 
 Exemplo sem incluir chave no comando:
 
 ```bash
-curl -i http://localhost:8888/.netlify/functions/visualizar \
+curl -i http://localhost:8888/api/visualizar \
   -H 'Content-Type: application/json' \
   -d '{"pergunta":"Como funciona o ciclo da água?"}'
 ```
 
-Quando o projeto estiver vinculado ao site do Netlify, o Netlify Dev pode usar
+Quando o projeto estiver vinculado ao site do Vercel, o Vercel local pode usar
 as variáveis cadastradas no ambiente remoto. Nunca imprima a variável em logs.
 
-## Cadastrar as chaves no Netlify
+## Cadastrar as chaves no Vercel
 
 O Gemini usa `VISULAB_API_KEY`. A alternativa NVIDIA NIM usa
 `NVIDIA_API_KEY`. A função tenta Gemini, NVIDIA e, por último, o fallback local.
 
-1. Abra o projeto no painel do Netlify.
+1. Abra o projeto no painel do Vercel.
 2. Entre em **Site configuration → Environment variables**.
 3. Crie `VISULAB_API_KEY` e informe o valor como secreto.
 4. Opcionalmente, crie `NVIDIA_API_KEY` para habilitar o segundo provedor.
@@ -224,7 +224,7 @@ Não é necessário instalar dependências:
 
 ```bash
 node --check script.js
-node --check netlify/functions/visualizar.mjs
+node --check api/visualizar.mjs
 node tests/visualizar.test.mjs
 node tests/visual-validator.test.mjs
 node tests/animation-engine.test.mjs
@@ -237,14 +237,14 @@ necessárias. Eles cobrem método e tipo de conteúdo, JSON inválido, limites d
 corpo e da pergunta, contrato estruturado, validação de campos, headers,
 indisponibilidade, cota, timeout e sigilo das mensagens.
 
-## Publicar no Netlify
+## Publicar no Vercel
 
 1. Envie o projeto para um repositório Git sem arquivos `.env`.
-2. No Netlify, escolha **Add new site → Import an existing project** e conecte o
+2. No Vercel, escolha **Add new site → Import an existing project** e conecte o
    repositório.
 3. Se `visulab-projeto` for uma subpasta do repositório, selecione-a como base;
    caso ela seja a raiz, não defina uma base adicional.
-4. O `netlify.toml` já publica `.` e usa `netlify/functions` para as funções.
+4. O `vercel.json` já publica `.` e usa `api` para as funções.
 5. Cadastre `VISULAB_API_KEY` como descrito acima.
 6. Inicie o deploy e, depois, teste as três experiências locais e uma pergunta
    que dependa da IA.

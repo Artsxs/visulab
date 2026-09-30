@@ -11,7 +11,7 @@ const originalEnvironment = Object.fromEntries(
 let moduleVersion = 0;
 let visualizar;
 const loadFunction = async () => (
-  await import(`../netlify/functions/visualizar.mjs?test=${moduleVersion += 1}`)
+  await import(`../api/visualizar.mjs?test=${moduleVersion += 1}`)
 ).default;
 
 beforeEach(async () => {
@@ -31,7 +31,7 @@ afterEach(() => {
 const makeRequest = (body, options = {}) => {
   const method = options.method || 'POST';
   const hasBody = method !== 'GET' && method !== 'HEAD';
-  return new Request('http://localhost/.netlify/functions/visualizar', {
+  return new Request('http://localhost/api/visualizar', {
     method,
     headers: options.headers || { 'Content-Type': 'application/json' },
     body: hasBody ? (options.rawBody ?? JSON.stringify(body)) : undefined,

@@ -33,12 +33,12 @@ await test('digitação não chama API; envio duplicado é bloqueado; resposta a
   calls[0].resolve(Response.json({ experiencia: fixtureFor('ciclo da água') })); await wait(80);
   assert(d.querySelector('#visualizer-experience-title').textContent === 'Compare mitose e meiose.', 'resposta obsoleta'); assert(!form.querySelector('[type=submit]').disabled, 'envio liberado');
 });
-await test('falha da IA informa erro, não inventa animação e permite tentar novamente', async () => {
+await test('falha da IA informa a causa, usa animação local e permite tentar novamente', async () => {
   const errors = [], originalConsoleError = w.console.error;
   w.console.error = (...args) => errors.push(args);
   w.fetch = async () => Response.json({ codigo: 'API_NOT_CONFIGURED' }, { status: 503 }); submit('Como funciona a atmosfera?'); await wait(60);
   w.console.error = originalConsoleError;
-  assert(errors[0][1].codigo === 'API_NOT_CONFIGURED' && errors[0][1].status === 503, 'diagnóstico no console'); assert(d.querySelector('#visualizer-feedback').textContent.includes('chave da IA não está configurada'), 'motivo visível'); assert(!d.querySelector('#visualizer-canvas svg'), 'sem animação genérica'); assert(d.querySelector('#visualizer-experience').hidden, 'nenhum resultado falso'); assert(!form.querySelector('[type=submit]').disabled, 'nova tentativa');
+  assert(errors[0][1].codigo === 'API_NOT_CONFIGURED' && errors[0][1].status === 503, 'diagnóstico no console'); assert(d.querySelector('#visualizer-feedback').textContent.includes('Nenhum provedor de IA está configurado'), 'motivo visível'); assert(d.querySelector('#visualizer-canvas svg'), 'fallback local renderizado'); assert(!d.querySelector('#visualizer-experience').hidden, 'fallback visível'); assert(!form.querySelector('[type=submit]').disabled, 'nova tentativa');
 });
 await test('configuração NVIDIA inválida e timeout oferecem nova tentativa', async () => {
   const originalConsoleError = w.console.error;
@@ -47,8 +47,7 @@ await test('configuração NVIDIA inválida e timeout oferecem nova tentativa', 
     for (const codigo of ['NVIDIA_MODEL_CONFIGURATION_ERROR', 'API_TIMEOUT']) {
       w.fetch = async () => Response.json({ codigo, mensagem: 'Falha segura simulada.' }, { status: codigo === 'API_TIMEOUT' ? 504 : 503 });
       submit('Explique as fases da Lua'); await wait(60);
-      assert(!d.querySelector('#visualizer-canvas svg'), 'sem fallback SVG');
-      assert(d.querySelector('#visualizer-feedback').textContent.includes('experiências revisadas'), codigo);
+      assert(d.querySelector('#visualizer-canvas svg'), 'fallback SVG local'); assert(d.querySelector('#visualizer-feedback').textContent.includes('Animação local'), codigo);
       assert(!form.querySelector('[type=submit]').disabled, 'nova tentativa liberada');
       if (codigo === 'NVIDIA_MODEL_CONFIGURATION_ERROR') assert(d.querySelector('#visualizer-feedback').textContent.includes('NVIDIA_MODEL'), 'indica qual variável corrigir');
     }
