@@ -43,7 +43,7 @@
   <body>
     <a class="skip-link" href="#main">Pular para o conteúdo</a>
 
-    <header class="site-header" id="inicio">
+    <header class="site-header" id="site-header">
       <div class="shell site-header__inner">
         <a class="brand" href="#inicio" aria-label="VisuLab, página inicial">
           <img src="assets/visulab-logo.svg" alt="" width="44" height="44" />
@@ -93,13 +93,13 @@
     </header>
 
     <main id="main">
-      <!-- PRIMEIRA TELA: Identidade editorial da imagem aprovada com zoom-out na rolagem e ambientação Dia / Noite -->
+      <!-- PRIMEIRA TELA: Ocupação total da tela (sem bordas beges), zoom aproximando do solo ao rolar e revelação de Sobre o projeto -->
       <section class="hero-stage" id="inicio" aria-label="Apresentação inicial do VisuLab">
         <div class="hero-stage__sticky" id="hero-stage-sticky">
           <div class="hero-stage__art-frame" id="hero-art-frame">
             <div class="hero-stage__art-wrapper" id="hero-art-wrapper">
-              <!-- Camadas de cenário artístico: Dia e Noite com transição suave -->
-              <div class="hero-stage__scenery" aria-hidden="true">
+              <!-- Camadas de cenário artístico: Dia e Noite ocupando 100% da tela -->
+              <div class="hero-stage__scenery" id="hero-stage-scenery" aria-hidden="true">
                 <picture class="hero-stage__picture hero-stage__picture--day">
                   <source srcset="assets/hero-day.webp" type="image/webp">
                   <img
@@ -107,8 +107,8 @@
                     alt=""
                     class="hero-stage__image hero-stage__image--day"
                     id="hero-art-image-day"
-                    width="1200"
-                    height="630"
+                    width="1920"
+                    height="1080"
                     fetchpriority="high"
                   />
                 </picture>
@@ -119,14 +119,20 @@
                     alt=""
                     class="hero-stage__image hero-stage__image--night"
                     id="hero-art-image-night"
-                    width="1200"
-                    height="630"
+                    width="1920"
+                    height="1080"
                     loading="eager"
                   />
                 </picture>
               </div>
 
-              <!-- Conteúdo em fluxo estruturado: Marca -> Slogan -> Busca -> Sugestões (Sem risco de sobreposição) -->
+              <!-- Indicador de transição ao se aproximar do solo -->
+              <div class="hero-soil-reveal" id="hero-soil-reveal" aria-hidden="true">
+                <span class="hero-soil-reveal__pill">✦ Sobre o projeto</span>
+                <p class="hero-soil-reveal__desc">Veja como o VisuLab transforma curiosidade em compreensão</p>
+              </div>
+
+              <!-- Conteúdo em fluxo estruturado: Marca -> Slogan -> Busca -> Sugestões -->
               <div class="hero-stage__content hero-search-overlay" id="hero-stage-content">
                 <div class="hero-brand-group">
                   <h1 class="hero-brand" id="hero-brand-title">VisuLab</h1>
@@ -186,8 +192,16 @@
       </section>
 
       <!-- APRESENTAÇÃO EDITORIAL APÓS A TRANSIÇÃO (Os três blocos fundamentais) -->
-      <section class="presentation section" id="apresentacao" aria-labelledby="apresentacao-title">
+      <section class="presentation section" id="apresentacao" aria-labelledby="apresentacao-section-title">
         <div class="shell">
+          <div class="presentation__heading" data-reveal>
+            <p class="eyebrow"><span aria-hidden="true">✦</span> Sobre o projeto</p>
+            <h2 class="presentation__main-title" id="apresentacao-section-title">Não basta apenas receber uma resposta. É preciso compreender.</h2>
+            <p class="presentation__main-desc">
+              O VisuLab nasceu para transformar perguntas complexas em explicações visuais, animadas e acolhedoras, convidando você a entender cada fenômeno passo a passo.
+            </p>
+          </div>
+
           <div class="presentation__grid">
             <!-- Primeiro Bloco: Compreensão antes da cópia -->
             <article class="presentation-card presentation-card--lead" data-reveal>
@@ -364,16 +378,59 @@
               </div>
 
               <div class="visualizer-experience" id="visualizer-experience" hidden>
+                <!-- BARRA EXCLUSIVA DO MODO TELA CHEIA (visível somente quando is-fullscreen) -->
+                <div class="visualizer-fullscreen-bar" id="visualizer-fullscreen-bar" aria-label="Controles da tela cheia">
+                  <div class="visualizer-fullscreen-bar__info">
+                    <span class="visualizer-fullscreen-bar__badge" id="fullscreen-area-badge">VisuLab</span>
+                    <strong class="visualizer-fullscreen-bar__title" id="fullscreen-title">Animação em Tela Cheia</strong>
+                  </div>
+                  <div class="visualizer-fullscreen-bar__actions">
+                    <button
+                      type="button"
+                      class="visualizer-minimize-btn"
+                      id="visualizer-minimize-btn"
+                      aria-label="Minimizar tela cheia"
+                      title="Minimizar (ou pressione Esc)"
+                    >
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="4 14 10 14 10 20"></polyline>
+                        <polyline points="20 10 14 10 14 4"></polyline>
+                        <line x1="14" y1="10" x2="21" y2="3"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                      </svg>
+                      <span>Minimizar</span>
+                      <kbd class="shortcut-pill" aria-hidden="true">Esc</kbd>
+                    </button>
+                  </div>
+                </div>
+
                 <header class="visualizer-experience__header">
                   <div>
                     <p class="visualizer-experience__area" id="visualizer-area"></p>
                     <h3 id="visualizer-experience-title"></h3>
                     <p id="visualizer-summary"></p>
                   </div>
-                  <span class="visualizer-source" id="visualizer-source"></span>
+                  <div class="visualizer-experience__header-actions">
+                    <span class="visualizer-source" id="visualizer-source"></span>
+                    <button
+                      type="button"
+                      class="visualizer-fullscreen-btn"
+                      id="visualizer-fullscreen-btn"
+                      aria-label="Ver animação em tela cheia"
+                      title="Ver animação em tela cheia"
+                    >
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                      </svg>
+                      <span>Tela cheia</span>
+                    </button>
+                  </div>
                 </header>
 
-                <div class="visualizer-stage">
+                <div class="visualizer-stage" id="visualizer-stage">
                   <div
                     class="visualizer-canvas"
                     id="visualizer-canvas"
@@ -381,6 +438,23 @@
                     aria-label="Animação educativa"
                   ></div>
                   <div class="visualizer-legend" id="visualizer-legend" aria-label="Legenda da animação"></div>
+
+                  <!-- Botão flutuante na tela de animação para alternar tela cheia -->
+                  <button
+                    type="button"
+                    class="visualizer-stage__fullscreen-btn"
+                    id="visualizer-stage-fullscreen-btn"
+                    aria-label="Ver animação em tela cheia"
+                    title="Ver animação em tela cheia"
+                  >
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <polyline points="9 21 3 21 3 15"></polyline>
+                      <line x1="21" y1="3" x2="14" y2="10"></line>
+                      <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                    <span>Tela cheia</span>
+                  </button>
                 </div>
 
                 <nav
@@ -532,6 +606,10 @@
                         <button class="visualizer-control visualizer-control--restart" id="visualizer-restart" type="button" title="Reiniciar desde a primeira etapa">
                           <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3.5 10a6.5 6.5 0 1 1 1.9 4.6M3.5 15v-5h5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                           <span>Reiniciar</span>
+                        </button>
+                        <button class="visualizer-control visualizer-control--fullscreen" id="visualizer-control-fullscreen" type="button" title="Ver animação em tela cheia">
+                          <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="13 3 17 3 17 7"></polyline><polyline points="7 17 3 17 3 13"></polyline><line x1="17" y1="3" x2="11" y2="9"></line><line x1="3" y1="17" x2="9" y2="11"></line></svg>
+                          <span>Tela cheia</span>
                         </button>
                       </div>
 

@@ -22,7 +22,7 @@ const handleVisualizar = async (req, res) => {
   try {
     const rawBody = req.body && Buffer.isBuffer(req.body)
       ? req.body.toString('utf-8')
-      : (typeof req.body === 'string' ? req.body : undefined);
+      : (typeof req.body === 'string' ? req.body : (req.body ? JSON.stringify(req.body) : undefined));
 
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
     const host = req.headers.host || `localhost:${PORT}`;

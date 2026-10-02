@@ -170,24 +170,33 @@ clearSearchButton.addEventListener('click', () => {
   applyFilters();
 });
 
-// Efeito de afastamento progressivo da paisagem ao rolar (Zoom-out editorial)
+// Efeito de aproximação até o solo na rolagem (Zoom-in & pan down em direção ao solo)
 const heroStage = document.getElementById('inicio');
+const heroScenery = document.getElementById('hero-stage-scenery');
 const heroArtFrame = document.getElementById('hero-art-frame');
 const heroSearchOverlay = document.getElementById('hero-stage-content') || document.getElementById('hero-search-overlay');
 const heroScrollHint = document.getElementById('hero-scroll-hint');
+const heroSoilReveal = document.getElementById('hero-soil-reveal');
+const siteHeader = document.getElementById('site-header');
 
 const updateHeroZoom = () => {
-  if (!heroStage || !heroArtFrame) return;
+  if (!heroStage) return;
+
+  const scrollY = window.scrollY || window.pageYOffset;
+  if (siteHeader) {
+    siteHeader.classList.toggle('is-scrolled', scrollY > 35);
+  }
 
   if (reducedMotionPreference.matches) {
-    heroArtFrame.style.transform = '';
-    heroArtFrame.style.borderRadius = '';
-    heroArtFrame.style.boxShadow = '';
+    if (heroScenery) heroScenery.style.transform = '';
+    if (heroArtFrame) heroArtFrame.style.transform = '';
     if (heroSearchOverlay) {
       heroSearchOverlay.style.opacity = '';
+      heroSearchOverlay.style.transform = '';
       heroSearchOverlay.style.pointerEvents = '';
     }
     if (heroScrollHint) heroScrollHint.style.opacity = '';
+    if (heroSoilReveal) heroSoilReveal.style.opacity = '0';
     return;
   }
 
@@ -201,34 +210,41 @@ const updateHeroZoom = () => {
   const currentScroll = -rect.top;
   const progress = Math.min(Math.max(currentScroll / totalScroll, 0), 1);
 
-  // Afastamento suave: escala recua de 1.0 para ~0.83
-  const scale = 1 - progress * 0.17;
-  // Bordas ganham curvatura sutil (0 a 22px)
-  const radius = progress * 22;
-  // Sombra progressiva sutil
-  const shadowAlpha = progress * 0.12;
+  // Aproximação até o solo:
+  // A escala aumenta de 1.0 para 1.62, aproximando a câmera e descendo até a camada de solo
+  const scale = 1 + progress * 0.65;
+  const translateY = -progress * 24;
 
-  heroArtFrame.style.transform = `scale(${scale})`;
-  heroArtFrame.style.borderRadius = `${radius}px`;
-  heroArtFrame.style.boxShadow = progress > 0.02
-    ? `0 ${progress * 24}px ${progress * 50}px rgba(32, 46, 74, ${shadowAlpha})`
-    : '';
+  if (heroScenery) {
+    heroScenery.style.transform = `scale(${scale}) translateY(${translateY}%)`;
+    heroScenery.style.transformOrigin = 'center 88%';
+  }
 
-  // Desvanecimento do formulário durante a transição, mantendo ativo se houver foco
+  // Desvanecimento e elevação suave do formulário de busca
   const isInputFocused = searchInput && (document.activeElement === searchInput || (searchForm && searchForm.contains(document.activeElement)));
   if (heroSearchOverlay) {
     if (isInputFocused) {
       heroSearchOverlay.style.opacity = '1';
+      heroSearchOverlay.style.transform = 'none';
       heroSearchOverlay.style.pointerEvents = 'auto';
     } else {
       const overlayOpacity = Math.max(1 - progress * 2.3, 0);
       heroSearchOverlay.style.opacity = String(overlayOpacity);
+      heroSearchOverlay.style.transform = `translateY(${-progress * 50}px)`;
       heroSearchOverlay.style.pointerEvents = overlayOpacity < 0.1 ? 'none' : 'auto';
     }
   }
 
   if (heroScrollHint) {
     heroScrollHint.style.opacity = String(Math.max(1 - progress * 4, 0));
+  }
+
+  // Revelação de Sobre o projeto ao chegar no solo
+  if (heroSoilReveal) {
+    const revealOpacity = Math.min(Math.max((progress - 0.35) * 2.5, 0), 1);
+    const revealTranslate = Math.max(24 - (progress - 0.35) * 50, 0);
+    heroSoilReveal.style.opacity = String(revealOpacity);
+    heroSoilReveal.style.transform = `translateX(-50%) translateY(${revealTranslate}px)`;
   }
 };
 
@@ -688,6 +704,86 @@ visualizerTabButtons.forEach((tabBtn, index) => {
 
 window.addEventListener('resize', updateVisualizerTabIndicator);
 
+// Modo Tela Cheia Integrado com Sistema de Abas
+const visualizerFullscreenBtn = document.getElementById('visualizer-fullscreen-btn');
+const visualizerStageFullscreenBtn = document.getElementById('visualizer-stage-fullscreen-btn');
+const visualizerControlFullscreen = document.getElementById('visualizer-control-fullscreen');
+const visualizerMinimizeBtn = document.getElementById('visualizer-minimize-btn');
+const fullscreenTitle = document.getElementById('fullscreen-title');
+const fullscreenAreaBadge = document.getElementById('fullscreen-area-badge');
+
+const enterVisualizerFullscreen = () => {
+  if (!visualizerExperience) return;
+  visualizerExperience.classList.add('is-fullscreen');
+  document.body.classList.add('has-visualizer-fullscreen');
+
+  if (fullscreenTitle && visualizerExperienceTitle) {
+    fullscreenTitle.textContent = visualizerExperienceTitle.textContent || 'Animação em Tela Cheia';
+  }
+  if (fullscreenAreaBadge && visualizerArea) {
+    fullscreenAreaBadge.textContent = visualizerArea.textContent || 'VisuLab';
+  }
+
+  // Tenta solicitar tela cheia nativa do navegador
+  if (!document.fullscreenElement && visualizerExperience.requestFullscreen) {
+    visualizerExperience.requestFullscreen().catch(() => {});
+  }
+
+  setTimeout(() => {
+    updateVisualizerTabIndicator();
+  }, 100);
+};
+
+const exitVisualizerFullscreen = () => {
+  if (!visualizerExperience) return;
+  visualizerExperience.classList.remove('is-fullscreen');
+  document.body.classList.remove('has-visualizer-fullscreen');
+
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
+
+  setTimeout(() => {
+    updateVisualizerTabIndicator();
+  }, 100);
+};
+
+if (visualizerFullscreenBtn) {
+  visualizerFullscreenBtn.addEventListener('click', enterVisualizerFullscreen);
+}
+
+if (visualizerStageFullscreenBtn) {
+  visualizerStageFullscreenBtn.addEventListener('click', () => {
+    if (visualizerExperience?.classList.contains('is-fullscreen')) {
+      exitVisualizerFullscreen();
+    } else {
+      enterVisualizerFullscreen();
+    }
+  });
+}
+
+if (visualizerControlFullscreen) {
+  visualizerControlFullscreen.addEventListener('click', enterVisualizerFullscreen);
+}
+
+if (visualizerMinimizeBtn) {
+  visualizerMinimizeBtn.addEventListener('click', exitVisualizerFullscreen);
+}
+
+// Atalho da tecla Esc para minimizar
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && visualizerExperience?.classList.contains('is-fullscreen')) {
+    exitVisualizerFullscreen();
+  }
+});
+
+// Sincronização ao sair da tela cheia nativa pelo browser
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && visualizerExperience?.classList.contains('is-fullscreen')) {
+    exitVisualizerFullscreen();
+  }
+});
+
 const renderVisualizerStepper = () => {
   if (!visualizerStepper || !activeVisualExperience) return;
   visualizerStepper.replaceChildren();
@@ -912,16 +1008,24 @@ const requestVisualExperience = async (question) => {
       throw error;
     }
 
-    if (!payload?.experiencia || !Array.isArray(payload.experiencia.cenas)) {
-      const error = new Error('A função respondeu sem um roteiro visual válido.');
-      error.code = 'INVALID_FUNCTION_RESPONSE';
-      error.status = response.status;
-      throw error;
+    let rawExperience = payload?.experiencia;
+    if (typeof rawExperience === 'string') {
+      try {
+        rawExperience = JSON.parse(rawExperience);
+      } catch {
+        // Ignora erro de JSON aninhado
+      }
+    }
+    const exp = rawExperience || (payload && (Array.isArray(payload.cenas) || Array.isArray(payload.etapas)) ? payload : null);
+
+    if (exp && (Array.isArray(exp.cenas) || Array.isArray(exp.etapas))) {
+      const result = validateVisualExperience({ ...exp, origem: 'ia', revisao: '', fontes: [] });
+      if (!result.fallback || localVisualExperiences[result.tipoVisual]) {
+        return result;
+      }
     }
 
-    const result = validateVisualExperience({ ...payload.experiencia, origem: 'ia', revisao: '', fontes: [] });
-    if (result.fallback && !localVisualExperiences[result.tipoVisual]) { const error = new Error('Roteiro sem elementos visuais.'); error.code = 'INVALID_API_RESPONSE'; error.status = response.status; throw error; }
-    return result;
+    return createLocalFallback(question);
   } catch (error) {
     if (error.name === 'AbortError') {
       const timeoutError = new Error('A criação demorou mais que o esperado. Tente novamente.');
@@ -1118,6 +1222,8 @@ const showVisualExperience = (candidate) => {
 
   visualizerArea.textContent = visualizerDisciplines[activeVisualExperience.disciplina];
   visualizerExperienceTitle.textContent = activeVisualExperience.titulo;
+  if (fullscreenTitle) fullscreenTitle.textContent = activeVisualExperience.titulo;
+  if (fullscreenAreaBadge) fullscreenAreaBadge.textContent = visualizerArea.textContent;
   visualizerSummary.textContent = activeVisualExperience.resumo;
   visualizerSource.textContent = {
     premium: 'Experiência revisada', ia: 'Gerado com IA · não revisado', local: 'Experiência revisada',
