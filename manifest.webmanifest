@@ -1,0 +1,23 @@
+{
+  "name": "VisuLab — Veja o Conhecimento Acontecer",
+  "short_name": "VisuLab",
+  "description": "Transforme perguntas de Ciências, História e Geografia em explicações visuais, animadas e organizadas por etapas.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1e3d",
+  "theme_color": "#1e4ed8",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "assets/visulab-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -264,6 +264,10 @@ Respostas produzidas por IA podem conter simplificações ou imprecisões. O sit
 exibe o aviso para consultar também o material didático e não substitui
 professores, livros ou fontes confiáveis.
 
+## Créditos e Autoria
+
+O **VisuLab** foi desenvolvido por **Arthur Lima Reis**, inspirado pela proposta educativa do [Grande Desafio Unicamp 2026](https://museu.harena.org/gd/) para promover o aprendizado ativo, a compreensão visual e a curiosidade científica.
+
 ## Verificações no navegador
 
 Execute `node tests/serve.mjs --fixtures` e abra

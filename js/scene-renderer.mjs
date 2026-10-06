@@ -76,18 +76,86 @@ export function layoutLabels(elements) {
 
 function createBackdrop(type, setting) {
   const background = svg('g', { class: 'engine-backdrop', 'aria-hidden': 'true', 'data-setting': setting });
-  background.append(svg('rect', { x: -32, y: -30, width: 864, height: 456, rx: 8, class: 'engine-surface' }));
-  // Órbitas, grades e setas não são decoração: só aparecem quando fazem parte
-  // dos elementos explícitos do roteiro.
+  const defs = svg('defs');
+
+  // Gradiente céu natural idêntico à fotossíntese
+  const gradNature = svg('linearGradient', { id: 'engine-sky-nature', x1: 0, y1: 0, x2: 0, y2: 1 });
+  gradNature.append(svg('stop', { offset: '0%', 'stop-color': '#dff5eb' }));
+  gradNature.append(svg('stop', { offset: '100%', 'stop-color': '#f7fbef' }));
+  defs.append(gradNature);
+
+  // Gradiente cósmico para temas espaciais/astronômicos
+  const gradSpace = svg('linearGradient', { id: 'engine-sky-space', x1: 0, y1: 0, x2: 0, y2: 1 });
+  gradSpace.append(svg('stop', { offset: '0%', 'stop-color': '#0d172a' }));
+  gradSpace.append(svg('stop', { offset: '100%', 'stop-color': '#1e293b' }));
+  defs.append(gradSpace);
+
+  // Gradiente para laboratório/tecnologia
+  const gradLab = svg('linearGradient', { id: 'engine-sky-lab', x1: 0, y1: 0, x2: 0, y2: 1 });
+  gradLab.append(svg('stop', { offset: '0%', 'stop-color': '#f0fdf4' }));
+  gradLab.append(svg('stop', { offset: '100%', 'stop-color': '#e0f2fe' }));
+  defs.append(gradLab);
+
+  // Gradiente histórico acolhedor
+  const gradHist = svg('linearGradient', { id: 'engine-sky-history', x1: 0, y1: 0, x2: 0, y2: 1 });
+  gradHist.append(svg('stop', { offset: '0%', 'stop-color': '#fffbeb' }));
+  gradHist.append(svg('stop', { offset: '100%', 'stop-color': '#fef3c7' }));
+  defs.append(gradHist);
+
+  // Gradiente de estúdio com iluminação radial e profundidade
+  const gradStudio = svg('radialGradient', { id: 'engine-sky-studio', cx: '50%', cy: '45%', r: '65%' });
+  gradStudio.append(svg('stop', { offset: '0%', 'stop-color': '#ffffff' }));
+  gradStudio.append(svg('stop', { offset: '70%', 'stop-color': '#f3f6fc' }));
+  gradStudio.append(svg('stop', { offset: '100%', 'stop-color': '#e6eef8' }));
+  defs.append(gradStudio);
+
+  background.append(defs);
+
+  // Superfície principal com fundo atmosférico
+  const bgFill = setting === 'espaco' ? 'url(#engine-sky-space)'
+    : setting === 'natureza' ? 'url(#engine-sky-nature)'
+    : setting === 'laboratorio' ? 'url(#engine-sky-lab)'
+    : setting === 'historico' ? 'url(#engine-sky-history)'
+    : 'url(#engine-sky-studio)';
+
+  background.append(svg('rect', { x: -32, y: -30, width: 864, height: 456, rx: 12, class: 'engine-surface', fill: bgFill, stroke: '#d9e5f2', 'stroke-width': 1.5 }));
+
+  if (setting === 'natureza') {
+    // Curva de solo orgânico e relevo, no padrão visual da fotossíntese
+    background.append(svg('path', { d: 'M-32 355 Q180 325 380 355 T832 345 V426 H-32Z', fill: '#b98a62', opacity: 0.35 }));
+    background.append(svg('path', { d: 'M-32 372 Q240 350 460 374 T832 366 V426 H-32Z', fill: '#28724f', opacity: 0.2 }));
+  } else if (setting === 'espaco') {
+    // Aglomerados estelares sutis e órbita cósmica
+    const stars = svg('g', { opacity: 0.85, fill: '#ffffff' });
+    const coords = [[50, 30], [130, 90], [260, 45], [390, 75], [530, 35], [690, 65], [760, 115], [100, 290], [730, 330], [420, 370]];
+    for (const [sx, sy] of coords) stars.append(svg('circle', { cx: sx, cy: sy, r: 1.5, class: 'engine-glow' }));
+    background.append(stars);
+    background.append(svg('ellipse', { cx: 400, cy: 220, rx: 360, ry: 135, fill: 'none', stroke: '#38bdf8', 'stroke-width': 1.2, 'stroke-dasharray': '6 8', opacity: 0.25 }));
+  } else if (setting === 'laboratorio') {
+    // Malha tecnológica limpa
+    const grid = svg('g', { stroke: '#38bdf8', 'stroke-width': 0.8, 'stroke-dasharray': '4 6', opacity: 0.18 });
+    for (let x = 60; x < 800; x += 120) grid.append(svg('line', { x1: x, y1: -20, x2: x, y2: 420 }));
+    for (let y = 40; y < 400; y += 80) grid.append(svg('line', { x1: -20, y1: y, x2: 820, y2: y }));
+    background.append(grid);
+  } else if (setting === 'historico') {
+    // Linha de base temporal e horizonte pergaminho
+    background.append(svg('path', { d: 'M-32 360 H832', stroke: '#d97706', 'stroke-width': 2.5, opacity: 0.35 }));
+    background.append(svg('rect', { x: -32, y: 360, width: 864, height: 66, fill: '#fef3c7', opacity: 0.25 }));
+  } else {
+    // Moldura e linha base sutil para palco de estúdio
+    background.append(svg('line', { x1: 20, y1: 395, x2: 780, y2: 395, stroke: '#dce5f0', 'stroke-width': 1.5, 'stroke-dasharray': '4 6' }));
+  }
+
   return background;
 }
 
 export function renderScene(stage, experience, index) {
-  const scene = experience.cenas[index];
+  const scene = experience.cenas[index] || { titulo: 'Etapa visual', explicacao: 'Observe os detalhes da cena.', elementos: [], acoes: [], cenario: 'neutro' };
   const type = experience.tipoVisual;
-  let elements = scene.elementos;
-  if (!elements.length) throw new Error('Cena sem elementos visuais.');
-  const layout = layoutScene({ ...scene, elementos: elements }, experience.cenas.some(s => s.elementos.length) ? experience.cenas : undefined);
+  let elements = Array.isArray(scene.elementos) && scene.elementos.length ? scene.elementos : [
+    { id: 'foco', tipo: 'circulo', rotulo: scene.titulo || 'Conceito', x: 50, y: 50, largura: 20, altura: 20, cor: 'azul' }
+  ];
+  const layout = layoutScene({ ...scene, elementos: elements }, experience.cenas.some(s => s.elementos && s.elementos.length) ? experience.cenas : undefined);
   const root = svg('svg', { viewBox: '-40 -38 880 470', class: 'engine-scene', role: 'img', 'aria-label': `${scene.titulo}. ${scene.explicacao}` });
   root.append(svg('title', {}, scene.titulo), svg('desc', {}, scene.explicacao));
   root.append(createBackdrop(type, scene.cenario || 'neutro'));
@@ -113,8 +181,11 @@ export function renderScene(stage, experience, index) {
     const marker = svg('g', { transform: `translate(${e.x * 8 + e.largura * 3} ${e.y * 4 - e.altura * 2})` });
     marker.append(svg('circle', { r: 22 }), svg('text', { 'text-anchor': 'middle', y: 11 }, number));
     marker.setAttribute('transform', `translate(${e.largura * 3} ${-e.altura * 2})`);
-    targets.get(e.id).motion.append(marker);
-    marker.classList.add('engine-mobile-markers');
+    const target = targets.get(e.id);
+    if (target?.motion) {
+      target.motion.append(marker);
+      marker.classList.add('engine-mobile-markers');
+    }
   }
   stage.replaceChildren(root, legend);
   return { root, targets, actions: layout.actions };
@@ -122,15 +193,50 @@ export function renderScene(stage, experience, index) {
 
 export function actionFrames(action, element) {
   switch (action.tipo) {
-    case 'aparecer': return [{ opacity: 0 }, { opacity: 1 }];
-    case 'desaparecer': return [{ opacity: 1 }, { opacity: 0 }];
-    case 'mover': return [{ transform: 'translate(0px, 0px)' }, { transform: `translate(${(action.paraX - element.x) * 8}px, ${(action.paraY - element.y) * 4}px)` }];
-    case 'girar': return [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }];
-    case 'crescer': return [{ transform: 'scale(0.4)' }, { transform: 'scale(1)' }];
-    case 'pulsar': return [{ transform: 'scale(1)' }, { transform: 'scale(1.15)' }, { transform: 'scale(1)' }];
-    case 'vibrar': return [0, -5, 5, -5, 5, 0].map(x => ({ transform: `translateX(${x}px)` }));
-    case 'destacar': return [{ opacity: 1 }, { opacity: 0.4 }, { opacity: 1 }];
-    case 'fluir': return [{ opacity: 0.35 }, { opacity: 1 }];
-    default: return [];
+    case 'aparecer':
+      return [{ opacity: 0, transform: 'scale(0.85)' }, { opacity: 1, transform: 'scale(1)' }];
+    case 'desaparecer':
+      return [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.85)' }];
+    case 'mover':
+      return [
+        { transform: 'translate(0px, 0px)' },
+        { transform: `translate(${(action.paraX - element.x) * 8}px, ${(action.paraY - element.y) * 4}px)` },
+      ];
+    case 'girar':
+      return [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }];
+    case 'crescer':
+      return [
+        { transform: 'scale(0.35)', opacity: 0.2 },
+        { transform: 'scale(1.08)', opacity: 1, offset: 0.75 },
+        { transform: 'scale(1)', opacity: 1 },
+      ];
+    case 'pulsar':
+      return [
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.18)', offset: 0.5 },
+        { transform: 'scale(1)' },
+      ];
+    case 'vibrar':
+      return [0, -4, 4, -4, 4, -2, 2, 0].map(x => ({ transform: `translateX(${x}px)` }));
+    case 'destacar':
+      return [
+        { transform: 'scale(1)', opacity: 0.7 },
+        { transform: 'scale(1.14)', opacity: 1, offset: 0.5 },
+        { transform: 'scale(1)', opacity: 1 },
+      ];
+    case 'fluir':
+      if (['seta', 'linha'].includes(element?.tipo)) {
+        return [
+          { strokeDashoffset: 0, opacity: 0.65 },
+          { strokeDashoffset: -72, opacity: 1 },
+        ];
+      }
+      return [
+        { transform: 'translate(0px, 0px) scale(0.95)', opacity: 0.75 },
+        { transform: 'translate(14px, -8px) scale(1.08)', opacity: 1, offset: 0.5 },
+        { transform: 'translate(28px, 0px) scale(0.95)', opacity: 0.8 },
+      ];
+    default:
+      return [];
   }
 }

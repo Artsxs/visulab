@@ -23,3 +23,67 @@ test('aceita tipoDeCena do contrato da IA', () => {
 test('assunto desconhecido não recebe explicação genérica local', () => {
   assert.equal(findReviewedTopic('sistema digestivo'), null);
 });
+
+test('valida formato estruturado da IA com entities, flows, steps e accuracyNote', () => {
+  const structuredData = {
+    title: 'Como acontece a translação da Terra?',
+    category: 'Astronomia',
+    summary: 'A Terra gira ao redor do Sol em uma órbita elíptica inclinada.',
+    sceneType: 'earth-translation',
+    visualQuality: 'specific',
+    entities: [
+      { id: 'sol', label: 'Sol', type: 'sol', role: 'centro gravitacional', color: '#e8ac27', position: { x: 50, y: 50 } },
+      { id: 'terra', label: 'Terra', type: 'planeta', role: 'corpo em órbita', color: '#3977d5', position: { x: 80, y: 50 } }
+    ],
+    flows: [
+      { from: 'terra', to: 'sol', label: 'Gravidade e órbita', animated: true }
+    ],
+    steps: [
+      { number: 1, title: 'Órbita Elíptica', description: 'A Terra percorre o trajeto orbital.', focusEntities: ['terra'] }
+    ],
+    legend: [
+      { label: 'Sol', color: '#e8ac27' },
+      { label: 'Terra', color: '#3977d5' }
+    ],
+    accuracyNote: 'Órbita com excentricidade exagerada para fins didáticos.'
+  };
+
+  const result = validateVisualExperience(structuredData);
+  assert.equal(result.titulo, 'Como acontece a translação da Terra?');
+  assert.equal(result.disciplina, 'ciencias');
+  assert.equal(result.tipoVisual, 'translacao_terra');
+  assert.equal(result.fallback, false);
+  assert.equal(result.cenas.length, 1);
+  assert.ok(result.cenas[0].elementos.length >= 2);
+  assert.equal(result.simplificacoes, 'Órbita com excentricidade exagerada para fins didáticos.');
+  assert.ok(result.cenas[0].acoes.length > 0);
+});
+
+test('valida novos ícones educativos e conexões de fluxo', () => {
+  const structuredData = {
+    title: 'Como a vacina protege o organismo?',
+    category: 'Ciências Biológicas',
+    summary: 'A vacina estimula a produção de anticorpos e memória imune.',
+    sceneType: 'fluxo',
+    entities: [
+      { id: 'vacina', label: 'Vacina', type: 'vacina', color: 'azul', position: { x: 30, y: 50 } },
+      { id: 'virus', label: 'Patógeno', type: 'virus', color: 'vermelho', position: { x: 70, y: 50 } },
+      { id: 'dna', label: 'Código Genético', type: 'dna', color: 'verde', position: { x: 50, y: 30 } }
+    ],
+    flows: [
+      { from: 'vacina', to: 'virus', label: 'Neutralização', animated: true }
+    ],
+    steps: [
+      { number: 1, title: 'Reconhecimento', description: 'O sistema imune reconhece o antígeno.', focusEntities: ['vacina'] }
+    ]
+  };
+
+  const result = validateVisualExperience(structuredData);
+  assert.equal(result.titulo, 'Como a vacina protege o organismo?');
+  assert.equal(result.disciplina, 'ciencias');
+  assert.equal(result.cenas[0].elementos.length, 4); // 3 entidades + 1 fluxo (seta)
+  assert.equal(result.cenas[0].elementos[0].icone, 'vacina');
+  assert.equal(result.cenas[0].elementos[1].icone, 'virus');
+  assert.equal(result.cenas[0].elementos[2].icone, 'dna');
+});
+

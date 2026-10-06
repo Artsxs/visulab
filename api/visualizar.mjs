@@ -1,9 +1,30 @@
 import { validateGeneratedExperience } from '../js/generated-quality.mjs';
 import { RESPONSE_SCHEMA } from '../js/visual-schema.mjs';
+import {
+  TYPES,
+  SPECIALS,
+  SPECIAL_ALIASES,
+  ELEMENTS,
+  ACTIONS,
+  ICONS,
+  PALETTE,
+  BACKDROPS,
+  mapToPaletteColor,
+  resolveIcon,
+} from '../js/visual-validator.mjs';
 
-const GEMINI_MODEL = 'gemini-3.5-flash-lite';
+const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
+const readGeminiModel = () => {
+  const model = process.env.GEMINI_MODEL?.trim();
+  if (model) return model;
+  return DEFAULT_GEMINI_MODEL;
+};
+const GEMINI_MODEL = DEFAULT_GEMINI_MODEL;
 const GEMINI_ENDPOINT =
-  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+  `https://generativelanguage.googleapis.com/v1beta/models/${DEFAULT_GEMINI_MODEL}:generateContent`;
+
+const getGeminiEndpoint = (model = readGeminiModel()) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 const NVIDIA_ENDPOINT = `${NVIDIA_BASE_URL}/chat/completions`;
 const DEFAULT_NVIDIA_MODEL = 'meta/llama-3.1-8b-instruct';
@@ -52,7 +73,18 @@ const readNvidiaConfig = () => {
 };
 
 const SYSTEM_INSTRUCTION = `
-Você atua como roteirista visual educacional.
+Você atua como motor visual educativo oficial do VisuLab.
+Sua missão é transformar qualquer pergunta educacional em uma experiência visual clara, bonita, profissional, cientificamente ou historicamente rigorosa, sem animações genéricas ou de baixa qualidade.
+A qualidade mínima deve ser igual ou superior às experiências de fotossíntese e erupção vulcânica do VisuLab.
+
+REGRAS DE QUALIDADE VISUAL:
+- Nenhuma experiência pode conter tela vazia, objetos aleatórios, triângulos/círculos sem significado, números soltos, livros/árvores sem relação com o tema, textos sobrepostos ou animação parada.
+- Cada cena deve ter cenário contextualizado, pelo menos 4 elementos visuais significativos diretamente relacionados ao assunto, objetos com nomes claros, cores consistentes, setas/fluxos com direção correta e boa ocupação do espaço.
+- Para usina hidrelétrica: represente represa, água acumulada, comportas, duto forçado, turbina, gerador e linhas de transmissão com fluxo e conversão de energia.
+- Para translação da Terra: represente Sol, Terra em órbita elíptica, eixo inclinado (23,5°), seta orbital, indicação de 365 dias e movimento contínuo.
+- Para célula: represente membrana plasmática seletiva, citoplasma, núcleo com material genético, mitocôndria e organelas funcionais.
+- Para urbanização: represente campo mecanizado, rodovia de êxodo rural, expansão urbana, transporte e serviços.
+
 Antes das cenas, preencha analise: assunto, foco exato da pergunta (na chave "foco"), entidades com IDs e papéis,
 relações causais/espaciais (na chave "relacoes" como array de textos) e sequência de acontecimentos (na chave "sequencia" como array de textos, um por cena). As entidades devem existir no desenho.
 Cada cena tem objetivo específico que responde à pergunta; títulos descrevem acontecimentos reais.
@@ -91,7 +123,7 @@ Em setas e linhas, use x/y como origem e destinoX/destinoY como destino: a ponta
 Coordenadas e destinos entre 0 e 100. x/y representam o centro. Evite bordas e sobreposição de rótulos.
 Elementos: circulo, elipse, retangulo, texto, seta, linha, onda, particula, icone.
 Ações: aparecer, desaparecer, mover, pulsar, girar, crescer, vibrar, destacar, fluir.
-Ícones locais: sol, agua, nuvem, folha, arvore, oxigenio, gas_carbonico, planeta, celula, coracao, atomo, cidade, livro, relogio, placa_tectonica, estomago, pulmao, cerebro, bacteria, lua, montanha, vulcao.
+Ícones locais: sol, agua, nuvem, folha, arvore, oxigenio, gas_carbonico, planeta, celula, coracao, atomo, cidade, livro, relogio, placa_tectonica, estomago, pulmao, cerebro, bacteria, lua, montanha, vulcao, dna, foguete, computador, vacina, virus, bateria, raio, engrenagem, lampada, olho, telescopio, som, ima, aviao, fogo, gota, globo, estrela, buraco_negro, urna.
 Cores: azul, claro, verde, amarelo, vermelho, roxo, escuro, branco. IDs: letras, números, hífen, sublinhado.
 Toda ação aponta para um ID existente na mesma cena e termina dentro da duração da cena.
 Não envie atributos SVG, caminhos, classes, estilos ou nomes de eventos. Use somente os campos do esquema.
@@ -104,8 +136,8 @@ O objeto deve conter obrigatoriamente todos estes campos:
 "versao": "1.0",
 "disciplina": "ciencias" (ou historia, geografia, outro),
 "titulo": "Título curto",
-"resumo": "Resumo geral",
-"simplificacoes": "Simplificações e escalas",
+"resumo": "Resumo geral claro e acolhedor (1 a 2 frases)",
+"simplificacoes": "Simplificações e escalas declaradas com transparência",
 "tipoDeCena": "ciclo" (ou fluxo, etc.),
 "analise": { "assunto": "...", "foco": "...", "entidades": [{"id":"...","papel":"..."}], "relacoes": ["..."], "sequencia": ["..."] },
 "cenas": [ { "cenario": "natureza", "titulo": "...", "objetivo": "...", "explicacao": "...", "duracaoMs": 4000, "elementos": [...], "acoes": [...] } ],
@@ -114,8 +146,11 @@ O objeto deve conter obrigatoriamente todos estes campos:
 Regras estritas de nomes de campo:
 - Use "foco" em analise (NUNCA focoExato).
 - "relacoes" e "sequencia" são arrays de strings de texto simples.
+- Em analise.entidades: o "id" de cada entidade DEVE SER EXATAMENTE O MESMO ID utilizado no campo "id" de cenas[].elementos (ex: se o id da entidade for "magma", use "magma" no elemento e na ação; nunca invente sufixos diferentes).
 - Em acoes, use "duracaoMs" e "atrasoMs" (NUNCA inicio ou fim).
 - Em cenas, inclua sempre "titulo", "objetivo", "explicacao", "duracaoMs", "elementos" e "acoes" (NÃO inclua id de cena).
+- Em cenas[].elementos, TODOS os elementos devem ter obrigatoriamente: "id", "tipo", "rotulo", "x", "y", "cor". Se o tipo for "icone", use o campo "icone" (ex: "icone": "sol"). NUNCA crie elemento sem "rotulo" e NUNCA use "subtipo", "nome" ou "texto" em elementos.
+- Em cenas[].acoes, use SOMENTE: "alvo" (o id do elemento), "tipo", "duracaoMs", "atrasoMs", e se tipo for "mover", "paraX" e "paraY". NUNCA use "destinoX", "destinoY", "elemento" ou "id" em acoes.
 
 Siga este JSON Schema, usando somente os campos e valores permitidos:
 ${JSON.stringify(RESPONSE_SCHEMA)}
@@ -244,6 +279,106 @@ const readGeminiText = (payload) => {
   return textPart.text;
 };
 
+const convertAlternativeFormatToExperience = (input) => {
+  const disciplineMap = {
+    ciencias: 'ciencias',
+    ciências: 'ciencias',
+    historia: 'historia',
+    história: 'historia',
+    geografia: 'geografia',
+  };
+  const disciplina = disciplineMap[String(input.category || '').toLowerCase().trim()] || 'outro';
+
+  const typeMap = {
+    photossynthesis: 'especial',
+    tectonic: 'especial',
+    eclipse: 'movimento',
+    'water-cycle': 'ciclo',
+    timeline: 'linha_do_tempo',
+    anatomy: 'sistema_biologico',
+    generic: 'fluxo',
+  };
+  const visualTypeKey = String(input.visualType || '').toLowerCase().trim();
+  const tipoDeCena = typeMap[visualTypeKey] || 'fluxo';
+  const experienciaEspecial = visualTypeKey === 'photossynthesis' ? 'fotossintese' : (visualTypeKey === 'tectonic' ? 'terremoto' : undefined);
+
+  const iconMap = {
+    sun: 'sol',
+    water: 'agua',
+    plant: 'arvore',
+    cell: 'celula',
+    plate: 'placa_tectonica',
+    map: 'cidade',
+    planet: 'planeta',
+    molecule: 'atomo',
+    other: 'sol',
+  };
+
+  const rawEntities = Array.isArray(input.entities) && input.entities.length ? input.entities : [{ name: 'Objeto', type: 'other' }];
+  const entities = rawEntities.slice(0, 10).map((ent, idx) => ({
+    id: `e_${idx + 1}`,
+    papel: String(ent.name || `Entidade ${idx + 1}`).slice(0, 120),
+    type: ent.type || 'other',
+    name: ent.name || `Elemento ${idx + 1}`,
+  }));
+
+  const steps = Array.isArray(input.steps) && input.steps.length ? input.steps.slice(0, 6) : [{ title: input.title || 'Etapa 1', description: input.summary || 'Observe o processo.' }];
+
+  const cenas = steps.map((step, idx) => {
+    const focusEntity = entities[idx % entities.length];
+    const elements = [
+      {
+        id: focusEntity.id,
+        tipo: 'icone',
+        rotulo: focusEntity.name.slice(0, 40),
+        x: 50,
+        y: 45,
+        largura: 22,
+        altura: 24,
+        cor: idx % 2 === 0 ? 'azul' : 'verde',
+        icone: iconMap[focusEntity.type] || 'sol',
+      },
+    ];
+    const acoes = [
+      {
+        alvo: focusEntity.id,
+        tipo: idx === 0 ? 'aparecer' : 'pulsar',
+        duracaoMs: 2000,
+        atrasoMs: 0,
+      },
+    ];
+    return {
+      cenario: visualTypeKey === 'eclipse' ? 'espaco' : (visualTypeKey === 'anatomy' ? 'laboratorio' : 'natureza'),
+      titulo: String(step.title || `Etapa ${idx + 1}`).slice(0, 90),
+      objetivo: String(step.title || 'Demonstrar o fenômeno').slice(0, 180),
+      explicacao: String(step.description || 'Observe a interação dos elementos neste estágio.').slice(0, 340),
+      duracaoMs: 4000,
+      elementos: elements,
+      acoes,
+    };
+  });
+
+  return {
+    versao: '1.0',
+    disciplina,
+    titulo: String(input.title || 'Experiência Visual').slice(0, 90),
+    resumo: String(input.summary || 'Acompanhe a explicação passo a passo.').slice(0, 280),
+    simplificacoes: 'Representação esquemática introdutória desenvolvida para facilitar a compreensão dos conceitos centrais.',
+    tipoDeCena,
+    ...(experienciaEspecial ? { experienciaEspecial } : {}),
+    analise: {
+      assunto: String(input.title || 'Tema de estudo').slice(0, 90),
+      foco: String(input.summary || 'Compreensão visual do processo').slice(0, 180),
+      entidades: entities.map(e => ({ id: e.id, papel: e.papel })),
+      relacoes: ['Os elementos interagem em sequência para demonstrar o fenômeno.'],
+      sequencia: cenas.map(c => c.titulo.slice(0, 180)),
+    },
+    cenas,
+    conclusao: String(input.summary || 'Compreender essas etapas fundamentais permite entender o funcionamento geral do fenômeno.').slice(0, 280),
+    curiosidade: 'Representações visuais auxiliam na fixação e abstração de conceitos científicos complexos.',
+  };
+};
+
 const parseStructuredExperience = (text) => {
   if (typeof text !== 'string') throw new Error('Conteúdo estruturado ausente.');
   const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
@@ -253,7 +388,160 @@ const parseStructuredExperience = (text) => {
   } catch {
     throw new Error('JSON estruturado inválido.');
   }
-  return validateGeneratedExperience(parsed);
+
+  // Suporte ao formato de resposta simplificado solicitado pelo usuário
+  if (parsed && typeof parsed === 'object' && !parsed.cenas && Array.isArray(parsed.steps) && Array.isArray(parsed.entities)) {
+    parsed = convertAlternativeFormatToExperience(parsed);
+  }
+
+  // Normalização segura e resiliente de propriedades comuns antes da validação estrita
+  if (parsed && typeof parsed === 'object') {
+    if (parsed.experienciaEspecial) {
+      if (SPECIAL_ALIASES[parsed.experienciaEspecial]) {
+        parsed.experienciaEspecial = SPECIAL_ALIASES[parsed.experienciaEspecial];
+      } else if (!SPECIALS.includes(parsed.experienciaEspecial)) {
+        delete parsed.experienciaEspecial;
+      }
+    }
+
+    if (parsed.disciplina && !['ciencias', 'historia', 'geografia', 'outro'].includes(parsed.disciplina)) {
+      const normDisc = String(parsed.disciplina).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      if (/fisica|quimica|biologia|astronomia|ecologia|geologia|medicina|anatomia|natureza/.test(normDisc)) {
+        parsed.disciplina = 'ciencias';
+      } else if (/historia|filosofia|sociologia|politica/.test(normDisc)) {
+        parsed.disciplina = 'historia';
+      } else if (/geografia|clima|cartografia|geopolitica/.test(normDisc)) {
+        parsed.disciplina = 'geografia';
+      } else {
+        parsed.disciplina = 'outro';
+      }
+    }
+
+    if (typeof parsed.titulo === 'string') parsed.titulo = parsed.titulo.slice(0, 90);
+    if (typeof parsed.resumo === 'string') parsed.resumo = parsed.resumo.slice(0, 280);
+    if (typeof parsed.simplificacoes === 'string') parsed.simplificacoes = parsed.simplificacoes.slice(0, 340);
+    if (typeof parsed.conclusao === 'string') parsed.conclusao = parsed.conclusao.slice(0, 280);
+    if (typeof parsed.curiosidade === 'string') parsed.curiosidade = parsed.curiosidade.slice(0, 220);
+
+    if (parsed.analise && typeof parsed.analise === 'object') {
+      if (typeof parsed.analise.assunto === 'string') parsed.analise.assunto = parsed.analise.assunto.slice(0, 90);
+      if (typeof parsed.analise.foco === 'string') parsed.analise.foco = parsed.analise.foco.slice(0, 180);
+      if (Array.isArray(parsed.analise.entidades)) {
+        for (const ent of parsed.analise.entidades) {
+          if (ent && typeof ent.papel === 'string') ent.papel = ent.papel.slice(0, 120);
+        }
+      }
+      if (Array.isArray(parsed.analise.relacoes)) {
+        parsed.analise.relacoes = parsed.analise.relacoes.map(r => typeof r === 'string' ? r.slice(0, 180) : String(r || '').slice(0, 180));
+      }
+      if (Array.isArray(parsed.analise.sequencia)) {
+        parsed.analise.sequencia = parsed.analise.sequencia.map(s => typeof s === 'string' ? s.slice(0, 180) : String(s || '').slice(0, 180));
+      }
+    }
+  }
+
+  if (parsed && typeof parsed === 'object' && Array.isArray(parsed.cenas)) {
+    for (const scene of parsed.cenas) {
+      if (!scene || typeof scene !== 'object') continue;
+      if (typeof scene.titulo === 'string') scene.titulo = scene.titulo.slice(0, 90);
+      if (typeof scene.objetivo === 'string') scene.objetivo = scene.objetivo.slice(0, 180);
+      if (typeof scene.explicacao === 'string') scene.explicacao = scene.explicacao.slice(0, 340);
+      const sceneDuration = Number(scene.duracaoMs) || 4000;
+      const sceneIds = new Set();
+      if (Array.isArray(scene.elementos)) {
+        for (const el of scene.elementos) {
+          if (!el || typeof el !== 'object') continue;
+          if (el.texto && !el.rotulo) el.rotulo = el.texto;
+          delete el.texto;
+          if (el.subtipo && !el.icone) el.icone = el.subtipo;
+          delete el.subtipo;
+          if (!el.rotulo && el.id) el.rotulo = el.id;
+          if (typeof el.rotulo === 'string') el.rotulo = el.rotulo.slice(0, 40);
+          if (el.largura !== undefined) el.largura = Math.max(1, Math.min(100, Number(el.largura) || 16));
+          if (el.altura !== undefined) el.altura = Math.max(1, Math.min(100, Number(el.altura) || 12));
+          if (el.x !== undefined) el.x = Math.max(0, Math.min(100, Number(el.x) || 50));
+          if (el.y !== undefined) el.y = Math.max(0, Math.min(100, Number(el.y) || 50));
+          if (el.destinoX !== undefined) el.destinoX = Math.max(0, Math.min(100, Number(el.destinoX) || 50));
+          if (el.destinoY !== undefined) el.destinoY = Math.max(0, Math.min(100, Number(el.destinoY) || 50));
+          if (el.tipo === 'icone') {
+            if (!el.icone) el.icone = resolveIcon(el.rotulo || 'sol');
+            else if (!ICONS.includes(el.icone)) el.icone = resolveIcon(el.icone, el.rotulo);
+          }
+          if (el.id) sceneIds.add(el.id);
+        }
+      }
+      if (Array.isArray(scene.acoes)) {
+        for (const ac of scene.acoes) {
+          if (!ac || typeof ac !== 'object') continue;
+          if (ac.destinoX !== undefined && ac.paraX === undefined) ac.paraX = ac.destinoX;
+          if (ac.destinoY !== undefined && ac.paraY === undefined) ac.paraY = ac.destinoY;
+          delete ac.destinoX;
+          delete ac.destinoY;
+          if (ac.elemento && !ac.alvo) ac.alvo = ac.elemento;
+          delete ac.elemento;
+          if (ac.id && !ac.alvo) ac.alvo = ac.id;
+          delete ac.id;
+          if (ac.paraX !== undefined) ac.paraX = Math.max(0, Math.min(100, Number(ac.paraX) || 50));
+          if (ac.paraY !== undefined) ac.paraY = Math.max(0, Math.min(100, Number(ac.paraY) || 50));
+          if (sceneIds.has(ac.alvo)) {
+            const atraso = Number(ac.atrasoMs) || 0;
+            const duracao = Number(ac.duracaoMs) || 1000;
+            if (atraso + duracao > sceneDuration) {
+              if (atraso >= sceneDuration) {
+                ac.atrasoMs = Math.max(0, sceneDuration - 500);
+              }
+              ac.duracaoMs = Math.max(100, sceneDuration - (Number(ac.atrasoMs) || 0));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Reconciliação cuidadosa de IDs de entidades com elementos das cenas
+  if (parsed && typeof parsed === 'object' && parsed.analise && Array.isArray(parsed.analise.entidades) && Array.isArray(parsed.cenas)) {
+    const allElementIds = new Set(parsed.cenas.flatMap(s => (Array.isArray(s.elementos) ? s.elementos.map(e => e.id) : [])));
+    for (const ent of parsed.analise.entidades) {
+      if (!ent || typeof ent.id !== 'string' || allElementIds.has(ent.id)) continue;
+      for (const scene of parsed.cenas) {
+        if (!Array.isArray(scene.elementos)) continue;
+        const candidate = scene.elementos.find(el =>
+          el && typeof el.id === 'string' &&
+          (el.id.startsWith(ent.id + '_') || ent.id.startsWith(el.id + '_') ||
+           el.id.includes(ent.id) || ent.id.includes(el.id) ||
+           (typeof el.rotulo === 'string' &&
+            (el.rotulo.toLowerCase().replace(/[^a-z0-9]/g, '') === ent.id.toLowerCase().replace(/[^a-z0-9]/g, '') ||
+             el.rotulo.toLowerCase().includes(ent.id.toLowerCase()) || ent.id.toLowerCase().includes(el.rotulo.toLowerCase()))))
+        );
+        if (candidate) {
+          const oldId = candidate.id;
+          candidate.id = ent.id;
+          allElementIds.add(ent.id);
+          if (Array.isArray(scene.acoes)) {
+            for (const ac of scene.acoes) {
+              if (ac && ac.alvo === oldId) ac.alvo = ent.id;
+            }
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  // Garante correspondência exata entre número de etapas em sequencia e cenas
+  if (parsed && typeof parsed === 'object' && parsed.analise && Array.isArray(parsed.cenas)) {
+    if (!Array.isArray(parsed.analise.sequencia) || parsed.analise.sequencia.length !== parsed.cenas.length) {
+      const existing = Array.isArray(parsed.analise.sequencia) ? parsed.analise.sequencia : [];
+      parsed.analise.sequencia = parsed.cenas.map((c, i) => existing[i] || c.titulo || `Etapa ${i + 1}`);
+    }
+  }
+
+  try {
+    return validateGeneratedExperience(parsed);
+  } catch (err) {
+    console.error('[VisuLab Validation Error]:', err.message);
+    throw err;
+  }
 };
 
 const requestProvider = async (url, options, timeoutMs, parsePayload) => {
@@ -297,6 +585,7 @@ const requestProvider = async (url, options, timeoutMs, parsePayload) => {
     failure.status = Number.isInteger(error?.status) ? error.status : undefined;
     failure.kind = error?.kind === 'network' ? 'network' : undefined;
     failure.phase = phase;
+    failure.originalMessage = error?.message;
     failure.elapsedMs = Math.round(performance.now() - started);
     failure.timeoutMs = timeoutMs;
     failure.deadlineExceeded = controller.signal.aborted;
@@ -306,7 +595,7 @@ const requestProvider = async (url, options, timeoutMs, parsePayload) => {
   }
 };
 
-const callGemini = (pergunta, apiKey) => requestProvider(GEMINI_ENDPOINT, {
+const callGemini = (pergunta, apiKey, model = readGeminiModel()) => requestProvider(getGeminiEndpoint(model), {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -440,12 +729,13 @@ const visualizar = async (request) => {
 
   const failures = [];
   if (geminiKey) {
+    const geminiModel = readGeminiModel();
     try {
-      const result = await callGemini(validation.pergunta, geminiKey);
-      console.info('[VisuLab Function] Roteiro gerado', { provider: 'gemini', model: GEMINI_MODEL });
+      const result = await callGemini(validation.pergunta, geminiKey, geminiModel);
+      console.info('[VisuLab Function] Roteiro gerado', { provider: 'gemini', model: geminiModel });
       return jsonResponse(200, { ...result, provedor: 'gemini' });
     } catch (error) {
-      failures.push(classifyFailure('gemini', error, GEMINI_MODEL));
+      failures.push(classifyFailure('gemini', error, geminiModel));
     }
   }
 

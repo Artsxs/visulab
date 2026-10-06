@@ -9,6 +9,8 @@ const output = join(root, "public");
 // Não incluir servidor, funções de IA, testes ou arquivos .env.
 const publicEntries = [
   "index.html",
+  "404.html",
+  "manifest.webmanifest",
   "styles.css",
   "script.js",
   "favicon.svg",

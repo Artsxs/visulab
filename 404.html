@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Página não encontrada (404) — VisuLab</title>
+    <meta
+      name="description"
+      content="Essa coordenada do espaço-tempo não foi encontrada no VisuLab. Retorne ao início para continuar explorando o conhecimento."
+    />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=1.1.0" />
+    <meta name="theme-color" content="#1946D8" />
+    <style>
+      .error-page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .error-hero {
+        padding: clamp(3rem, 8vw, 6rem) 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        align-items: center;
+        text-align: center;
+      }
+      .error-visual {
+        max-width: 480px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .error-visual svg {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+      .error-code {
+        font-family: var(--font-display);
+        font-size: clamp(4rem, 12vw, 7.5rem);
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.05em;
+        color: var(--color-coral);
+        margin: 0 0 0.5rem;
+      }
+      .error-title {
+        font-family: var(--font-display);
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 800;
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+        margin: 0 0 1rem;
+        color: var(--color-ink);
+      }
+      .error-lead {
+        font-size: 1.1rem;
+        color: var(--color-ink-soft);
+        max-width: 36rem;
+        margin: 0 auto 2rem;
+        line-height: 1.6;
+      }
+      .error-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2.5rem;
+      }
+      .error-topics {
+        background: var(--color-surface);
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius-medium);
+        padding: 1.5rem;
+        max-width: 38rem;
+        margin: 0 auto;
+        box-shadow: var(--shadow-card);
+      }
+      .error-topics h3 {
+        font-size: 0.95rem;
+        font-weight: 750;
+        margin: 0 0 0.75rem;
+        color: var(--color-ink);
+      }
+      .error-topics-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+      .error-topic-link {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--color-blue);
+        background: var(--color-blue-soft);
+        padding: 0.4rem 0.8rem;
+        border-radius: var(--radius-pill);
+        text-decoration: none;
+        transition: background 0.2s, transform 0.2s;
+      }
+      .error-topic-link:hover {
+        background: var(--color-blue);
+        color: #fff;
+        transform: translateY(-2px);
+      }
+      @keyframes float404 {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(2deg); }
+      }
+      @keyframes pulseOrbit {
+        0%, 100% { opacity: 0.3; stroke-dashoffset: 0; }
+        50% { opacity: 0.8; stroke-dashoffset: 20; }
+      }
+      .orbit-path {
+        stroke-dasharray: 6 6;
+        animation: pulseOrbit 6s linear infinite;
+      }
+      .floating-astro {
+        animation: float404 4s ease-in-out infinite;
+        transform-origin: center;
+      }
+    </style>
+  </head>
+  <body class="error-page">
+    <header class="site-header" id="site-header">
+      <div class="shell site-header__inner">
+        <a class="brand" href="/" aria-label="VisuLab, página inicial">
+          <img src="assets/visulab-logo.svg" alt="" width="44" height="44" />
+          <span>VisuLab</span>
+        </a>
+        <nav class="site-nav" aria-label="Navegação">
+          <a href="/">Início</a>
+          <a href="/#apresentacao">Sobre</a>
+          <a href="/#como-funciona">Como funciona</a>
+          <a href="/#ver-acontecer">Laboratório</a>
+          <a href="/#explorar">Explorar</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="error-hero shell">
+        <div class="error-visual" aria-hidden="true">
+          <svg viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="spaceGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="var(--color-blue)" stop-opacity="0.25" />
+                <stop offset="100%" stop-color="var(--color-blue)" stop-opacity="0" />
+              </radialGradient>
+              <linearGradient id="telescopeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fa8d67" />
+                <stop offset="100%" stop-color="#1946D8" />
+              </linearGradient>
+            </defs>
+            <circle cx="200" cy="120" r="110" fill="url(#spaceGlow)" />
+            <ellipse cx="200" cy="120" rx="140" ry="50" stroke="var(--color-ink-soft)" stroke-width="2" class="orbit-path" />
+            <circle cx="90" cy="100" r="14" fill="var(--color-yellow)" />
+            <circle cx="310" cy="140" r="10" fill="var(--color-blue)" />
+            <g class="floating-astro">
+              <rect x="180" y="70" width="40" height="70" rx="10" fill="var(--color-surface)" stroke="var(--color-ink)" stroke-width="3" />
+              <circle cx="200" cy="95" r="14" fill="var(--color-coral)" />
+              <path d="M185 140 L170 180" stroke="var(--color-ink)" stroke-width="4" stroke-linecap="round" />
+              <path d="M215 140 L230 180" stroke="var(--color-ink)" stroke-width="4" stroke-linecap="round" />
+              <path d="M200 140 L200 185" stroke="var(--color-ink)" stroke-width="4" stroke-linecap="round" />
+              <circle cx="200" cy="95" r="6" fill="#fff" />
+            </g>
+            <circle cx="70" cy="40" r="3" fill="var(--color-yellow)" opacity="0.8" />
+            <circle cx="330" cy="50" r="2.5" fill="var(--color-coral)" opacity="0.8" />
+            <circle cx="350" cy="190" r="3" fill="var(--color-blue)" opacity="0.8" />
+            <circle cx="50" cy="190" r="2" fill="var(--color-yellow)" opacity="0.6" />
+          </svg>
+        </div>
+
+        <div>
+          <p class="error-code">404</p>
+          <h1 class="error-title">Coordenada não encontrada no espaço-tempo</h1>
+          <p class="error-lead">
+            O conteúdo ou rota que você tentou acessar não existe, mudou de órbita ou foi movido.
+            Mas a viagem pelo conhecimento continua!
+          </p>
+
+          <div class="error-actions">
+            <a class="button button--primary" href="/">
+              Voltar ao Início <span aria-hidden="true">→</span>
+            </a>
+            <a class="button button--secondary" href="/#ver-acontecer">
+              Abrir o Laboratório
+            </a>
+            <a class="button button--secondary" href="/#explorar">
+              Explorar Catálogo
+            </a>
+          </div>
+
+          <div class="error-topics">
+            <h3>Quer explorar tópicos populares agora?</h3>
+            <div class="error-topics-list">
+              <a class="error-topic-link" href="/#ver-acontecer">Fotossíntese</a>
+              <a class="error-topic-link" href="/#ver-acontecer">Ciclo da Água</a>
+              <a class="error-topic-link" href="/#ver-acontecer">Placas Tectônicas</a>
+              <a class="error-topic-link" href="/#ver-acontecer">Eclipse Solar</a>
+              <a class="error-topic-link" href="/#ver-acontecer">Brasil Colonial</a>
+              <a class="error-topic-link" href="/#ver-acontecer">Como Funciona uma IA</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell site-footer__inner">
+        <a class="brand brand--footer" href="/" aria-label="Voltar ao início">
+          <img src="assets/visulab-logo.svg" alt="" width="36" height="36" />
+          <span>VisuLab</span>
+        </a>
+        <div class="site-footer__meta">
+          <p class="site-footer__lead">VisuLab é um projeto educacional gratuito para estudantes e mentes curiosas.</p>
+          <p class="site-footer__author">Desenvolvido por <strong>Arthur Lima Reis</strong></p>
+          <p class="site-footer__challenge">
+            Inspirado pelo <a href="https://museu.harena.org/gd/" target="_blank" rel="noopener noreferrer">Grande Desafio Unicamp 2026</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+    <script>
+      try {
+        const theme = localStorage.getItem('visulab-theme');
+        if (theme) document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    </script>
+  </body>
+</html>

@@ -10,8 +10,35 @@ export const SOURCES = {
   brasil: { title: 'IBGE — Brasil: 500 anos de povoamento', url: 'https://brasil500anos.ibge.gov.br/territorio-brasileiro-e-povoamento/portugueses/imigracao-restrita-1500-1700' },
   corte: { title: 'Arquivo Nacional — Acervo colonial e corte no Brasil', url: 'https://www.gov.br/arquivonacional/pt-br/acesso-a-informacao/institucional/acervo' },
   resistencia: { title: 'Fundação Cultural Palmares — Quilombo', url: 'https://www.gov.br/palmares/pt-br/departamentos/protecao-preservacao-e-articulacao/serra-da-barriga-1/quilombo' },
+  vulcao: { title: 'USGS — Volcano Hazards Program', url: 'https://www.usgs.gov/programs/volcano-hazards' },
+  celula: { title: 'Nature Scitable — Cell Biology', url: 'https://www.nature.com/scitable/topic/cell-biology-13906536/' },
+  nasa_orbit: { title: 'NASA — Earth Orbit, Seasons and Translation', url: 'https://science.nasa.gov/earth/facts/' },
+  historia_industria: { title: 'Science Museum Group — The Industrial Revolution and Steam', url: 'https://www.sciencemuseum.org.uk/' },
+  ibge_urbanizacao: { title: 'IBGE Educa — Dinâmica Populacional e Urbanização', url: 'https://educa.ibge.gov.br/' },
+  fiocruz_respiratorio: { title: 'Fiocruz — Mecânica do Sistema Respiratório Humano', url: 'https://www.fiocruz.br/' },
+  aneel_hidreletrica: { title: 'ANEEL / Eletrobras — Como Funciona a Energia Hidrelétrica', url: 'https://www.eletrobras.com/' },
 };
-export const premiumReferences = { terremoto: ['sismos'], fotossintese: ['plantas', 'plantas2'], brasil_colonial: ['brasil', 'corte', 'resistencia'] };
+export const premiumReferences = {
+  terremoto: ['sismos'],
+  fotossintese: ['plantas', 'plantas2'],
+  brasil_colonial: ['brasil', 'corte', 'resistencia'],
+  vulcao: ['vulcao'],
+  celula: ['celula'],
+  agua: ['agua'],
+  eclipse: ['eclipse'],
+  translacao_terra: ['nasa_orbit'],
+  'earth-translation': ['nasa_orbit'],
+  revolucao_industrial: ['historia_industria'],
+  'industrial-revolution': ['historia_industria'],
+  urbanizacao: ['ibge_urbanizacao'],
+  urbanization: ['ibge_urbanizacao'],
+  rotacao_terra: ['nasa_orbit'],
+  'earth-rotation': ['nasa_orbit'],
+  sistema_respiratorio: ['fiocruz_respiratorio'],
+  'respiratory-system': ['fiocruz_respiratorio'],
+  hidreletrica: ['aneel_hidreletrica'],
+  'hydroelectric-plant': ['aneel_hidreletrica'],
+};
 const normalize = q => String(q).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 export function clarificationFor(question) {
   const q = normalize(question);

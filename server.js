@@ -6,6 +6,20 @@ import visualizar from './api/visualizar.mjs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Se NVIDIA_MODEL contiver uma chave ou segredo configurado por engano no ambiente,
+// limpa a variável para que a aplicação use o modelo padrão seguro sem erro de configuração.
+const sanitizeNvidiaModel = () => {
+  if (
+    process.env.NVIDIA_MODEL &&
+    (/^nvapi-/i.test(process.env.NVIDIA_MODEL.trim()) ||
+     /AIza|\bsk-|bearer\s|^bearer\b/i.test(process.env.NVIDIA_MODEL.trim()) ||
+     process.env.NVIDIA_MODEL.trim() === process.env.NVIDIA_API_KEY?.trim())
+  ) {
+    delete process.env.NVIDIA_MODEL;
+  }
+};
+sanitizeNvidiaModel();
+
 const app = express();
 const PORT = 3000;
 
@@ -20,6 +34,7 @@ app.get('/api/health', (req, res) => {
 // Adapter to forward requests to the visualizar Netlify Function handler
 const handleVisualizar = async (req, res) => {
   try {
+    sanitizeNvidiaModel();
     const rawBody = req.body && Buffer.isBuffer(req.body)
       ? req.body.toString('utf-8')
       : (typeof req.body === 'string' ? req.body : (req.body ? JSON.stringify(req.body) : undefined));
@@ -72,13 +87,20 @@ app.use(express.static(__dirname, {
   index: 'index.html',
 }));
 
-// Fallback to index.html for navigation routes
+// Navigation routes and 404 handler
 app.get('*', (req, res, next) => {
   if (req.method === 'GET' && !req.path.includes('.')) {
-    res.sendFile(resolve(__dirname, 'index.html'));
-  } else {
-    next();
+    if (req.path === '/' || req.path === '/index') {
+      return res.sendFile(resolve(__dirname, 'index.html'));
+    }
+    return res.status(404).sendFile(resolve(__dirname, '404.html'));
   }
+  next();
+});
+
+// Custom 404 page for missing resources and undefined routes
+app.use((req, res) => {
+  res.status(404).sendFile(resolve(__dirname, '404.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

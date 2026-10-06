@@ -1,6 +1,27 @@
 import { svg } from './visual-elements.mjs';
+import { renderPremium } from './premium-renderer.mjs';
 
 export function renderReviewed(stage, experience, index) {
+  if (experience.revisao === 'agua') {
+    const template = typeof document !== 'undefined' ? document.getElementById('visual-template-agua') : null;
+    if (template) {
+      if (!stage.querySelector('svg')) {
+        stage.replaceChildren(template.content.cloneNode(true));
+      }
+      return renderPremium(stage, { ...experience, tipoVisual: 'agua' }, index);
+    }
+  }
+
+  if (experience.revisao === 'eclipse') {
+    const template = typeof document !== 'undefined' ? document.getElementById('visual-template-eclipse') : null;
+    if (template) {
+      if (!stage.querySelector('svg')) {
+        stage.replaceChildren(template.content.cloneNode(true));
+      }
+      return renderPremium(stage, { ...experience, tipoVisual: 'eclipse' }, index);
+    }
+  }
+
   const root = svg('svg', { viewBox: '0 0 800 400', class: 'reviewed-scene', role: 'img', 'aria-label': `${experience.cenas[index].titulo}. ${experience.cenas[index].explicacao}` });
   root.append(svg('title', {}, experience.cenas[index].titulo));
   const animations = [], labels = [];
@@ -16,6 +37,7 @@ export function renderReviewed(stage, experience, index) {
   };
   const path = (d, stroke, width = 3) => add('path', { d, fill: 'none', stroke, 'stroke-width': width, 'stroke-linecap': 'round' });
   const dot = (x, y, fill, r = 6) => add('circle', { cx: x, cy: y, r, fill });
+
   if (experience.revisao === 'agua') {
     add('path', { d: 'M30 295 H320 L440 255 L770 295 V380 H30Z', fill: '#e6ede2' });
     add('path', { d: 'M30 300 Q170 310 320 300 V375 H30Z', fill: '#a7d6ee' });
@@ -42,7 +64,6 @@ export function renderReviewed(stage, experience, index) {
     }
   } else if (experience.revisao === 'eclipse') {
     root.setAttribute('viewBox', '0 65 800 310');
-    // Cones locais explícitos: a umbra afunila e atinge uma pequena região.
     const penumbra = add('path', { d: 'M360 158 L680 115 L680 245 L360 202Z', fill: '#c1cad6' });
     const umbra = add('path', { d: 'M360 158 L651 174 L651 186 L360 202Z', fill: '#56647b' });
     const rays = path('M100 115 L360 158 L651 174 M100 245 L360 202 L651 186', '#c99920', 2);

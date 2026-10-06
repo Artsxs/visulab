@@ -52,10 +52,10 @@
 
         <nav class="site-nav" aria-label="Navegação principal">
           <a href="#inicio" id="nav-inicio">Início</a>
-          <a href="#apresentacao">Sobre</a>
-          <a href="#como-funciona">Como funciona</a>
-          <a href="#ver-acontecer">Laboratório</a>
-          <a href="#explorar">Explorar</a>
+          <a href="#apresentacao" id="nav-sobre">Sobre</a>
+          <a href="#como-funciona" id="nav-como-funciona">Como funciona</a>
+          <a href="#ver-acontecer" id="nav-laboratorio">Laboratório</a>
+          <a href="#explorar" id="nav-explorar">Explorar</a>
         </nav>
 
         <label
@@ -212,7 +212,7 @@
                 </svg>
               </div>
               <p class="eyebrow"><span aria-hidden="true">✦</span> Compreensão antes da cópia</p>
-              <h2 id="apresentacao-title">Não basta receber uma resposta. É preciso compreender.</h2>
+              <h3 id="apresentacao-title">Não basta receber uma resposta. É preciso compreender.</h3>
               <p class="presentation-card__lead">
                 Uma resposta pronta pode encerrar uma tarefa sem despertar a compreensão. O VisuLab nasce da vontade de mudar essa experiência: usar a inteligência artificial como apoio para investigar, visualizar processos e aprender — não apenas copiar.
               </p>
@@ -252,7 +252,7 @@
               <p class="eyebrow"><span aria-hidden="true">✦</span> Espaço-tempo e ciências</p>
               <h3>Uma viagem pelo conhecimento, através do tempo.</h3>
               <p>
-                Criado para o Grande Desafio da Unicamp 2026, o VisuLab interpreta a viagem pelo espaço-tempo como uma experiência de aprendizagem: revisitar o passado, compreender o presente e explorar possibilidades futuras com o apoio das ciências.
+                Criado e desenvolvido por <strong>Arthur Lima Reis</strong> para o Grande Desafio da Unicamp 2026, o VisuLab interpreta a viagem pelo espaço-tempo como uma experiência de aprendizagem: revisitar o passado, compreender o presente e explorar possibilidades futuras com o apoio das ciências.
               </p>
               <p>
                 Aqui, viajar é mudar de perspectiva, observar transformações e conectar ideias de diferentes épocas e lugares.
@@ -268,6 +268,74 @@
                 </a>
               </div>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMO FUNCIONA: A trajetória integrada em 3 momentos -->
+      <section class="how-it-works section" id="como-funciona" aria-labelledby="how-it-works-title">
+        <div class="shell">
+          <div class="section-heading" data-reveal>
+            <div>
+              <p class="eyebrow"><span aria-hidden="true">✦</span> Método educativo</p>
+              <h2 id="how-it-works-title">Como funciona a aprendizagem visual</h2>
+            </div>
+            <p>
+              Aprender é uma jornada de observação e raciocínio. Em vez de entregar respostas prontas para cópia, organizamos a descoberta em três momentos integrados.
+            </p>
+          </div>
+
+          <!-- Trajetória conectada inspirada na linha curva e pontos coloridos da identidade -->
+          <div class="journey-track" data-reveal>
+            <div class="journey-track__line" aria-hidden="true">
+              <svg viewBox="0 0 1000 120" preserveAspectRatio="none" class="journey-track__svg">
+                <path d="M 60 70 Q 250 20, 500 80 T 940 40" fill="none" stroke="var(--color-yellow)" stroke-width="4" stroke-linecap="round" />
+              </svg>
+            </div>
+
+            <ol class="journey-moments" aria-label="Os três momentos da aprendizagem">
+              <li class="journey-moment">
+                <div class="journey-moment__node journey-moment__node--blue" aria-hidden="true">
+                  <span class="journey-moment__dot"></span>
+                  <span class="journey-moment__num">01</span>
+                </div>
+                <div class="journey-moment__body">
+                  <span class="journey-moment__tag">Ponto de partida</span>
+                  <h3>Faça uma pergunta.</h3>
+                  <p>
+                    Digite o que você deseja compreender: acontecimentos do passado, fenômenos do presente ou cenários e hipóteses futuras investigadas pelas ciências.
+                  </p>
+                </div>
+              </li>
+
+              <li class="journey-moment">
+                <div class="journey-moment__node journey-moment__node--terracotta" aria-hidden="true">
+                  <span class="journey-moment__dot"></span>
+                  <span class="journey-moment__num">02</span>
+                </div>
+                <div class="journey-moment__body">
+                  <span class="journey-moment__tag">Observação ativa</span>
+                  <h3>Acompanhe a explicação visual.</h3>
+                  <p>
+                    O VisuLab organiza a resposta em etapas sequenciais e constrói uma animação clara no seu navegador, permitindo pausar, avançar e explorar a relação de causa e efeito.
+                  </p>
+                </div>
+              </li>
+
+              <li class="journey-moment">
+                <div class="journey-moment__node journey-moment__node--green" aria-hidden="true">
+                  <span class="journey-moment__dot"></span>
+                  <span class="journey-moment__num">03</span>
+                </div>
+                <div class="journey-moment__body">
+                  <span class="journey-moment__tag">Consolidação</span>
+                  <h3>Revise o que aprendeu e explore novas perguntas.</h3>
+                  <p>
+                    Aprofunde o assunto com o resumo conceitual, as fontes consultadas e as curiosidades científicas. A compreensão verdadeira estimula novas perguntas.
+                  </p>
+                </div>
+              </li>
+            </ol>
           </div>
         </div>
       </section>
@@ -818,73 +886,6 @@
         </div>
       </section>
 
-      <section class="how-it-works section" id="como-funciona" aria-labelledby="how-it-works-title">
-        <div class="shell">
-          <div class="section-heading" data-reveal>
-            <div>
-              <p class="eyebrow"><span aria-hidden="true">✦</span> Método educativo</p>
-              <h2 id="how-it-works-title">Como funciona a aprendizagem visual</h2>
-            </div>
-            <p>
-              Aprender é uma jornada de observação e raciocínio. Em vez de entregar respostas prontas para cópia, organizamos a descoberta em três momentos integrados.
-            </p>
-          </div>
-
-          <!-- Trajetória conectada inspirada na linha curva e pontos coloridos da identidade -->
-          <div class="journey-track" data-reveal>
-            <div class="journey-track__line" aria-hidden="true">
-              <svg viewBox="0 0 1000 120" preserveAspectRatio="none" class="journey-track__svg">
-                <path d="M 60 70 Q 250 20, 500 80 T 940 40" fill="none" stroke="var(--color-yellow)" stroke-width="4" stroke-linecap="round" />
-              </svg>
-            </div>
-
-            <ol class="journey-moments" aria-label="Os três momentos da aprendizagem">
-              <li class="journey-moment">
-                <div class="journey-moment__node journey-moment__node--blue" aria-hidden="true">
-                  <span class="journey-moment__dot"></span>
-                  <span class="journey-moment__num">01</span>
-                </div>
-                <div class="journey-moment__body">
-                  <span class="journey-moment__tag">Ponto de partida</span>
-                  <h3>Faça uma pergunta.</h3>
-                  <p>
-                    Digite o que você deseja compreender: acontecimentos do passado, fenômenos do presente ou cenários e hipóteses futuras investigadas pelas ciências.
-                  </p>
-                </div>
-              </li>
-
-              <li class="journey-moment">
-                <div class="journey-moment__node journey-moment__node--terracotta" aria-hidden="true">
-                  <span class="journey-moment__dot"></span>
-                  <span class="journey-moment__num">02</span>
-                </div>
-                <div class="journey-moment__body">
-                  <span class="journey-moment__tag">Observação ativa</span>
-                  <h3>Acompanhe a explicação visual.</h3>
-                  <p>
-                    O VisuLab organiza a resposta em etapas sequenciais e constrói uma animação clara no seu navegador, permitindo pausar, avançar e explorar a relação de causa e efeito.
-                  </p>
-                </div>
-              </li>
-
-              <li class="journey-moment">
-                <div class="journey-moment__node journey-moment__node--green" aria-hidden="true">
-                  <span class="journey-moment__dot"></span>
-                  <span class="journey-moment__num">03</span>
-                </div>
-                <div class="journey-moment__body">
-                  <span class="journey-moment__tag">Consolidação</span>
-                  <h3>Revise o que aprendeu e explore novas perguntas.</h3>
-                  <p>
-                    Aprofunde o assunto com o resumo conceitual, as fontes consultadas e as curiosidades científicas. A compreensão verdadeira estimula novas perguntas.
-                  </p>
-                </div>
-              </li>
-            </ol>
-          </div>
-        </div>
-      </section>
-
       <section class="closing shell" aria-labelledby="closing-title" data-reveal>
         <div class="closing__content">
           <p class="eyebrow"><span aria-hidden="true">✦</span> Gratuito e aberto à curiosidade</p>
@@ -905,7 +906,10 @@
           <img src="assets/visulab-logo.svg" alt="" width="36" height="36" />
           <span>VisuLab</span>
         </a>
-        <p>VisuLab é um projeto educacional gratuito para estudantes e pessoas curiosas. Veja o conhecimento acontecer.</p>
+        <div class="site-footer__center">
+          <p>VisuLab é um projeto educacional gratuito para estudantes e mentes curiosas. Veja o conhecimento acontecer.</p>
+          <p class="site-footer__author">Desenvolvido por <strong>Arthur Lima Reis</strong></p>
+        </div>
         <p class="site-footer__challenge">
           Inspirado pelo <a href="https://museu.harena.org/gd/" target="_blank" rel="noopener noreferrer">Grande Desafio Unicamp 2026</a>
         </p>
@@ -1078,6 +1082,1113 @@
             <text x="651" y="60" text-anchor="middle" class="visual-svg-molecule visual-svg-molecule--small">O₂</text>
           </g>
           <path class="visual-arrow visual-arrow--oxygen" d="M552 173 C580 140 596 122 607 111" fill="none" stroke="currentColor" stroke-width="7" marker-end="url(#photo-arrow)" />
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-vulcao">
+      <svg class="visual-scene visual-scene--volcano" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="volcano-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a1e35" />
+            <stop offset="45%" stop-color="#4d2c3d" />
+            <stop offset="75%" stop-color="#733b3b" />
+            <stop offset="100%" stop-color="#944e3d" />
+          </linearGradient>
+          <linearGradient id="volcano-crust" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#5a4237" />
+            <stop offset="30%" stop-color="#48342b" />
+            <stop offset="70%" stop-color="#382720" />
+            <stop offset="100%" stop-color="#261a15" />
+          </linearGradient>
+          <linearGradient id="volcano-rock-left" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7a5c4d" />
+            <stop offset="50%" stop-color="#5a4034" />
+            <stop offset="100%" stop-color="#3d2921" />
+          </linearGradient>
+          <linearGradient id="volcano-rock-right" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#694d40" />
+            <stop offset="50%" stop-color="#4c342a" />
+            <stop offset="100%" stop-color="#332018" />
+          </linearGradient>
+          <radialGradient id="volcano-magma-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fff577" />
+            <stop offset="35%" stop-color="#ff7f11" />
+            <stop offset="75%" stop-color="#d62211" />
+            <stop offset="100%" stop-color="#800a05" />
+          </radialGradient>
+          <linearGradient id="volcano-conduit-lava" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#ff3300" />
+            <stop offset="50%" stop-color="#ff9900" />
+            <stop offset="100%" stop-color="#ffee55" />
+          </linearGradient>
+          <linearGradient id="volcano-lava-stream" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffee44" />
+            <stop offset="40%" stop-color="#ff6600" />
+            <stop offset="100%" stop-color="#cc1100" />
+          </linearGradient>
+          <radialGradient id="volcano-ash-cloud" cx="40%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#a6949b" />
+            <stop offset="50%" stop-color="#6e5c65" />
+            <stop offset="85%" stop-color="#45383f" />
+            <stop offset="100%" stop-color="#2a2226" />
+          </radialGradient>
+          <marker id="volcano-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffaa00" />
+          </marker>
+          <marker id="volcano-arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff3819" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#volcano-sky)" />
+        <path d="M0 300 L90 240 L190 295 L270 230 L380 290" fill="none" stroke="#4a333d" stroke-width="40" stroke-linecap="round" opacity="0.6" />
+        <path d="M430 290 L530 225 L640 285 L730 235 L800 280" fill="none" stroke="#4a333d" stroke-width="40" stroke-linecap="round" opacity="0.6" />
+        <rect x="0" y="280" width="800" height="140" fill="url(#volcano-crust)" />
+        <path d="M0 320 Q200 310 400 325 T800 315" fill="none" stroke="#6e5244" stroke-width="6" opacity="0.4" />
+        <path d="M0 355 Q250 365 500 350 T800 360" fill="none" stroke="#3d2a22" stroke-width="8" opacity="0.5" />
+        <path d="M0 390 Q180 380 400 395 T800 385" fill="none" stroke="#2a1c17" stroke-width="6" opacity="0.4" />
+        <path class="volcano-flank-left" d="M30 310 Q180 295 310 250 L370 148 L382 148 L382 320 L30 320 Z" fill="url(#volcano-rock-left)" />
+        <path class="volcano-flank-right" d="M770 310 Q620 295 490 250 L430 148 L418 148 L418 320 L770 320 Z" fill="url(#volcano-rock-right)" />
+        <path d="M382 148 L382 335 Q382 350 350 360 L450 360 Q418 350 418 148 Z" fill="#24140f" />
+        <rect class="volcano-conduit-lava" x="385" y="150" width="30" height="195" rx="4" fill="url(#volcano-conduit-lava)" />
+        <g class="volcano-chamber-group">
+          <ellipse class="volcano-magma-pulse" cx="400" cy="378" rx="120" ry="38" fill="url(#volcano-magma-glow)" />
+          <ellipse cx="400" cy="378" rx="90" ry="26" fill="#ffee44" opacity="0.85" />
+          <ellipse cx="400" cy="378" rx="55" ry="16" fill="#ffffff" opacity="0.9" />
+        </g>
+        <ellipse cx="400" cy="148" rx="34" ry="10" fill="#26130d" stroke="#5a3d31" stroke-width="3" />
+        <text x="400" y="410" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="700">câmara magmática</text>
+        <text x="320" y="235" text-anchor="middle" class="visual-svg-callout" fill="#ffffff">camadas rochosas</text>
+        <text x="480" y="235" text-anchor="middle" class="visual-svg-callout" fill="#ffffff">conduto central</text>
+        <text x="400" y="132" text-anchor="middle" class="visual-svg-callout" fill="#ffdd55">cratera</text>
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <path class="volcano-magma-stream" d="M320 380 Q360 365 400 375 T480 375" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="10 8" />
+          <path class="visual-arrow" d="M290 395 C330 385 360 380 385 378" fill="none" stroke="#ffaa00" stroke-width="6" marker-end="url(#volcano-arrow)" />
+          <path class="visual-arrow" d="M510 395 C470 385 440 380 415 378" fill="none" stroke="#ffaa00" stroke-width="6" marker-end="url(#volcano-arrow)" />
+          <text x="400" y="348" text-anchor="middle" class="visual-svg-molecule" fill="#fff" font-size="13">calor extremo do manto (> 1000 °C)</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <g class="volcano-gas-bubble" fill="#ffffff" stroke="#ffaa00" stroke-width="2" opacity="0.9">
+            <circle cx="392" cy="365" r="7" />
+            <circle cx="410" cy="355" r="9" />
+            <circle cx="398" cy="335" r="8" />
+            <circle cx="405" cy="310" r="10" />
+            <circle cx="395" cy="275" r="11" />
+          </g>
+          <path class="volcano-stress-line" d="M375 250 L345 250" fill="none" stroke="#ff3819" stroke-width="5" marker-end="url(#volcano-arrow-red)" />
+          <path class="volcano-stress-line" d="M425 250 L455 250" fill="none" stroke="#ff3819" stroke-width="5" marker-end="url(#volcano-arrow-red)" />
+          <path class="volcano-stress-line" d="M375 295 L345 295" fill="none" stroke="#ff3819" stroke-width="5" marker-end="url(#volcano-arrow-red)" />
+          <path class="volcano-stress-line" d="M425 295 L455 295" fill="none" stroke="#ff3819" stroke-width="5" marker-end="url(#volcano-arrow-red)" />
+          <text x="310" y="278" text-anchor="end" class="visual-svg-callout" fill="#ffaa00">alta pressão</text>
+          <text x="490" y="278" text-anchor="start" class="visual-svg-callout" fill="#ffaa00">gases em expansão (H₂O, CO₂)</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <path class="volcano-conduit-flow" d="M400 350 V160" fill="none" stroke="#ffee55" stroke-width="12" stroke-linecap="round" stroke-dasharray="16 12" />
+          <g class="volcano-rising-arrows">
+            <path d="M394 320 V200" fill="none" stroke="#ff3819" stroke-width="5" marker-end="url(#volcano-arrow-red)" />
+            <path d="M406 300 V180" fill="none" stroke="#ffaa00" stroke-width="5" marker-end="url(#volcano-arrow)" />
+          </g>
+          <text x="490" y="200" text-anchor="start" class="visual-svg-callout" fill="#ffee55">magma em ascensão contínua</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-3" data-visual-step="3">
+          <polygon class="volcano-crater-flash" points="400,145 375,115 390,120 370,85 400,105 415,75 410,110 435,100 415,125 430,145" fill="#fff" stroke="#ffaa00" stroke-width="4" />
+          <g class="volcano-bomb" fill="#ff3819" stroke="#fff" stroke-width="2">
+            <circle cx="360" cy="110" r="7" />
+            <circle cx="340" cy="85" r="9" />
+            <circle cx="440" cy="105" r="8" />
+            <circle cx="465" cy="78" r="10" />
+          </g>
+          <path d="M390 140 C370 110 330 90 280 80" fill="none" stroke="#ff3819" stroke-width="4" stroke-dasharray="6 6" marker-end="url(#volcano-arrow-red)" />
+          <path d="M410 140 C430 110 470 90 520 80" fill="none" stroke="#ff3819" stroke-width="4" stroke-dasharray="6 6" marker-end="url(#volcano-arrow-red)" />
+          <text x="400" y="60" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="700">detonação e ruptura do tampão</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-4" data-visual-step="4">
+          <g class="volcano-ash-puff">
+            <ellipse cx="400" cy="80" rx="55" ry="32" fill="url(#volcano-ash-cloud)" />
+            <circle cx="360" cy="65" r="38" fill="url(#volcano-ash-cloud)" />
+            <circle cx="440" cy="65" r="38" fill="url(#volcano-ash-cloud)" />
+            <circle cx="380" cy="35" r="42" fill="url(#volcano-ash-cloud)" />
+            <circle cx="425" cy="35" r="40" fill="url(#volcano-ash-cloud)" />
+            <ellipse cx="400" cy="22" rx="70" ry="20" fill="url(#volcano-ash-cloud)" />
+          </g>
+          <path class="volcano-lava-flow-left" d="M370 152 Q300 210 240 250 T120 310" fill="none" stroke="url(#volcano-lava-stream)" stroke-width="12" stroke-linecap="round" />
+          <path d="M370 152 Q300 210 240 250 T120 310" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.8" />
+          <path class="volcano-lava-flow-right" d="M430 152 Q500 210 560 250 T680 310" fill="none" stroke="url(#volcano-lava-stream)" stroke-width="12" stroke-linecap="round" />
+          <path d="M430 152 Q500 210 560 250 T680 310" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.8" />
+          <text x="220" y="195" text-anchor="middle" class="visual-svg-callout" fill="#ffee44" font-weight="700">derrame de lava</text>
+          <text x="580" y="195" text-anchor="middle" class="visual-svg-callout" fill="#ffee44" font-weight="700">derrame de lava</text>
+          <text x="400" y="24" text-anchor="middle" class="visual-svg-callout" fill="#ffffff">coluna eruptiva de cinzas</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-agua">
+      <svg class="visual-scene visual-scene--water-cycle" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="water-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#bce3fa" />
+            <stop offset="50%" stop-color="#ddf1fd" />
+            <stop offset="100%" stop-color="#f2f9ff" />
+          </linearGradient>
+          <linearGradient id="water-ocean" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a86d4" />
+            <stop offset="40%" stop-color="#1867b3" />
+            <stop offset="100%" stop-color="#0d3f73" />
+          </linearGradient>
+          <linearGradient id="water-terrain" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#558b2f" />
+            <stop offset="40%" stop-color="#33691e" />
+            <stop offset="100%" stop-color="#1b5e20" />
+          </linearGradient>
+          <linearGradient id="water-underground" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#795548" />
+            <stop offset="40%" stop-color="#5d4037" />
+            <stop offset="100%" stop-color="#3e2723" />
+          </linearGradient>
+          <linearGradient id="water-aquifer" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#29b6f6" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#0288d1" stop-opacity="0.95" />
+          </linearGradient>
+          <radialGradient id="water-sun" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fff8b3" />
+            <stop offset="45%" stop-color="#ffd54f" />
+            <stop offset="85%" stop-color="#ffa000" />
+            <stop offset="100%" stop-color="#ff8f00" />
+          </radialGradient>
+          <linearGradient id="water-cloud-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="70%" stop-color="#dcecf5" />
+            <stop offset="100%" stop-color="#b0ccdc" />
+          </linearGradient>
+          <marker id="water-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#1976d2" />
+          </marker>
+          <marker id="water-arrow-light" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0288d1" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#water-sky)" />
+        <polygon points="420,270 540,150 630,270" fill="#78909c" opacity="0.6" />
+        <polygon points="560,270 670,130 780,270" fill="#607d8b" opacity="0.7" />
+        <polygon points="640,130 670,165 700,130" fill="#ffffff" opacity="0.9" />
+        <path d="M260 280 Q450 260 800 270 V420 H260 Z" fill="url(#water-underground)" />
+        <path class="water-aquifer-glow" d="M260 360 Q450 350 780 340 L800 370 Q500 395 260 400 Z" fill="url(#water-aquifer)" />
+        <path d="M260 280 Q360 260 480 250 Q600 240 800 250 V280 Q500 270 260 290 Z" fill="url(#water-terrain)" />
+        <g fill="#2e7d32">
+          <circle cx="460" cy="245" r="10" /><circle cx="475" cy="242" r="12" /><circle cx="490" cy="246" r="9" />
+          <circle cx="580" cy="238" r="11" /><circle cx="598" cy="235" r="14" /><circle cx="615" cy="240" r="10" />
+        </g>
+        <path class="water-river-flow" d="M660 255 Q560 265 470 275 T260 290" fill="none" stroke="#29b6f6" stroke-width="14" stroke-linecap="round" />
+        <path d="M660 255 Q560 265 470 275 T260 290" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+        <path d="M0 280 Q130 275 260 285 V420 H0 Z" fill="url(#water-ocean)" />
+        <g class="water-ocean-waves" stroke="#64b5f6" stroke-width="3" fill="none" opacity="0.75">
+          <path d="M15 295 Q45 288 75 295 T135 295 T195 295 T255 295" />
+          <path d="M30 320 Q65 312 100 320 T170 320 T240 320" />
+          <path d="M10 350 Q50 342 90 350 T170 350 T250 350" />
+        </g>
+        <g class="water-sun-pulse" transform="translate(110, 75)">
+          <circle cx="0" cy="0" r="46" fill="url(#water-sun)" />
+          <g stroke="#ffa000" stroke-width="6" stroke-linecap="round" opacity="0.8">
+            <line x1="0" y1="-56" x2="0" y2="-70" />
+            <line x1="40" y1="-40" x2="50" y2="-50" />
+            <line x1="56" y1="0" x2="70" y2="0" />
+            <line x1="40" y1="40" x2="50" y2="50" />
+            <line x1="0" y1="56" x2="0" y2="70" />
+            <line x1="-40" y1="40" x2="-50" y2="50" />
+            <line x1="-56" y1="0" x2="-70" y2="0" />
+            <line x1="-40" y1="-40" x2="-50" y2="-50" />
+          </g>
+        </g>
+        <g class="water-cloud-body" transform="translate(480, 85)">
+          <path d="M-90 20 C-115 20 -130 0 -115 -20 C-115 -45 -85 -55 -65 -35 C-45 -65 15 -65 35 -35 C55 -55 90 -45 95 -15 C115 -10 120 15 95 25 Z" fill="url(#water-cloud-grad)" stroke="#b0bec5" stroke-width="2" />
+        </g>
+        <g class="water-cloud-body" transform="translate(640, 105)">
+          <path d="M-60 15 C-80 15 -90 0 -75 -15 C-75 -35 -55 -40 -40 -25 C-25 -45 15 -45 25 -25 C40 -35 65 -30 70 -10 C85 -5 85 15 70 20 Z" fill="url(#water-cloud-grad)" stroke="#b0bec5" stroke-width="2" />
+        </g>
+        <text x="130" y="385" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="700">oceano</text>
+        <text x="500" y="295" text-anchor="middle" class="visual-svg-callout" fill="#ffffff">escoamento (rio)</text>
+        <text x="520" y="380" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="700">infiltração e aquífero subterrâneo</text>
+        <text x="500" y="45" text-anchor="middle" class="visual-svg-callout" fill="#37474f">condensação em nuvens</text>
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <g class="water-vapor-particle" fill="#42a5f5" opacity="0.8">
+            <circle cx="160" cy="260" r="5" /><circle cx="180" cy="235" r="6" /><circle cx="210" cy="205" r="7" />
+            <circle cx="140" cy="240" r="5" /><circle cx="170" cy="210" r="6" /><circle cx="195" cy="180" r="7" />
+          </g>
+          <path class="water-evap-arrow" d="M170 270 Q200 210 260 160 T380 120" fill="none" stroke="#0288d1" stroke-width="6" stroke-linecap="round" stroke-dasharray="10 8" marker-end="url(#water-arrow-light)" />
+          <text x="210" y="165" class="visual-svg-callout" fill="#0277bd" font-weight="700">evaporação</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <g class="water-cloud-droplet" fill="#1976d2">
+            <circle cx="440" cy="80" r="4" /><circle cx="470" cy="70" r="5" /><circle cx="500" cy="85" r="5" />
+            <circle cx="530" cy="75" r="4" /><circle cx="620" cy="100" r="4" /><circle cx="650" cy="95" r="5" />
+          </g>
+          <path d="M370 115 H430" fill="none" stroke="#1976d2" stroke-width="5" marker-end="url(#water-arrow-blue)" />
+          <text x="490" y="125" text-anchor="middle" class="visual-svg-molecule" fill="#1565c0" font-size="13">ar frio condensa vapor em gotículas</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <g class="water-raindrop" stroke="#1976d2" stroke-width="3" stroke-linecap="round">
+            <line x1="440" y1="120" x2="435" y2="150" />
+            <line x1="470" y1="130" x2="465" y2="165" />
+            <line x1="500" y1="125" x2="495" y2="155" />
+            <line x1="530" y1="135" x2="525" y2="170" />
+            <line x1="560" y1="125" x2="555" y2="160" />
+            <line x1="590" y1="135" x2="585" y2="165" />
+            <line x1="620" y1="140" x2="615" y2="175" />
+            <line x1="650" y1="130" x2="645" y2="165" />
+          </g>
+          <path d="M540 160 V225" fill="none" stroke="#1976d2" stroke-width="6" marker-end="url(#water-arrow-blue)" />
+          <text x="560" y="195" text-anchor="start" class="visual-svg-callout" fill="#1565c0" font-weight="700">precipitação (chuva)</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-3" data-visual-step="3">
+          <path class="water-infiltrate-stream" d="M680 270 V330" fill="none" stroke="#0288d1" stroke-width="6" stroke-dasharray="8 6" marker-end="url(#water-arrow-light)" />
+          <path class="water-infiltrate-stream" d="M520 270 V340" fill="none" stroke="#0288d1" stroke-width="6" stroke-dasharray="8 6" marker-end="url(#water-arrow-light)" />
+          <path class="water-infiltrate-stream" d="M380 275 V355" fill="none" stroke="#0288d1" stroke-width="6" stroke-dasharray="8 6" marker-end="url(#water-arrow-light)" />
+          <text x="610" y="325" text-anchor="middle" class="visual-svg-callout" fill="#81d4fa">água penetra solo permeável</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-4" data-visual-step="4">
+          <path class="visual-arrow" d="M600 262 Q500 275 420 280 T275 288" fill="none" stroke="#1976d2" stroke-width="7" marker-end="url(#water-arrow-blue)" />
+          <path class="visual-arrow" d="M420 375 H270" fill="none" stroke="#0288d1" stroke-width="6" marker-end="url(#water-arrow-light)" />
+          <text x="360" y="260" text-anchor="middle" class="visual-svg-callout" fill="#0d47a1" font-weight="700">retorno contínuo ao oceano</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-eclipse">
+      <svg class="visual-scene visual-scene--eclipse" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="eclipse-space" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0a0e1a" />
+            <stop offset="50%" stop-color="#121829" />
+            <stop offset="100%" stop-color="#182038" />
+          </linearGradient>
+          <radialGradient id="eclipse-sun" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="25%" stop-color="#fff176" />
+            <stop offset="65%" stop-color="#fbc02d" />
+            <stop offset="90%" stop-color="#f57f17" />
+            <stop offset="100%" stop-color="#e65100" />
+          </radialGradient>
+          <radialGradient id="eclipse-moon" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#b0bec5" />
+            <stop offset="50%" stop-color="#78909c" />
+            <stop offset="85%" stop-color="#455a64" />
+            <stop offset="100%" stop-color="#263238" />
+          </radialGradient>
+          <radialGradient id="eclipse-earth" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#81d4fa" />
+            <stop offset="40%" stop-color="#29b6f6" />
+            <stop offset="70%" stop-color="#0277bd" />
+            <stop offset="100%" stop-color="#01579b" />
+          </radialGradient>
+          <marker id="eclipse-arrow-gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#fbc02d" />
+          </marker>
+          <marker id="eclipse-arrow-white" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffffff" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#eclipse-space)" />
+        <g fill="#ffffff" opacity="0.6">
+          <circle cx="75" cy="50" r="1.5" /><circle cx="210" cy="80" r="1" /><circle cx="340" cy="40" r="1.5" />
+          <circle cx="510" cy="65" r="1" /><circle cx="620" cy="45" r="1.5" /><circle cx="740" cy="70" r="1" />
+          <circle cx="150" cy="370" r="1" /><circle cx="280" cy="390" r="1.5" /><circle cx="490" cy="360" r="1" />
+          <circle cx="630" cy="380" r="1.5" /><circle cx="760" cy="350" r="1" />
+        </g>
+        <line x1="40" y1="210" x2="760" y2="210" stroke="#37474f" stroke-width="2" stroke-dasharray="8 8" />
+        <polygon class="eclipse-penumbra-cone" points="390,192 680,135 680,285 390,228" fill="#455a64" opacity="0.38" />
+        <polygon class="eclipse-umbra-cone" points="390,192 645,206 645,214 390,228" fill="#101826" opacity="0.9" />
+        <g class="eclipse-light-rays" stroke="#ffd54f" stroke-width="2" opacity="0.75">
+          <line x1="100" y1="135" x2="390" y2="192" />
+          <line x1="390" y1="192" x2="645" y2="206" />
+          <line x1="100" y1="285" x2="390" y2="228" />
+          <line x1="390" y1="228" x2="645" y2="214" />
+          <line x1="100" y1="135" x2="390" y2="228" stroke-dasharray="5 5" opacity="0.5" />
+          <line x1="390" y1="228" x2="680" y2="285" stroke-dasharray="5 5" opacity="0.5" />
+          <line x1="100" y1="285" x2="390" y2="192" stroke-dasharray="5 5" opacity="0.5" />
+          <line x1="390" y1="192" x2="680" y2="135" stroke-dasharray="5 5" opacity="0.5" />
+        </g>
+        <g class="eclipse-sun-glow">
+          <circle cx="100" cy="210" r="82" fill="#ff9800" opacity="0.25" />
+          <circle cx="100" cy="210" r="75" fill="url(#eclipse-sun)" />
+        </g>
+        <text x="100" y="315" text-anchor="middle" class="visual-svg-callout" fill="#ffd54f" font-weight="700">Sol</text>
+        <g class="eclipse-earth-group" transform="translate(685, 210)">
+          <circle cx="0" cy="0" r="54" fill="url(#eclipse-earth)" />
+          <path d="M-30 -15 Q-15 -35 10 -30 Q25 -15 15 5 Q-10 20 -30 -15 Z" fill="#66bb6a" opacity="0.85" />
+          <path d="M5 10 Q25 5 35 25 Q15 45 -5 35 Q-15 20 5 10 Z" fill="#81c784" opacity="0.85" />
+          <ellipse class="eclipse-umbra-spot" cx="-40" cy="0" rx="4" ry="7" fill="#050810" />
+          <ellipse class="eclipse-penumbra-spot" cx="-38" cy="0" rx="10" ry="26" fill="#1c2838" opacity="0.45" />
+        </g>
+        <text x="685" y="295" text-anchor="middle" class="visual-svg-callout" fill="#81d4fa" font-weight="700">Terra</text>
+        <g class="eclipse-moon-orbit" transform="translate(390, 210)">
+          <path d="M0 -90 A90 90 0 0 1 0 90" fill="none" stroke="#546e7a" stroke-width="2" stroke-dasharray="6 6" />
+          <circle class="eclipse-moon-sphere" cx="0" cy="0" r="18" fill="url(#eclipse-moon)" />
+        </g>
+        <text x="390" y="255" text-anchor="middle" class="visual-svg-callout" fill="#cfd8dc" font-weight="700">Lua</text>
+        <text x="525" y="206" text-anchor="middle" class="visual-svg-molecule" fill="#ffffff" font-size="13">umbra (sombra total)</text>
+        <text x="545" y="152" text-anchor="middle" class="visual-svg-molecule" fill="#b0bec5" font-size="12">penumbra (sombra parcial)</text>
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <path class="visual-arrow" d="M390 145 V190" fill="none" stroke="#ffffff" stroke-width="5" marker-end="url(#eclipse-arrow-white)" />
+          <text x="390" y="135" text-anchor="middle" class="visual-svg-callout" fill="#ffffff">Lua cruza o plano da eclíptica</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <path class="visual-arrow" d="M480 185 L515 200" fill="none" stroke="#fbc02d" stroke-width="4" marker-end="url(#eclipse-arrow-gold)" />
+          <path class="visual-arrow" d="M500 135 L530 145" fill="none" stroke="#b0bec5" stroke-width="4" marker-end="url(#eclipse-arrow-white)" />
+          <text x="530" y="115" text-anchor="middle" class="visual-svg-callout" fill="#ffd54f">Sol totalmente bloqueado na umbra</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <line x1="645" y1="210" x2="600" y2="350" stroke="#f44336" stroke-width="2" stroke-dasharray="4 4" />
+          <circle cx="645" cy="210" r="4" fill="#f44336" />
+          <rect x="520" y="340" width="160" height="42" rx="8" fill="#1c2838" stroke="#f44336" stroke-width="2" />
+          <text x="600" y="365" text-anchor="middle" class="visual-svg-callout" fill="#ff8a80" font-weight="700">Observador: Eclipse Total</text>
+          <line x1="655" y1="185" x2="710" y2="350" stroke="#ffb74d" stroke-width="2" stroke-dasharray="4 4" />
+          <circle cx="655" cy="185" r="4" fill="#ffb74d" />
+          <rect x="690" y="340" width="160" height="42" rx="8" fill="#1c2838" stroke="#ffb74d" stroke-width="2" />
+          <text x="770" y="365" text-anchor="middle" class="visual-svg-callout" fill="#ffe082" font-weight="700">Observador: Eclipse Parcial</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-celula">
+      <svg class="visual-scene visual-scene--cell" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="cell-bg" cx="50%" cy="50%" r="60%">
+            <stop offset="0%" stop-color="#f0f9fa" />
+            <stop offset="70%" stop-color="#ddf0f5" />
+            <stop offset="100%" stop-color="#c4e4ed" />
+          </radialGradient>
+          <radialGradient id="cell-cytoplasm" cx="45%" cy="45%" r="55%">
+            <stop offset="0%" stop-color="#e8f8f2" />
+            <stop offset="60%" stop-color="#d1f2e3" />
+            <stop offset="90%" stop-color="#b6e8d1" />
+            <stop offset="100%" stop-color="#9ddbbe" />
+          </radialGradient>
+          <radialGradient id="cell-nucleus" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#a78bfa" />
+            <stop offset="50%" stop-color="#7c3aed" />
+            <stop offset="85%" stop-color="#5b21b6" />
+            <stop offset="100%" stop-color="#4c1d95" />
+          </radialGradient>
+          <linearGradient id="cell-mitochondria" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fbbf24" />
+            <stop offset="50%" stop-color="#f59e0b" />
+            <stop offset="100%" stop-color="#d97706" />
+          </linearGradient>
+          <linearGradient id="cell-golgi" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#f472b6" />
+            <stop offset="100%" stop-color="#db2777" />
+          </linearGradient>
+          <marker id="cell-arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669" />
+          </marker>
+          <marker id="cell-arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#cell-bg)" />
+        <g class="cell-body-group">
+          <path class="cell-cytoplasm-pulse" d="M120 210 C120 110 230 65 400 65 C580 65 680 110 680 210 C680 310 580 355 400 355 C230 355 120 310 120 210 Z" fill="url(#cell-cytoplasm)" />
+          <path class="cell-membrane-glow" d="M120 210 C120 110 230 65 400 65 C580 65 680 110 680 210 C680 310 580 355 400 355 C230 355 120 310 120 210 Z" fill="none" stroke="#10b981" stroke-width="8" />
+          <path d="M123 210 C123 113 232 68 400 68 C577 68 677 113 677 210 C677 307 577 352 400 352 C232 352 123 307 123 210 Z" fill="none" stroke="#059669" stroke-width="3" stroke-dasharray="8 6" />
+        </g>
+        <g stroke="#34d399" stroke-width="2" opacity="0.4" fill="none">
+          <path d="M180 140 Q280 180 340 160" />
+          <path d="M220 280 Q320 250 420 310" />
+          <path d="M480 120 Q540 180 620 160" />
+          <path d="M460 290 Q560 270 640 250" />
+        </g>
+        <g class="cell-organelle-float" stroke="#c084fc" stroke-width="5" fill="none" opacity="0.85" stroke-linecap="round">
+          <path d="M270 145 Q240 180 255 240 Q270 280 300 290" />
+          <path d="M255 160 Q225 200 240 230" />
+          <path d="M430 140 Q460 170 445 250" />
+          <path d="M445 155 Q475 190 460 235" />
+        </g>
+        <g fill="#7c3aed" opacity="0.7">
+          <circle cx="260" cy="170" r="3" /><circle cx="250" cy="190" r="3" /><circle cx="248" cy="215" r="3" />
+          <circle cx="445" cy="170" r="3" /><circle cx="455" cy="195" r="3" /><circle cx="448" cy="225" r="3" />
+        </g>
+        <g class="cell-nucleus-glow" transform="translate(350, 210)">
+          <circle cx="0" cy="0" r="62" fill="url(#cell-nucleus)" stroke="#312e81" stroke-width="4" />
+          <circle cx="10" cy="-10" r="20" fill="#ede9fe" opacity="0.9" />
+          <path class="cell-dna-wave" d="M-30 15 Q-15 -5 0 20 Q15 5 30 15" fill="none" stroke="#c4b5fd" stroke-width="4" stroke-linecap="round" />
+          <path class="cell-dna-wave" d="M-25 -20 Q-10 -35 5 -15 Q20 -30 35 -15" fill="none" stroke="#c4b5fd" stroke-width="4" stroke-linecap="round" />
+        </g>
+        <g class="cell-mitochondria-active" transform="translate(540, 150) rotate(-25)">
+          <rect x="-35" y="-18" width="70" height="36" rx="18" fill="url(#cell-mitochondria)" stroke="#b45309" stroke-width="3" />
+          <path d="M-20 -10 H-5 M-15 0 H10 M-5 10 H20" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+        </g>
+        <g class="cell-mitochondria-active" transform="translate(220, 270) rotate(35)">
+          <rect x="-30" y="-16" width="60" height="32" rx="16" fill="url(#cell-mitochondria)" stroke="#b45309" stroke-width="3" />
+          <path d="M-15 -8 H0 M-10 0 H10 M0 8 H15" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+        </g>
+        <g class="cell-vesicle-move" transform="translate(530, 270)">
+          <path d="M-35 -15 Q0 -25 35 -15" fill="none" stroke="url(#cell-golgi)" stroke-width="6" stroke-linecap="round" />
+          <path d="M-30 0 Q0 -10 30 0" fill="none" stroke="url(#cell-golgi)" stroke-width="6" stroke-linecap="round" />
+          <path d="M-25 15 Q0 5 25 15" fill="none" stroke="url(#cell-golgi)" stroke-width="6" stroke-linecap="round" />
+          <circle cx="45" cy="-10" r="6" fill="#ec4899" />
+          <circle cx="55" cy="5" r="7" fill="#ec4899" />
+          <circle cx="48" cy="20" r="5" fill="#ec4899" />
+        </g>
+        <g fill="#0ea5e9" stroke="#0369a1" stroke-width="2">
+          <circle cx="210" cy="150" r="10" />
+          <circle cx="480" cy="95" r="8" />
+        </g>
+        <text x="400" y="50" text-anchor="middle" class="visual-svg-callout" fill="#047857" font-weight="700">membrana plasmática seletiva</text>
+        <text x="350" y="295" text-anchor="middle" class="visual-svg-callout" fill="#4338ca" font-weight="700">núcleo (DNA celular)</text>
+        <text x="595" y="125" text-anchor="start" class="visual-svg-callout" fill="#b45309" font-weight="700">mitocôndria (respiração celular)</text>
+        <text x="595" y="285" text-anchor="start" class="visual-svg-callout" fill="#be185d">complexo golgiense</text>
+        <text x="170" y="340" text-anchor="middle" class="visual-svg-callout" fill="#065f46">citoplasma (citosol)</text>
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <g class="cell-nutrient-flow" fill="#0284c7">
+            <circle cx="70" cy="180" r="6" /><circle cx="85" cy="210" r="8" /><circle cx="70" cy="240" r="7" />
+          </g>
+          <path class="visual-arrow" d="M75 210 H140" fill="none" stroke="#059669" stroke-width="6" marker-end="url(#cell-arrow-green)" />
+          <text x="80" y="160" class="visual-svg-callout" fill="#0369a1" font-weight="700">nutrientes e água</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <path class="visual-arrow" d="M160 210 Q220 170 280 200" fill="none" stroke="#059669" stroke-width="5" marker-end="url(#cell-arrow-green)" />
+          <path class="visual-arrow" d="M420 310 Q480 320 540 300" fill="none" stroke="#059669" stroke-width="5" marker-end="url(#cell-arrow-green)" />
+          <text x="210" y="180" class="visual-svg-molecule" fill="#047857" font-size="13">transporte e suporte coloidal</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <circle cx="350" cy="210" r="74" fill="none" stroke="#7c3aed" stroke-width="4" stroke-dasharray="10 8" />
+          <path class="visual-arrow" d="M350 140 V175" fill="none" stroke="#7c3aed" stroke-width="5" marker-end="url(#cell-arrow-purple)" />
+          <text x="350" y="125" text-anchor="middle" class="visual-svg-callout" fill="#7c3aed" font-weight="700">comando genético e síntese de RNA</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-3" data-visual-step="3">
+          <g class="cell-atp-spark" fill="#f59e0b">
+            <polygon points="580,185 585,170 592,180 605,175 595,190 602,205 588,195 580,210 582,192" />
+          </g>
+          <text x="595" y="195" class="visual-svg-callout" fill="#d97706" font-weight="700">energia celular (ATP)</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-4" data-visual-step="4">
+          <path class="visual-arrow" d="M575 270 Q620 260 670 240" fill="none" stroke="#ec4899" stroke-width="6" marker-end="url(#cell-arrow-green)" />
+          <text x="645" y="225" text-anchor="middle" class="visual-svg-callout" fill="#be185d" font-weight="700">exocitose de vesículas</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-translacao">
+      <svg class="visual-scene visual-scene--translation" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="trans-space" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#080c18" />
+            <stop offset="50%" stop-color="#0f172a" />
+            <stop offset="100%" stop-color="#18223c" />
+          </linearGradient>
+          <radialGradient id="trans-sun-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="25%" stop-color="#fff59d" />
+            <stop offset="60%" stop-color="#fbc02d" />
+            <stop offset="85%" stop-color="#f57c00" />
+            <stop offset="100%" stop-color="#e65100" />
+          </radialGradient>
+          <radialGradient id="trans-sun-grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="25%" stop-color="#fff59d" />
+            <stop offset="60%" stop-color="#fbc02d" />
+            <stop offset="85%" stop-color="#f57c00" />
+            <stop offset="100%" stop-color="#e65100" />
+          </radialGradient>
+          <radialGradient id="trans-earth-ball" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#93c5fd" />
+            <stop offset="35%" stop-color="#3b82f6" />
+            <stop offset="70%" stop-color="#1d4ed8" />
+            <stop offset="100%" stop-color="#1e3a8a" />
+          </radialGradient>
+          <marker id="trans-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+          <marker id="trans-arrow-gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#trans-space)" />
+        <g fill="#ffffff" opacity="0.6">
+          <circle cx="60" cy="50" r="1.5" /><circle cx="180" cy="80" r="1.5" /><circle cx="310" cy="40" r="1.5" />
+          <circle cx="520" cy="55" r="1.5" /><circle cx="680" cy="45" r="1.5" /><circle cx="760" cy="90" r="1.5" />
+          <circle cx="90" cy="380" r="1.5" /><circle cx="240" cy="360" r="1.5" /><circle cx="580" cy="370" r="1.5" /><circle cx="730" cy="350" r="1.5" />
+        </g>
+        <ellipse class="translation-orbit-path" cx="400" cy="210" rx="310" ry="140" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="8 8" />
+        <path class="visual-arrow visual-arrow--orbit" d="M400 350 Q560 350 670 280" fill="none" stroke="#38bdf8" stroke-width="4" marker-end="url(#trans-arrow-blue)" />
+        <path class="visual-arrow visual-arrow--orbit" d="M400 70 Q240 70 130 140" fill="none" stroke="#38bdf8" stroke-width="4" marker-end="url(#trans-arrow-blue)" />
+
+        <g class="translacao-season-marker" transform="translate(400, 70)">
+          <circle cx="0" cy="0" r="16" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
+          <circle cx="0" cy="0" r="8" fill="#38bdf8" />
+          <text x="0" y="-22" text-anchor="middle" class="visual-svg-callout" fill="#7dd3fc" font-size="12">Equinócio de Setembro</text>
+          <text x="0" y="-8" text-anchor="middle" class="visual-svg-molecule" fill="#94a3b8" font-size="10">Prim. no Sul · Out. no Norte</text>
+        </g>
+
+        <g class="translacao-season-marker" transform="translate(710, 210)">
+          <circle cx="0" cy="0" r="24" fill="#1e293b" stroke="#f59e0b" stroke-width="3" />
+          <g class="translacao-earth-sphere" transform="rotate(-23.5)">
+            <circle cx="0" cy="0" r="18" fill="url(#trans-earth-ball)" />
+            <path d="M-8 -6 Q0 -15 8 -10 Q12 2 4 10 Q-6 12 -8 -6 Z" fill="#22c55e" opacity="0.85" />
+            <line class="translacao-axis-line" x1="0" y1="-28" x2="0" y2="28" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" />
+            <text x="5" y="-28" class="visual-svg-molecule" fill="#f43f5e" font-size="9" font-weight="700">N</text>
+            <text x="5" y="32" class="visual-svg-molecule" fill="#f43f5e" font-size="9" font-weight="700">S</text>
+          </g>
+          <text x="0" y="44" text-anchor="middle" class="visual-svg-callout" fill="#fbbf24" font-size="12">Solstício de Dezembro</text>
+          <text x="0" y="58" text-anchor="middle" class="visual-svg-molecule" fill="#94a3b8" font-size="10">Verão no Sul · Inv. no Norte</text>
+        </g>
+
+        <g class="translacao-season-marker" transform="translate(400, 350)">
+          <circle cx="0" cy="0" r="16" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
+          <circle cx="0" cy="0" r="8" fill="#38bdf8" />
+          <text x="0" y="24" text-anchor="middle" class="visual-svg-callout" fill="#7dd3fc" font-size="12">Equinócio de Março</text>
+          <text x="0" y="38" text-anchor="middle" class="visual-svg-molecule" fill="#94a3b8" font-size="10">Out. no Sul · Prim. no Norte</text>
+        </g>
+
+        <g class="translacao-season-marker" transform="translate(90, 210)">
+          <circle cx="0" cy="0" r="22" fill="#1e293b" stroke="#60a5fa" stroke-width="2" />
+          <g transform="rotate(-23.5)">
+            <circle cx="0" cy="0" r="16" fill="url(#trans-earth-ball)" />
+            <path d="M-6 -4 Q2 -12 8 -6 Q8 4 2 8 Q-4 8 -6 -4 Z" fill="#22c55e" opacity="0.85" />
+            <line x1="0" y1="-24" x2="0" y2="24" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" />
+          </g>
+          <text x="0" y="40" text-anchor="middle" class="visual-svg-callout" fill="#93c5fd" font-size="12">Solstício de Junho</text>
+          <text x="0" y="54" text-anchor="middle" class="visual-svg-molecule" fill="#94a3b8" font-size="10">Inv. no Sul · Verão no Norte</text>
+        </g>
+
+        <g class="translacao-sun-group" transform="translate(400, 210)">
+          <circle class="translacao-sun-glow" cx="0" cy="0" r="64" fill="#f59e0b" opacity="0.25" />
+          <circle class="translacao-sun-pulse" cx="0" cy="0" r="48" fill="url(#trans-sun-grad)" />
+          <g stroke="#f59e0b" stroke-width="3" stroke-linecap="round" opacity="0.75">
+            <line x1="0" y1="-56" x2="0" y2="-66" /><line x1="40" y1="-40" x2="48" y2="-48" />
+            <line x1="56" y1="0" x2="66" y2="0" /><line x1="40" y1="40" x2="48" y2="48" />
+            <line x1="0" y1="56" x2="0" y2="66" /><line x1="-40" y1="40" x2="-48" y2="48" />
+            <line x1="-56" y1="0" x2="-66" y2="0" /><line x1="-40" y1="-40" x2="-48" y2="48" />
+          </g>
+          <text x="0" y="6" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="900" font-size="14">Sol</text>
+        </g>
+
+        <g class="translacao-period-badge" transform="translate(400, 26)">
+          <rect x="-160" y="-14" width="320" height="28" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
+          <text x="0" y="4" text-anchor="middle" class="visual-svg-callout" fill="#38bdf8" font-size="12" font-weight="700">Período orbital: ~365 dias e 6 horas (1 ano)</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <path class="visual-arrow" d="M400 150 V95" fill="none" stroke="#fbbf24" stroke-width="4" marker-end="url(#trans-arrow-gold)" />
+          <text x="400" y="130" text-anchor="middle" class="visual-svg-callout" fill="#fbbf24">atração gravitacional central</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <rect x="580" y="110" width="180" height="42" rx="8" fill="#0f172a" stroke="#f43f5e" stroke-width="2" />
+          <text x="670" y="128" text-anchor="middle" class="visual-svg-callout" fill="#f43f5e" font-size="12" font-weight="700">Eixo inclinado em 23,5°</text>
+          <text x="670" y="142" text-anchor="middle" class="visual-svg-molecule" fill="#cbd5e1" font-size="11">orientação constante no espaço</text>
+          <path d="M670 155 L690 190" fill="none" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4 4" />
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <g class="translacao-sun-ray" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 4" opacity="0.8">
+            <line x1="448" y1="210" x2="685" y2="210" />
+            <line x1="400" y1="162" x2="400" y2="86" />
+            <line x1="400" y1="258" x2="400" y2="334" />
+            <line x1="352" y1="210" x2="115" y2="210" />
+          </g>
+          <text x="560" y="195" text-anchor="middle" class="visual-svg-callout" fill="#fbbf24">luz direta vs. inclinada</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-3" data-visual-step="3">
+          <path class="visual-arrow" d="M680 270 Q620 330 530 350" fill="none" stroke="#22c55e" stroke-width="6" marker-end="url(#trans-arrow-blue)" />
+          <text x="540" y="325" text-anchor="middle" class="visual-svg-callout" fill="#4ade80" font-weight="700">volta completa: 1 ano solar</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-revolucao-industrial">
+      <svg class="visual-scene visual-scene--industrial" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="ind-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2d2226" />
+            <stop offset="45%" stop-color="#4a3430" />
+            <stop offset="100%" stop-color="#6e4f42" />
+          </linearGradient>
+          <linearGradient id="ind-fire" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#d84315" />
+            <stop offset="50%" stop-color="#ff9800" />
+            <stop offset="100%" stop-color="#ffeb3b" />
+          </linearGradient>
+          <linearGradient id="ind-boiler" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#546e7a" />
+            <stop offset="50%" stop-color="#37474f" />
+            <stop offset="100%" stop-color="#212121" />
+          </linearGradient>
+          <linearGradient id="ind-brick" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#8d493a" />
+            <stop offset="50%" stop-color="#6d3224" />
+            <stop offset="100%" stop-color="#4e2118" />
+          </linearGradient>
+          <marker id="ind-arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff7043" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#ind-sky)" />
+        <rect x="0" y="320" width="800" height="100" fill="#2c1d19" />
+        <line x1="0" y1="320" x2="800" y2="320" stroke="#8d493a" stroke-width="4" />
+
+        <g transform="translate(300, 110)">
+          <polygon points="0,90 40,50 80,90 120,50 160,90 200,50 240,90 240,210 0,210" fill="url(#ind-brick)" />
+          <rect x="25" y="110" width="25" height="40" rx="3" fill="#ffe082" opacity="0.85" />
+          <rect x="85" y="110" width="25" height="40" rx="3" fill="#ffe082" opacity="0.85" />
+          <rect x="145" y="110" width="25" height="40" rx="3" fill="#ffe082" opacity="0.85" />
+          <rect x="200" y="150" width="30" height="60" fill="#1e1310" />
+          <rect x="40" y="-30" width="22" height="90" fill="#3e2723" />
+          <rect x="180" y="-45" width="24" height="105" fill="#3e2723" />
+          <g class="industrial-smoke-puff">
+            <ellipse cx="51" cy="-45" rx="20" ry="12" fill="#786c72" opacity="0.65" />
+            <ellipse cx="55" cy="-65" rx="30" ry="15" fill="#5d5257" opacity="0.55" />
+            <ellipse cx="192" cy="-60" rx="22" ry="14" fill="#786c72" opacity="0.65" />
+            <ellipse cx="198" cy="-85" rx="34" ry="18" fill="#5d5257" opacity="0.55" />
+          </g>
+          <text x="120" y="80" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="700">fábrica têxtil mecanizada</text>
+        </g>
+
+        <g class="industrial-steam-engine" transform="translate(60, 180)">
+          <rect x="0" y="60" width="90" height="80" rx="10" fill="url(#ind-boiler)" stroke="#78909c" stroke-width="3" />
+          <ellipse class="industrial-boiler-fire" cx="45" cy="115" rx="32" ry="15" fill="url(#ind-fire)" />
+          <text x="45" y="85" text-anchor="middle" class="visual-svg-molecule" fill="#eceff1" font-size="11">caldeira</text>
+          <text x="45" y="138" text-anchor="middle" class="visual-svg-molecule" fill="#fff" font-weight="700" font-size="11">carvão</text>
+          <path class="industrial-steam-pipe" d="M45 60 V20 H120 V50" fill="none" stroke="#b0bec5" stroke-width="8" stroke-linecap="round" />
+          <rect x="105" y="50" width="35" height="60" rx="4" fill="#455a64" stroke="#90a4ae" stroke-width="2" />
+          <rect class="industrial-piston-rod" x="117" y="55" width="11" height="40" rx="2" fill="#ffab91" />
+          <g transform="translate(180, 80)">
+            <circle class="industrial-flywheel" cx="0" cy="0" r="42" fill="none" stroke="#78909c" stroke-width="8" />
+            <line x1="-38" y1="0" x2="38" y2="0" stroke="#90a4ae" stroke-width="4" />
+            <line x1="0" y1="-38" x2="0" y2="38" stroke="#90a4ae" stroke-width="4" />
+            <circle cx="0" cy="0" r="10" fill="#263238" stroke="#cfd8dc" stroke-width="3" />
+          </g>
+          <text x="180" y="138" text-anchor="middle" class="visual-svg-callout" fill="#cfd8dc" font-size="11">volante de Watt</text>
+        </g>
+
+        <g class="industrial-train-group" transform="translate(560, 310)">
+          <line x1="-30" y1="12" x2="230" y2="12" stroke="#90a4ae" stroke-width="4" />
+          <g fill="#212121">
+            <rect x="10" y="-35" width="65" height="42" rx="4" />
+            <rect x="50" y="-55" width="22" height="25" fill="#37474f" />
+            <rect x="20" y="-52" width="10" height="20" fill="#263238" />
+            <rect x="85" y="-28" width="55" height="35" rx="3" fill="#4e342e" />
+            <rect x="150" y="-28" width="55" height="35" rx="3" fill="#37474f" />
+          </g>
+          <circle cx="25" cy="8" r="8" fill="#78909c" stroke="#212121" stroke-width="2" />
+          <circle cx="55" cy="8" r="8" fill="#78909c" stroke="#212121" stroke-width="2" />
+          <circle cx="100" cy="8" r="7" fill="#78909c" stroke="#212121" stroke-width="2" />
+          <circle cx="125" cy="8" r="7" fill="#78909c" stroke="#212121" stroke-width="2" />
+          <circle cx="165" cy="8" r="7" fill="#78909c" stroke="#212121" stroke-width="2" />
+          <circle cx="190" cy="8" r="7" fill="#78909c" stroke="#212121" stroke-width="2" />
+          <text x="110" y="32" text-anchor="middle" class="visual-svg-callout" fill="#ffcc80" font-size="11">ferrovias e escoamento rápido</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <path class="visual-arrow" d="M105 240 H160" fill="none" stroke="#ff7043" stroke-width="5" marker-end="url(#ind-arrow-orange)" />
+          <text x="105" y="270" class="visual-svg-callout" fill="#ff7043">calor gera vapor sob pressão</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <path class="visual-arrow" d="M210 210 Q240 180 280 180" fill="none" stroke="#ff7043" stroke-width="5" marker-end="url(#ind-arrow-orange)" />
+          <text x="240" y="165" text-anchor="middle" class="visual-svg-callout" fill="#ffb74d">conversão mecânica contínua</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <rect x="330" y="280" width="180" height="32" rx="6" fill="#1b120f" stroke="#ffa726" stroke-width="2" />
+          <text x="420" y="300" text-anchor="middle" class="visual-svg-callout" fill="#ffe082" font-size="11" font-weight="700">produção têxtil em larga escala</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-3" data-visual-step="3">
+          <path class="visual-arrow visual-arrow--industrial" d="M520 280 H580" fill="none" stroke="#ff7043" stroke-width="5" marker-end="url(#ind-arrow-orange)" />
+          <text x="660" y="270" text-anchor="middle" class="visual-svg-callout" fill="#ffab91" font-weight="700">mercado integrado e classe operária</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-urbanizacao">
+      <svg class="visual-scene visual-scene--urban" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="urb-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#b0bec5" />
+            <stop offset="40%" stop-color="#cfd8dc" />
+            <stop offset="100%" stop-color="#eceff1" />
+          </linearGradient>
+          <linearGradient id="urb-rural" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#81c784" />
+            <stop offset="50%" stop-color="#4caf50" />
+            <stop offset="100%" stop-color="#2e7d32" />
+          </linearGradient>
+          <linearGradient id="urb-city" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#455a64" />
+            <stop offset="50%" stop-color="#37474f" />
+            <stop offset="100%" stop-color="#263238" />
+          </linearGradient>
+          <marker id="urb-arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#2e7d32" />
+          </marker>
+          <marker id="urb-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0288d1" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#urb-sky)" />
+        <path d="M0 240 Q150 200 300 250 L320 420 H0 Z" fill="url(#urb-rural)" />
+        <g class="urban-crop-waves" stroke="#388e3c" stroke-width="2" fill="none" opacity="0.6">
+          <path d="M20 280 Q80 270 140 280 T260 280" />
+          <path d="M10 320 Q90 310 170 320 T290 320" />
+          <path d="M30 360 Q110 350 200 360 T310 360" />
+        </g>
+        <g class="urban-tractor" transform="translate(100, 240)">
+          <rect x="0" y="10" width="38" height="20" rx="3" fill="#c62828" />
+          <rect x="18" y="0" width="18" height="15" rx="2" fill="#e0e0e0" />
+          <circle cx="8" cy="30" r="10" fill="#212121" stroke="#fff" stroke-width="2" />
+          <circle cx="34" cy="32" r="7" fill="#212121" stroke="#fff" stroke-width="2" />
+        </g>
+        <text x="120" y="380" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="700">zona rural mecanizada</text>
+
+        <path d="M260 300 Q360 280 470 310 L480 420 H250 Z" fill="#78909c" />
+        <line class="urban-migration-stream" x1="260" y1="320" x2="480" y2="330" stroke="#f57c00" stroke-width="6" stroke-dasharray="12 8" />
+        <g class="urban-bus-move" transform="translate(330, 305)">
+          <rect x="0" y="0" width="46" height="22" rx="4" fill="#f57c00" stroke="#212121" stroke-width="2" />
+          <rect x="6" y="4" width="10" height="7" fill="#fff" />
+          <rect x="20" y="4" width="10" height="7" fill="#fff" />
+          <circle cx="10" cy="22" r="5" fill="#212121" />
+          <circle cx="36" cy="22" r="5" fill="#212121" />
+        </g>
+        <text x="370" y="275" text-anchor="middle" class="visual-svg-callout" fill="#d84315" font-weight="700">fluxo migratório (êxodo rural)</text>
+
+        <g class="urban-city-growth" transform="translate(480, 80)">
+          <rect x="0" y="140" width="40" height="180" fill="#455a64" />
+          <rect x="45" y="90" width="55" height="230" fill="#37474f" />
+          <rect x="105" y="40" width="65" height="280" fill="#263238" />
+          <rect x="175" y="110" width="50" height="210" fill="#37474f" />
+          <rect x="230" y="160" width="45" height="160" fill="#455a64" />
+          <rect x="280" y="70" width="40" height="250" fill="#263238" />
+          <g fill="#ffe082" opacity="0.85">
+            <rect x="55" y="110" width="8" height="10" /><rect x="75" y="110" width="8" height="10" />
+            <rect x="55" y="135" width="8" height="10" /><rect x="75" y="135" width="8" height="10" />
+            <rect x="120" y="60" width="10" height="12" /><rect x="145" y="60" width="10" height="12" />
+            <rect x="120" y="85" width="10" height="12" /><rect x="145" y="85" width="10" height="12" />
+            <rect x="120" y="110" width="10" height="12" /><rect x="145" y="110" width="10" height="12" />
+            <rect x="185" y="130" width="9" height="11" /><rect x="205" y="130" width="9" height="11" />
+          </g>
+          <text x="160" y="25" text-anchor="middle" class="visual-svg-callout" fill="#102a43" font-weight="700">polo metropolitano</text>
+        </g>
+        <path class="urban-traffic-flow" d="M480 340 H800" stroke="#0288d1" stroke-width="8" stroke-dasharray="14 8" />
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <path class="visual-arrow" d="M140 240 Q190 200 250 240" fill="none" stroke="#2e7d32" stroke-width="5" marker-end="url(#urb-arrow-green)" />
+          <text x="150" y="200" class="visual-svg-callout" fill="#1b5e20">mecanização substitui trabalhadores</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <path class="visual-arrow" d="M280 290 H370" fill="none" stroke="#d84315" stroke-width="6" marker-end="url(#urb-arrow-green)" />
+          <text x="330" y="360" text-anchor="middle" class="visual-svg-molecule" fill="#bf360c" font-size="12">migração maciça para cidades</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <rect x="520" y="240" width="220" height="36" rx="8" fill="#0f172a" stroke="#0288d1" stroke-width="2" />
+          <text x="630" y="262" text-anchor="middle" class="visual-svg-callout" fill="#38bdf8" font-size="12" font-weight="700">expansão urbana e serviços</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-3" data-visual-step="3">
+          <path class="visual-arrow visual-arrow--urban" d="M600 370 H740" fill="none" stroke="#0288d1" stroke-width="6" marker-end="url(#urb-arrow-blue)" />
+          <text x="670" y="405" text-anchor="middle" class="visual-svg-callout" fill="#0288d1" font-weight="700">conurbação e metropolização</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-rotacao">
+      <svg class="visual-scene visual-scene--rotation" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="rot-space" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#080c18" />
+            <stop offset="100%" stop-color="#161f36" />
+          </linearGradient>
+          <radialGradient id="rot-sun" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fffde7" />
+            <stop offset="35%" stop-color="#fff176" />
+            <stop offset="70%" stop-color="#fbc02d" />
+            <stop offset="100%" stop-color="#f57f17" />
+          </radialGradient>
+          <radialGradient id="rot-earth-day" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#93c5fd" />
+            <stop offset="60%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#1d4ed8" />
+          </radialGradient>
+          <marker id="rot-arrow-yellow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#fbc02d" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#rot-space)" />
+        <g class="rot-sun-body" transform="translate(100, 210)">
+          <circle cx="0" cy="0" r="75" fill="url(#rot-sun)" />
+          <text x="0" y="6" text-anchor="middle" class="visual-svg-callout" fill="#fff" font-weight="900" font-size="16">Sol</text>
+        </g>
+
+        <g class="rotation-sun-beam" stroke="#fbc02d" stroke-width="2" stroke-dasharray="8 6" opacity="0.75">
+          <line x1="175" y1="120" x2="385" y2="120" />
+          <line x1="175" y1="170" x2="385" y2="170" />
+          <line x1="175" y1="210" x2="385" y2="210" />
+          <line x1="175" y1="250" x2="385" y2="250" />
+          <line x1="175" y1="300" x2="385" y2="300" />
+        </g>
+
+        <g class="rotation-globe-spin" transform="translate(520, 210) rotate(-23.5)">
+          <line x1="0" y1="-145" x2="0" y2="145" stroke="#f43f5e" stroke-width="4" stroke-linecap="round" />
+          <text x="8" y="-140" class="visual-svg-molecule" fill="#f43f5e" font-size="13" font-weight="700">Norte (N)</text>
+          <text x="8" y="152" class="visual-svg-molecule" fill="#f43f5e" font-size="13" font-weight="700">Sul (S)</text>
+
+          <circle cx="0" cy="0" r="95" fill="url(#rot-earth-day)" />
+          <path d="M-40 -30 Q-20 -70 20 -40 Q50 10 0 40 Q-50 40 -40 -30 Z" fill="#22c55e" opacity="0.85" />
+          <path d="M0 -95 A95 95 0 0 1 0 95 Z" fill="#090d16" opacity="0.65" />
+          <path d="M-80 0 Q0 -35 80 0" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="6 4" opacity="0.6" />
+        </g>
+
+        <path class="rotation-arrow-spin" d="M440 280 Q520 310 600 280" fill="none" stroke="#38bdf8" stroke-width="6" marker-end="url(#rot-arrow-yellow)" />
+        <text x="520" y="340" text-anchor="middle" class="visual-svg-callout" fill="#38bdf8" font-size="13" font-weight="700">Giro de Oeste para Leste</text>
+
+        <g class="rotation-badge-24h" transform="translate(520, 45)">
+          <rect x="-140" y="-16" width="280" height="32" rx="8" fill="#0f172a" stroke="#fbc02d" stroke-width="2" />
+          <text x="0" y="5" text-anchor="middle" class="visual-svg-callout" fill="#fde047" font-weight="700">Período de rotação: 24 horas (1 dia solar)</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <text x="440" y="150" text-anchor="middle" class="visual-svg-callout" fill="#fde047" font-weight="700">Dia (face iluminada)</text>
+          <text x="610" y="150" text-anchor="middle" class="visual-svg-callout" fill="#94a3b8" font-weight="700">Noite (face em sombra)</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <text x="520" y="180" text-anchor="middle" class="visual-svg-molecule" fill="#ffffff" font-size="12">terminador solar separa luz e escuridão</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <text x="520" y="375" text-anchor="middle" class="visual-svg-callout" fill="#38bdf8">sucessão ininterrupta dos dias e noites</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-respiratorio">
+      <svg class="visual-scene visual-scene--respiratory" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="resp-bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f0f7fa" />
+            <stop offset="100%" stop-color="#e0eef5" />
+          </linearGradient>
+          <radialGradient id="resp-alveolus" cx="45%" cy="45%" r="55%">
+            <stop offset="0%" stop-color="#fce4ec" />
+            <stop offset="70%" stop-color="#f8bbd0" />
+            <stop offset="100%" stop-color="#f06292" />
+          </radialGradient>
+          <marker id="resp-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0288d1" />
+          </marker>
+          <marker id="resp-arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#e53935" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#resp-bg)" />
+
+        <g class="resp-body-tract" transform="translate(180, 20)">
+          <path d="M20 20 Q20 50 20 80" fill="none" stroke="#78909c" stroke-width="18" stroke-linecap="round" />
+          <text x="20" y="55" text-anchor="middle" class="visual-svg-molecule" fill="#fff" font-size="10">traqueia</text>
+          <g class="resp-bronchi-tree" fill="none" stroke="#546e7a" stroke-width="10" stroke-linecap="round">
+            <path d="M20 80 Q-20 120 -60 160" />
+            <path d="M20 80 Q60 120 100 160" />
+          </g>
+          <g class="resp-lung-lobes" opacity="0.85">
+            <path d="M-60 120 C-110 140 -120 220 -80 270 C-40 280 -20 250 -40 180 Z" fill="#ef9a9a" stroke="#c62828" stroke-width="3" />
+            <path d="M100 120 C150 140 160 220 120 270 C80 280 60 250 80 180 Z" fill="#ef9a9a" stroke="#c62828" stroke-width="3" />
+          </g>
+          <path class="resp-diaphragm" d="M-130 285 Q20 260 170 285" fill="none" stroke="#d84315" stroke-width="12" stroke-linecap="round" />
+          <text x="20" y="320" text-anchor="middle" class="visual-svg-callout" fill="#bf360c" font-weight="700">músculo diafragma</text>
+        </g>
+
+        <g class="resp-alveolus-zoom" transform="translate(560, 200)">
+          <circle cx="0" cy="0" r="85" fill="url(#resp-alveolus)" stroke="#ad1457" stroke-width="4" />
+          <text x="0" y="-30" text-anchor="middle" class="visual-svg-callout" fill="#880e4f" font-weight="700">alvéolo pulmonar</text>
+          <path d="M-95 50 Q0 85 95 50" fill="none" stroke="#1976d2" stroke-width="16" stroke-linecap="round" />
+          <path d="M-95 50 Q0 85 95 50" fill="none" stroke="#d32f2f" stroke-width="16" stroke-linecap="round" stroke-dasharray="90 100" />
+          <circle cx="-60" cy="56" r="8" fill="#1565c0" />
+          <circle cx="0" cy="68" r="8" fill="#7b1fa2" />
+          <circle cx="60" cy="56" r="8" fill="#c62828" />
+
+          <g class="resp-gas-diffusion">
+            <path class="resp-o2-arrow" d="M-20 -10 V30" fill="none" stroke="#0288d1" stroke-width="4" marker-end="url(#resp-arrow-blue)" />
+            <text x="-25" y="10" text-anchor="end" class="visual-svg-molecule" fill="#0288d1" font-weight="700">O₂</text>
+            <path class="resp-co2-arrow" d="M20 30 V-10" fill="none" stroke="#e53935" stroke-width="4" marker-end="url(#resp-arrow-red)" />
+            <text x="25" y="10" text-anchor="start" class="visual-svg-molecule" fill="#e53935" font-weight="700">CO₂</text>
+          </g>
+          <text x="0" y="125" text-anchor="middle" class="visual-svg-callout" fill="#ad1457" font-weight="700">hematose (trocas gasosas)</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <path class="visual-arrow" d="M200 40 V100" fill="none" stroke="#0288d1" stroke-width="6" marker-end="url(#resp-arrow-blue)" />
+          <text x="215" y="70" class="visual-svg-callout" fill="#0277bd">ar rico em O₂ entra</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <text x="200" y="180" text-anchor="middle" class="visual-svg-callout" fill="#c62828">expansão dos pulmões</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <rect x="440" y="40" width="240" height="32" rx="8" fill="#fff" stroke="#880e4f" stroke-width="2" />
+          <text x="560" y="61" text-anchor="middle" class="visual-svg-callout" fill="#880e4f" font-size="12" font-weight="700">difusão: O₂ para o sangue, CO₂ para o ar</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-3" data-visual-step="3">
+          <path class="visual-arrow" d="M200 100 V40" fill="none" stroke="#e53935" stroke-width="6" marker-end="url(#resp-arrow-red)" />
+          <text x="215" y="70" class="visual-svg-callout" fill="#c62828">expiração: ar rico em CO₂ sai</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-hidreletrica">
+      <svg class="visual-scene visual-scene--hydroelectric" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="hydro-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#bae6fd" />
+            <stop offset="50%" stop-color="#e0f2fe" />
+            <stop offset="100%" stop-color="#f8fafc" />
+          </linearGradient>
+          <linearGradient id="hydro-water-deep" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38bdf8" />
+            <stop offset="40%" stop-color="#0288d1" />
+            <stop offset="100%" stop-color="#0c4a6e" />
+          </linearGradient>
+          <linearGradient id="hydro-dam-wall" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#64748b" />
+            <stop offset="50%" stop-color="#475569" />
+            <stop offset="100%" stop-color="#334155" />
+          </linearGradient>
+          <linearGradient id="hydro-gen" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f59e0b" />
+            <stop offset="60%" stop-color="#d97706" />
+            <stop offset="100%" stop-color="#b45309" />
+          </linearGradient>
+          <marker id="hydro-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0288d1" />
+          </marker>
+          <marker id="hydro-arrow-gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#hydro-sky)" />
+
+        <!-- Montanhas de fundo -->
+        <polygon points="0,210 110,90 240,210 320,130 460,250 0,250" fill="#cbd5e1" opacity="0.6" />
+        <polygon points="260,230 380,100 520,240 640,140 800,260 800,320 260,320" fill="#94a3b8" opacity="0.5" />
+
+        <!-- Reservatório de água represada -->
+        <rect x="0" y="110" width="260" height="270" fill="url(#hydro-water-deep)" />
+        <path class="hydro-waves" d="M0 110 Q40 105 80 110 T160 110 T240 110" fill="none" stroke="#e0f2fe" stroke-width="4" opacity="0.8" />
+        <text x="110" y="150" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="900" font-size="14">Reservatório (Represa)</text>
+        <text x="110" y="172" text-anchor="middle" class="visual-svg-molecule" fill="#bae6fd" font-size="11">energia potencial gravitacional</text>
+
+        <!-- Barragem de concreto maciço -->
+        <polygon points="240,80 290,80 390,380 240,380" fill="url(#hydro-dam-wall)" stroke="#1e293b" stroke-width="3" />
+        <rect x="235" y="70" width="60" height="16" rx="4" fill="#334155" />
+        <text x="300" y="62" text-anchor="middle" class="visual-svg-callout" fill="#1e293b" font-weight="700" font-size="12">Barragem de Concreto</text>
+
+        <!-- Comporta de captação -->
+        <rect class="hydro-gate" x="250" y="180" width="18" height="40" rx="3" fill="#ef4444" stroke="#7f1d1d" stroke-width="2" />
+        <text x="259" y="172" text-anchor="middle" class="visual-svg-molecule" fill="#dc2626" font-weight="700" font-size="11">Comporta</text>
+
+        <!-- Conduto forçado / duto inclinado -->
+        <path d="M260 210 L430 330 L430 360 L260 240 Z" fill="#1e293b" />
+        <path class="hydro-penstock-flow" d="M265 220 L425 340" fill="none" stroke="#38bdf8" stroke-width="16" stroke-linecap="round" />
+        <path class="hydro-flow-arrow" d="M290 238 L370 298" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="8 6" />
+
+        <!-- Casa de Força -->
+        <rect x="420" y="200" width="150" height="180" rx="6" fill="#475569" stroke="#1e293b" stroke-width="3" />
+        <rect x="440" y="215" width="30" height="24" rx="3" fill="#fef08a" opacity="0.9" />
+        <rect x="490" y="215" width="30" height="24" rx="3" fill="#fef08a" opacity="0.9" />
+        <text x="495" y="190" text-anchor="middle" class="visual-svg-callout" fill="#0f172a" font-weight="700">Casa de Força</text>
+
+        <!-- Turbina Hidráulica -->
+        <g class="hydro-turbine-group" transform="translate(470, 335)">
+          <circle cx="0" cy="0" r="28" fill="#1e293b" stroke="#64748b" stroke-width="3" />
+          <g class="hydro-turbine-blades">
+            <line x1="-24" y1="0" x2="24" y2="0" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" />
+            <line x1="0" y1="-24" x2="0" y2="24" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" />
+            <line x1="-17" y1="-17" x2="17" y2="17" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" />
+            <line x1="-17" y1="17" x2="17" y2="-17" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" />
+          </g>
+          <circle cx="0" cy="0" r="8" fill="#e2e8f0" />
+        </g>
+        <text x="470" y="375" text-anchor="middle" class="visual-svg-molecule" fill="#f8fafc" font-size="11" font-weight="700">Turbina</text>
+
+        <!-- Eixo de transmissão mecânica -->
+        <line class="hydro-shaft" x1="470" y1="305" x2="470" y2="265" stroke="#f1f5f9" stroke-width="8" stroke-linecap="round" />
+
+        <!-- Gerador Eletromagnético -->
+        <g class="hydro-generator" transform="translate(470, 255)">
+          <rect x="-30" y="-18" width="60" height="36" rx="8" fill="url(#hydro-gen)" stroke="#78350f" stroke-width="2" />
+          <circle cx="0" cy="0" r="10" fill="#fef08a" />
+          <text x="0" y="4" text-anchor="middle" class="visual-svg-callout" fill="#ffffff" font-weight="900" font-size="11">Gerador</text>
+        </g>
+
+        <!-- Canal de fuga (água sai de volta ao rio) -->
+        <rect x="520" y="340" width="280" height="80" fill="#0288d1" />
+        <path class="hydro-tailrace-flow" d="M520 360 H800" fill="none" stroke="#bae6fd" stroke-width="4" stroke-dasharray="16 10" />
+        <text x="650" y="390" text-anchor="middle" class="visual-svg-molecule" fill="#ffffff" font-size="11">Rio a jusante (vazão contínua)</text>
+
+        <!-- Subestação e Linhas de Transmissão -->
+        <g class="hydro-substation" transform="translate(620, 240)">
+          <rect x="-20" y="-15" width="40" height="30" rx="4" fill="#334155" stroke="#94a3b8" stroke-width="2" />
+          <circle class="hydro-spark" cx="0" cy="-22" r="8" fill="#fbbf24" opacity="0.85" />
+          <text x="0" y="26" text-anchor="middle" class="visual-svg-molecule" fill="#1e293b" font-weight="700" font-size="10">Transformador</text>
+        </g>
+
+        <!-- Torres de Transmissão -->
+        <g class="hydro-tower" transform="translate(730, 100)">
+          <line x1="0" y1="0" x2="-25" y2="170" stroke="#334155" stroke-width="3" />
+          <line x1="0" y1="0" x2="25" y2="170" stroke="#334155" stroke-width="3" />
+          <line x1="-30" y1="35" x2="30" y2="35" stroke="#334155" stroke-width="3" />
+          <line x1="-22" y1="75" x2="22" y2="75" stroke="#334155" stroke-width="3" />
+          <line x1="-18" y1="120" x2="18" y2="120" stroke="#334155" stroke-width="2" />
+          <!-- Cabos de alta tensão -->
+          <path class="hydro-power-line" d="M-110 140 Q-40 160 0 135 Q50 145 70 140" fill="none" stroke="#f59e0b" stroke-width="3" />
+          <text x="0" y="-10" text-anchor="middle" class="visual-svg-callout" fill="#b45309" font-weight="700" font-size="12">Rede Elétrica</text>
+        </g>
+
+        <!-- Focos das Etapas (0 a 3) -->
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <rect x="20" y="200" width="200" height="42" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
+          <text x="120" y="218" text-anchor="middle" class="visual-svg-callout" fill="#38bdf8" font-size="12" font-weight="700">1. Água Represada</text>
+          <text x="120" y="234" text-anchor="middle" class="visual-svg-molecule" fill="#bae6fd" font-size="10">energia potencial acumulada no lago</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <path class="visual-arrow" d="M290 195 L360 255" fill="none" stroke="#0288d1" stroke-width="5" marker-end="url(#hydro-arrow-blue)" />
+          <text x="360" y="225" class="visual-svg-callout" fill="#0369a1" font-weight="700">2. Conduto Forçado</text>
+          <text x="360" y="240" class="visual-svg-molecule" fill="#0288d1" font-size="11">alta pressão e velocidade</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <circle cx="470" cy="300" r="60" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="6 4" />
+          <text x="470" y="160" text-anchor="middle" class="visual-svg-callout" fill="#b45309" font-weight="700">3. Turbina e Gerador</text>
+          <text x="470" y="174" text-anchor="middle" class="visual-svg-molecule" fill="#78350f" font-size="11">conversão em rotação mecânica</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-3" data-visual-step="3">
+          <path class="visual-arrow" d="M500 240 Q570 210 650 200" fill="none" stroke="#f59e0b" stroke-width="5" marker-end="url(#hydro-arrow-gold)" />
+          <text x="680" y="180" text-anchor="middle" class="visual-svg-callout" fill="#b45309" font-weight="700">4. Transmissão</text>
+          <text x="680" y="196" text-anchor="middle" class="visual-svg-molecule" fill="#78350f" font-size="11">eletricidade limpa para cidades</text>
         </g>
       </svg>
     </template>
