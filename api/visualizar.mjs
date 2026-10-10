@@ -12,6 +12,7 @@ import {
   mapToPaletteColor,
   resolveIcon,
 } from '../js/visual-validator.mjs';
+import { isSemanticallyCompatible, extractTopic } from '../js/semantic-matcher.mjs';
 
 const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
 const readGeminiModel = () => {
@@ -83,6 +84,7 @@ REGRAS DE QUALIDADE VISUAL:
 - Para usina hidrelétrica: represente represa, água acumulada, comportas, duto forçado, turbina, gerador e linhas de transmissão com fluxo e conversão de energia.
 - Para translação da Terra: represente Sol, Terra em órbita elíptica, eixo inclinado (23,5°), seta orbital, indicação de 365 dias e movimento contínuo.
 - Para célula: represente membrana plasmática seletiva, citoplasma, núcleo com material genético, mitocôndria e organelas funcionais.
+- Para átomo e estrutura atômica: represente o núcleo atômico central (com prótons e nêutrons) e a eletrosfera com elétrons em camadas ou orbitais. NUNCA classifique átomo como célula biológica e NUNCA use o modelo ou experiência de célula para explicar átomos; use tipoDeCena "microscopico" ou "fluxo".
 - Para urbanização: represente campo mecanizado, rodovia de êxodo rural, expansão urbana, transporte e serviços.
 
 Antes das cenas, preencha analise: assunto, foco exato da pergunta (na chave "foco"), entidades com IDs e papéis,
@@ -107,7 +109,7 @@ Preencha tipoDeCena com o modelo visual mais adequado ao assunto.
 Escolha fluxo para processos; ciclo para processos recorrentes; linha_do_tempo para história; mapa para temas geográficos;
 comparacao para antes/depois ou diferenças; sistema_biologico para órgãos e sistemas do corpo; microscopico para células,
 átomos e moléculas; camadas para estruturas como a atmosfera; movimento para fenômenos físicos, deslocamentos e órbitas.
-Para terremotos/placas tectônicas, fotossíntese e Brasil Colonial, escolha especial e experienciaEspecial correspondente.
+Para terremotos/placas tectônicas, fotossíntese e Brasil Colonial, escolha especial e experienciaEspecial correspondente somente se o tema da pergunta for estritamente um desses três. NUNCA utilize experienciaEspecial "celula" para perguntas sobre átomos ou física.
 Divida o assunto em 3 a 5 etapas bem separadas (limite de 6), de 4000 a 8000 ms.
 Use somente os elementos necessários, de 1 a 10 por cena e até 12 ações. Nunca acrescente decoração para cumprir uma contagem.
 Componha cada cena com 1 ou 2 protagonistas grandes, elementos de apoio, setas de relação e uma transformação visível.
@@ -399,8 +401,22 @@ const parseStructuredExperience = (text) => {
     if (parsed.experienciaEspecial) {
       if (SPECIAL_ALIASES[parsed.experienciaEspecial]) {
         parsed.experienciaEspecial = SPECIAL_ALIASES[parsed.experienciaEspecial];
-      } else if (!SPECIALS.includes(parsed.experienciaEspecial)) {
+      }
+      if (!SPECIALS.includes(parsed.experienciaEspecial)) {
         delete parsed.experienciaEspecial;
+      } else {
+        const context = `${parsed.analise?.assunto || ''} ${parsed.titulo || ''} ${parsed.resumo || ''}`;
+        if (context.trim() && !isSemanticallyCompatible(context, parsed.experienciaEspecial)) {
+          delete parsed.experienciaEspecial;
+        }
+      }
+    }
+
+    if (parsed.tipoDeCena && SPECIALS.includes(parsed.tipoDeCena)) {
+      const context = `${parsed.analise?.assunto || ''} ${parsed.titulo || ''} ${parsed.resumo || ''}`;
+      if (context.trim() && !isSemanticallyCompatible(context, parsed.tipoDeCena)) {
+        const topic = extractTopic(context);
+        parsed.tipoDeCena = topic.id === 'atomo' ? 'microscopico' : 'fluxo';
       }
     }
 

@@ -1,3 +1,5 @@
+import { isSemanticallyCompatible, extractTopic } from './semantic-matcher.mjs';
+
 // Contrato compartilhado: somente propriedades explicitamente copiadas atravessam esta fronteira.
 export const TYPES = ['fluxo', 'ciclo', 'linha_do_tempo', 'mapa', 'comparacao', 'sistema_biologico', 'microscopico', 'camadas', 'movimento', 'especial'];
 export const SPECIALS = [
@@ -145,9 +147,20 @@ export function validateVisualExperience(input) {
   const rawRequested = c.sceneType ?? c.tipoDeCena ?? c.tipoVisual;
   const requestedType = SPECIAL_ALIASES[rawRequested] || rawRequested;
   const rawSpecial = c.experienciaEspecial ? (SPECIAL_ALIASES[c.experienciaEspecial] || c.experienciaEspecial) : undefined;
-  const special = member(rawSpecial, SPECIALS, member(requestedType, SPECIALS, undefined));
-  let tipoVisual = special || member(requestedType, TYPES, 'fluxo');
-  if (tipoVisual === 'especial' && !special) tipoVisual = 'fluxo';
+  let special = member(rawSpecial, SPECIALS, member(requestedType, SPECIALS, undefined));
+
+  const context = `${c.titulo || c.title || ''} ${c.analise?.assunto || ''} ${c.resumo || c.summary || ''}`.trim();
+  if (special && context && !isSemanticallyCompatible(context, special)) {
+    special = undefined;
+  }
+
+  let fallbackType = 'fluxo';
+  if (context && extractTopic(context).id === 'atomo') {
+    fallbackType = 'microscopico';
+  }
+
+  let tipoVisual = special || member(requestedType, TYPES, fallbackType);
+  if (tipoVisual === 'especial' && !special) tipoVisual = fallbackType;
 
   let disciplina = c.disciplina;
   if (!disciplina && typeof c.category === 'string') {

@@ -5,6 +5,7 @@ import { findReviewedTopic, reviewedExperiences, SOURCES, premiumReferences, cla
 import { validateVisualExperience } from './js/visual-validator.mjs';
 import { AnimationEngine } from './js/animation-engine.mjs';
 import { findPremiumTopic } from './js/local-fallback.mjs';
+import { isSemanticallyCompatible, extractTopic } from './js/semantic-matcher.mjs';
 
 document.documentElement.classList.add('has-js');
 
@@ -1623,6 +1624,75 @@ const requestVisualExperience = async (question) => {
 const createLocalFallback = (question) => {
   const norm = String(question || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
+  // 1. Átomo e Física/Química Subatômica (Prioridade máxima contra confusão com célula)
+  if (/\b(atomo|atomos|atomico|atomica|eletron|eletrons|proton|protons|neutron|neutrons|eletrosfera|subatomico)\b/.test(norm)) {
+    return validateVisualExperience({
+      versao: "1.0",
+      disciplina: "ciencias",
+      titulo: "Estrutura Atômica e Eletrosfera",
+      resumo: "O átomo é formado por um núcleo denso com prótons e nêutrons, cercado por elétrons em constante movimento na eletrosfera.",
+      tipoDeCena: "microscopico",
+      simplificacoes: "Modelo atômico com níveis energéticos ilustrados para visualização pedagógica.",
+      cenas: [
+        {
+          titulo: "O Núcleo Atômico Central",
+          objetivo: "Identificar a massa nuclear concentrada de prótons e nêutrons.",
+          explicacao: "O núcleo ocupa um volume minúsculo no centro do átomo, concentrando praticamente toda a sua massa.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "nucleo_denso", tipo: "icone", icone: "atomo", rotulo: "Núcleo (Prótons e Nêutrons)", x: 50, y: 50, largura: 24, altura: 24, cor: "vermelho" },
+            { id: "forca_forte", tipo: "particula", rotulo: "Força Nuclear Forte", x: 42, y: 44, largura: 14, altura: 14, cor: "amarelo" },
+            { id: "raio_nuclear", tipo: "circulo", rotulo: "Zona de Densidade", x: 50, y: 50, largura: 20, altura: 20, cor: "roxo" },
+          ],
+          acoes: [
+            { alvo: "nucleo_denso", tipo: "pulsar", duracaoMs: 1800, atrasoMs: 200 },
+          ],
+          cenario: "laboratorio",
+        },
+        {
+          titulo: "A Eletrosfera e Níveis de Energia",
+          objetivo: "Demonstrar a órbita e distribuição dos elétrons ao redor do núcleo.",
+          explicacao: "Os elétrons de carga negativa orbitam o núcleo em diferentes camadas e níveis quânticos de energia.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "nucleo_centro", tipo: "icone", icone: "atomo", rotulo: "Núcleo Central (+)", x: 50, y: 50, largura: 20, altura: 20, cor: "vermelho" },
+            { id: "eletron_1", tipo: "particula", rotulo: "Elétron Camada K (-)", x: 28, y: 35, largura: 14, altura: 14, cor: "azul" },
+            { id: "eletron_2", tipo: "particula", rotulo: "Elétron Camada L (-)", x: 72, y: 65, largura: 14, altura: 14, cor: "azul" },
+            { id: "orbita_seta", tipo: "seta", rotulo: "Movimento Quântico", x: 32, y: 35, largura: 16, altura: 6, cor: "claro", destinoX: 68, destinoY: 35 },
+          ],
+          acoes: [
+            { alvo: "nucleo_centro", tipo: "destacar", duracaoMs: 1600, atrasoMs: 600 },
+            { alvo: "eletron_1", tipo: "mover", paraX: 38, paraY: 28, duracaoMs: 2200, atrasoMs: 200 },
+            { alvo: "eletron_2", tipo: "mover", paraX: 62, paraY: 72, duracaoMs: 2200, atrasoMs: 400 },
+            { alvo: "orbita_seta", tipo: "fluir", duracaoMs: 2000, atrasoMs: 800 },
+          ],
+          cenario: "laboratorio",
+        },
+        {
+          titulo: "Estabilidade e Ligações Químicas",
+          objetivo: "Exibir o compartilhamento de elétrons na formação de moléculas.",
+          explicacao: "A interação entre as eletrosferas permite a troca e compartilhamento de elétrons, formando moléculas estáveis.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "atomo_a", tipo: "icone", icone: "atomo", rotulo: "Átomo A", x: 35, y: 50, largura: 20, altura: 20, cor: "azul" },
+            { id: "atomo_b", tipo: "icone", icone: "atomo", rotulo: "Átomo B", x: 65, y: 50, largura: 20, altura: 20, cor: "verde" },
+            { id: "ligacao_covalente", tipo: "seta", rotulo: "Ligação Química (Pares Eletrônicos)", x: 38, y: 50, largura: 18, altura: 6, cor: "amarelo", destinoX: 62, destinoY: 50 },
+          ],
+          acoes: [
+            { alvo: "atomo_a", tipo: "mover", paraX: 40, paraY: 50, duracaoMs: 2000, atrasoMs: 200 },
+            { alvo: "atomo_b", tipo: "mover", paraX: 60, paraY: 50, duracaoMs: 2000, atrasoMs: 200 },
+            { alvo: "ligacao_covalente", tipo: "fluir", duracaoMs: 2200, atrasoMs: 600 },
+          ],
+          cenario: "laboratorio",
+        }
+      ],
+      conclusao: "A matéria do universo organiza-se através da atração eletrostática e das forças que mantêm prótons, nêutrons e elétrons estruturados.",
+      curiosidade: "Se o núcleo de um átomo tivesse o tamanho de uma bola de futebol, os elétrons mais próximos orbitariam a quilômetros de distância.",
+      origem: "local",
+      fallback: true,
+    });
+  }
+
   if (/\b(terremoto|sismo|placas?\s+tectonica)/.test(norm)) {
     return { ...localVisualExperiences.terremoto, origem: 'local', fallback: true };
   }
@@ -1641,7 +1711,7 @@ const createLocalFallback = (question) => {
   if (/\b(eclipse|lua|sol.*terra)/.test(norm)) {
     return { ...reviewedExperiences.eclipse, origem: 'local', fallback: true };
   }
-  if (/\b(celula|organela|citoplasma|membrana|mitocondria)/.test(norm)) {
+  if (/\b(celula|organela|citoplasma|membrana|mitocondria)/.test(norm) && isSemanticallyCompatible(norm, 'celula')) {
     return { ...localVisualExperiences.celula, origem: 'local', fallback: true };
   }
   if (/\b(translacao|movimento de translacao|translacao da terra|orbita da terra|estacoes do ano|terra.*sol)/.test(norm)) {
@@ -1804,75 +1874,7 @@ const createLocalFallback = (question) => {
     });
   }
 
-  // Átomo e Estrutura da Matéria
-  if (/\b(atomo|atomos|eletron|proton|neutron|estrutura.*atomica|tabela.*periodica)/.test(norm)) {
-    return validateVisualExperience({
-      versao: "1.0",
-      disciplina: "ciencias",
-      titulo: "Estrutura Atômica e Eletrosfera",
-      resumo: "O átomo é formado por um núcleo denso com prótons e nêutrons, cercado por elétrons em constante movimento na eletrosfera.",
-      tipoDeCena: "microscopico",
-      simplificacoes: "Modelo atômico com níveis energéticos ilustrados para visualização pedagógica.",
-      cenas: [
-        {
-          titulo: "O Núcleo Atômico Central",
-          objetivo: "Identificar a massa nuclear concentrada de prótons e nêutrons.",
-          explicacao: "O núcleo ocupa um volume minúsculo no centro do átomo, concentrando praticamente toda a sua massa.",
-          duracaoMs: 4500,
-          elementos: [
-            { id: "nucleo_denso", tipo: "icone", icone: "atomo", rotulo: "Núcleo (Prótons e Nêutrons)", x: 50, y: 50, largura: 24, altura: 24, cor: "vermelho" },
-            { id: "forca_forte", tipo: "particula", rotulo: "Força Nuclear Forte", x: 42, y: 44, largura: 14, altura: 14, cor: "amarelo" },
-            { id: "raio_nuclear", tipo: "circulo", rotulo: "Zona de Densidade", x: 50, y: 50, largura: 20, altura: 20, cor: "roxo" },
-          ],
-          acoes: [
-            { alvo: "nucleo_denso", tipo: "pulsar", duracaoMs: 1800, atrasoMs: 200 },
-            { alvo: "forca_forte", tipo: "girar", duracaoMs: 2200, atrasoMs: 400 },
-          ],
-          cenario: "laboratorio",
-        },
-        {
-          titulo: "A Eletrosfera e Níveis de Energia",
-          objetivo: "Demonstrar a órbita e distribuição dos elétrons ao redor do núcleo.",
-          explicacao: "Os elétrons de carga negativa orbitam o núcleo em diferentes camadas e níveis quânticos de energia.",
-          duracaoMs: 4500,
-          elementos: [
-            { id: "nucleo_centro", tipo: "icone", icone: "atomo", rotulo: "Núcleo Central (+)", x: 50, y: 50, largura: 20, altura: 20, cor: "vermelho" },
-            { id: "eletron_1", tipo: "particula", rotulo: "Elétron Camada K (-)", x: 28, y: 35, largura: 14, altura: 14, cor: "azul" },
-            { id: "eletron_2", tipo: "particula", rotulo: "Elétron Camada L (-)", x: 72, y: 65, largura: 14, altura: 14, cor: "azul" },
-            { id: "orbita_seta", tipo: "seta", rotulo: "Movimento Quântico", x: 32, y: 35, largura: 16, altura: 6, cor: "claro", destinoX: 68, destinoY: 35 },
-          ],
-          acoes: [
-            { alvo: "eletron_1", tipo: "mover", paraX: 45, paraY: 25, duracaoMs: 2400, atrasoMs: 200 },
-            { alvo: "eletron_2", tipo: "mover", paraX: 55, paraY: 75, duracaoMs: 2400, atrasoMs: 200 },
-            { alvo: "orbita_seta", tipo: "fluir", duracaoMs: 2200, atrasoMs: 400 },
-            { alvo: "nucleo_centro", tipo: "destacar", duracaoMs: 1600, atrasoMs: 600 },
-          ],
-          cenario: "laboratorio",
-        },
-        {
-          titulo: "Estabilidade e Ligações Químicas",
-          objetivo: "Exibir o compartilhamento de elétrons na formação de moléculas.",
-          explicacao: "A interação entre as eletrosferas permite a troca e compartilhamento de elétrons, formando moléculas estáveis.",
-          duracaoMs: 4500,
-          elementos: [
-            { id: "atomo_a", tipo: "icone", icone: "atomo", rotulo: "Átomo A", x: 35, y: 50, largura: 20, altura: 20, cor: "azul" },
-            { id: "atomo_b", tipo: "icone", icone: "atomo", rotulo: "Átomo B", x: 65, y: 50, largura: 20, altura: 20, cor: "verde" },
-            { id: "ligacao_covalente", tipo: "seta", rotulo: "Ligação Química (Pares Eletrônicos)", x: 38, y: 50, largura: 18, altura: 6, cor: "amarelo", destinoX: 62, destinoY: 50 },
-          ],
-          acoes: [
-            { alvo: "atomo_a", tipo: "mover", paraX: 40, paraY: 50, duracaoMs: 2000, atrasoMs: 200 },
-            { alvo: "atomo_b", tipo: "mover", paraX: 60, paraY: 50, duracaoMs: 2000, atrasoMs: 200 },
-            { alvo: "ligacao_covalente", tipo: "fluir", duracaoMs: 2200, atrasoMs: 600 },
-          ],
-          cenario: "laboratorio",
-        }
-      ],
-      conclusao: "Toda a matéria do universo, desde os oceanos até as estrelas, é estruturada pela combinação de partículas atômicas.",
-      curiosidade: "Se um átomo tivesse o tamanho de um estádio de futebol, seu núcleo seria do tamanho de uma pequena bola de gude no centro.",
-      origem: "local",
-      fallback: true,
-    });
-  }
+
 
   // Cérebro, neurônios e sistema nervoso
   if (/\b(cerebro|neuronio|neuronios|sinapse|sistema.*nervoso|impulso.*nervoso)/.test(norm)) {
@@ -2873,11 +2875,31 @@ const showVisualExperience = (candidate) => {
   stopVisualizerPlayback();
   engineActive = false;
   engine.destroy();
+
   const special = candidate.experienciaEspecial || candidate.tipoVisual;
   const specialTemplate = localVisualExperiences[special];
-  const experience = specialTemplate
-    ? { ...specialTemplate, origem: 'premium' }
-    : candidate;
+
+  let experience = candidate;
+  if (specialTemplate) {
+    const isExplicitLocal = candidate.origem === 'premium' || candidate.origem === 'local';
+    const queryOrTitle = pendingQuestion || candidate.titulo || '';
+    const compatible = isSemanticallyCompatible(queryOrTitle, special);
+
+    if (isExplicitLocal || compatible) {
+      experience = { ...specialTemplate, origem: isExplicitLocal ? (candidate.origem || 'premium') : 'premium' };
+    } else {
+      // Incompatibilidade semântica detectada (ex: pergunta sobre átomo retornando célula).
+      // NUNCA renderizar uma animação não relacionada!
+      const userTopic = extractTopic(queryOrTitle);
+      const safeVisualType = userTopic.id === 'atomo' ? 'microscopico' : 'fluxo';
+      experience = {
+        ...candidate,
+        tipoVisual: safeVisualType,
+      };
+      delete experience.experienciaEspecial;
+    }
+  }
+
   activeVisualExperience = validateVisualExperience(experience);
   activeVisualStep = 0;
 
