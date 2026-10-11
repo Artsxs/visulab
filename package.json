@@ -8,7 +8,9 @@
     "build": "node scripts/build-static.mjs",
     "lint": "node --check server.js script.js js/*.mjs",
     "start": "node server.js",
-    "test": "node tests/visualizar.test.mjs && node tests/visual-validator.test.mjs && node tests/animation-engine.test.mjs && node tests/premium-topics.test.mjs && node tests/reviewed-experiences.test.mjs && node tests/scene-layout.test.mjs && node tests/semantic-matcher.test.mjs"
+    "test": "node tests/visualizar.test.mjs && node tests/visual-validator.test.mjs && node tests/animation-engine.test.mjs && node tests/premium-topics.test.mjs && node tests/reviewed-experiences.test.mjs && node tests/scene-layout.test.mjs && node tests/semantic-matcher.test.mjs",
+    "backup": "node scripts/create-backup.mjs",
+    "restore": "node scripts/restore-backup.mjs"
   },
   "dependencies": {
     "express": "^4.21.2",
