@@ -105,3 +105,121 @@ test('metadados semânticos completos para todas as animações catalogadas', ()
     assert.ok(Array.isArray(meta.termosConflitantes), `Termos conflitantes array em ${id}`);
   }
 });
+
+test('distinção rigorosa e isolamento mútuo entre eclipse lunar e eclipse solar', () => {
+  const perguntasEclipseLunar = [
+    'Como acontece um eclipse lunar?',
+    'O que é eclipse lunar?',
+    'Como a Lua fica escura num eclipse?',
+    'Quando a Terra faz sombra na Lua?',
+    'Explique eclipse lunar',
+    'Lua de sangue e sombra da Terra',
+    'A Terra fica entre o Sol e a Lua',
+  ];
+
+  for (const q of perguntasEclipseLunar) {
+    const topic = extractTopic(q);
+    assert.equal(topic.tema, 'eclipse_lunar', `Tema extraído para "${q}" deve ser eclipse_lunar`);
+    assert.equal(isSemanticallyCompatible(q, 'eclipse'), false, `Pergunta lunar "${q}" NUNCA pode ser compatível com eclipse solar ('eclipse')`);
+    assert.equal(matchSemanticAnimation(q) === 'eclipse', false, `Pergunta lunar "${q}" NUNCA pode acionar animação de eclipse solar`);
+  }
+
+  const perguntasEclipseSolar = [
+    'Como acontece um eclipse solar?',
+    'O que é eclipse solar?',
+    'A Lua passa entre o Sol e a Terra',
+    'Sombra da Lua projetada na Terra',
+    'Explique eclipse solar',
+  ];
+
+  for (const q of perguntasEclipseSolar) {
+    const topic = extractTopic(q);
+    assert.equal(topic.tema, 'eclipse', `Tema extraído para "${q}" deve ser eclipse (solar)`);
+    assert.equal(isSemanticallyCompatible(q, 'eclipse_lunar'), false, `Pergunta solar "${q}" NUNCA pode ser compatível com eclipse lunar`);
+    assert.equal(isSemanticallyCompatible(q, 'eclipse'), true, `Pergunta solar "${q}" deve ser compatível com eclipse solar`);
+  }
+});
+
+test('desambiguação semântica crítica: ebulição, trânsito e revoluções', () => {
+  // Água fervendo vs Ciclo da água
+  const ebulicaoTopic = extractTopic('O que acontece quando a água ferve?');
+  assert.notEqual(ebulicaoTopic.tema, 'agua', 'Água fervendo não pode ser classificada como ciclo da água');
+  assert.equal(isSemanticallyCompatible('O que acontece quando a água ferve?', 'agua'), false);
+
+  // Placas de trânsito vs Placas tectônicas
+  const transitoTopic = extractTopic('O que são placas de trânsito?');
+  assert.notEqual(transitoTopic.tema, 'terremoto', 'Placas de trânsito não podem ser classificadas como placas tectônicas');
+  assert.equal(isSemanticallyCompatible('O que são placas de trânsito?', 'terremoto'), false);
+
+  // Revolução Francesa vs Revolução Industrial
+  const revolucaoTopic = extractTopic('Explique a Revolução Francesa');
+  assert.notEqual(revolucaoTopic.tema, 'revolucao_industrial', 'Revolução Francesa não pode ser classificada como Revolução Industrial');
+  assert.equal(isSemanticallyCompatible('Explique a Revolução Francesa', 'revolucao_industrial'), false);
+});
+
+test('as 5 perguntas obrigatórias de eclipses e comparação semântica sem escolha arbitrária', () => {
+  const p1 = 'Como acontece um eclipse lunar?';
+  const p2 = 'O que é um eclipse lunar?';
+  const p3 = 'Por que a Lua fica avermelhada durante um eclipse lunar?';
+  const p4 = 'Como acontece um eclipse solar?';
+  const p5 = 'Qual a diferença entre eclipse solar e lunar?';
+
+  // 1. Como acontece um eclipse lunar?
+  const t1 = extractTopic(p1);
+  assert.equal(t1.tema, 'eclipse_lunar', 'Pergunta 1 deve ser classificada como eclipse_lunar');
+  assert.equal(isSemanticallyCompatible(p1, 'eclipse_lunar'), true, 'Pergunta 1 deve ser compatível com eclipse_lunar');
+  assert.equal(isSemanticallyCompatible(p1, 'eclipse'), false, 'Pergunta 1 NUNCA pode ser compatível com eclipse solar');
+
+  // 2. O que é um eclipse lunar?
+  const t2 = extractTopic(p2);
+  assert.equal(t2.tema, 'eclipse_lunar', 'Pergunta 2 deve ser classificada como eclipse_lunar');
+  assert.equal(isSemanticallyCompatible(p2, 'eclipse_lunar'), true, 'Pergunta 2 deve ser compatível com eclipse_lunar');
+  assert.equal(isSemanticallyCompatible(p2, 'eclipse'), false, 'Pergunta 2 NUNCA pode ser compatível com eclipse solar');
+
+  // 3. Por que a Lua fica avermelhada durante um eclipse lunar?
+  const t3 = extractTopic(p3);
+  assert.equal(t3.tema, 'eclipse_lunar', 'Pergunta 3 deve ser classificada como eclipse_lunar');
+  assert.equal(isSemanticallyCompatible(p3, 'eclipse_lunar'), true, 'Pergunta 3 deve ser compatível com eclipse_lunar');
+  assert.equal(isSemanticallyCompatible(p3, 'eclipse'), false, 'Pergunta 3 NUNCA pode ser compatível com eclipse solar');
+
+  // 4. Como acontece um eclipse solar?
+  const t4 = extractTopic(p4);
+  assert.equal(t4.tema, 'eclipse', 'Pergunta 4 deve ser classificada como eclipse (solar)');
+  assert.equal(isSemanticallyCompatible(p4, 'eclipse'), true, 'Pergunta 4 deve ser compatível com eclipse solar');
+  assert.equal(isSemanticallyCompatible(p4, 'eclipse_lunar'), false, 'Pergunta 4 NUNCA pode ser compatível com eclipse lunar');
+
+  // 5. Qual a diferença entre eclipse solar e lunar? (PERGUNTA COMPARATIVA)
+  const t5 = extractTopic(p5);
+  assert.equal(t5.tema, 'comparacao_eclipses', 'Pergunta 5 deve ser classificada como comparacao_eclipses');
+  // REGRA PEDAGÓGICA CRÍTICA: Não escolher arbitrariamente uma das animações!
+  assert.equal(isSemanticallyCompatible(p5, 'eclipse'), false, 'Pergunta comparativa JAMAIS pode escolher arbitrariamente animação solar isolada');
+  assert.equal(isSemanticallyCompatible(p5, 'eclipse_lunar'), false, 'Pergunta comparativa JAMAIS pode escolher arbitrariamente animação lunar isolada');
+  assert.equal(isSemanticallyCompatible('Qual a diferença entre eclipse lunar e solar?', 'eclipse'), false);
+  assert.equal(isSemanticallyCompatible('Qual a diferença entre eclipse lunar e solar?', 'eclipse_lunar'), false);
+});
+
+test('assuntos abstratos e desconhecidos ativam modo geométrico ou esclarecimento, nunca animações aleatórias', () => {
+  // Assuntos abstratos
+  const qJustica = 'O que é justiça na filosofia?';
+  const tJustica = extractTopic(qJustica);
+  assert.ok(tJustica.confianca < 0.75, 'Conceito abstrato deve ter confiança restrita (< 0.75)');
+  assert.equal(isSemanticallyCompatible(qJustica, 'celula'), false);
+  assert.equal(isSemanticallyCompatible(qJustica, 'terremoto'), false);
+  assert.equal(isSemanticallyCompatible(qJustica, 'agua'), false);
+  assert.equal(isSemanticallyCompatible(qJustica, 'eclipse'), false);
+
+  const qEmpatia = 'Como funciona a empatia humana?';
+  const tEmpatia = extractTopic(qEmpatia);
+  assert.ok(tEmpatia.confianca < 0.75);
+  assert.equal(isSemanticallyCompatible(qEmpatia, 'celula'), false);
+  assert.equal(isSemanticallyCompatible(qEmpatia, 'fotossintese'), false);
+
+  // Assunto completamente desconhecido / ruído
+  const qDesconhecido = 'xyzqwk98234 lkjsdf';
+  const tDesconhecido = extractTopic(qDesconhecido);
+  assert.equal(tDesconhecido.tema, 'generico');
+  assert.ok(tDesconhecido.confianca < 0.50);
+  assert.equal(isSemanticallyCompatible(qDesconhecido, 'celula'), false);
+  assert.equal(isSemanticallyCompatible(qDesconhecido, 'terremoto'), false);
+});
+

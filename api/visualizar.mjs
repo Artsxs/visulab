@@ -95,8 +95,12 @@ Não substitua uma pergunta específica por uma introdução ao tema. Se faltar 
 mais de uma interpretação, retorne somente {"esclarecimento":"pergunta curta para o estudante"}.
 Para pedidos impossíveis de representar com precisão, solicite um recorte no esclarecimento.
 Em simplificacoes, declare escalas alteradas, processos omitidos e números ilustrativos.
-Água: evaporação, condensação, precipitação e escoamento/infiltração; vapor é invisível.
-Eclipse solar: ordem Sol–Lua–Terra e sombra lunar na Terra; não desenhe um planeta com anéis como Terra.
+Água: evaporação, condensação, precipitação e escoamento/infiltração; vapor é invisível. Ebulição é agitação térmica e transição de fase com calor, NUNCA ciclo da água.
+Eclipse solar: ordem Sol–Lua–Terra, a Lua fica entre o Sol e a Terra e sua sombra atinge a Terra; não desenhe um planeta com anéis como Terra.
+Eclipse lunar: ordem Sol–Terra–Lua, a Terra fica entre o Sol e a Lua e a sombra da Terra cobre a Lua (Lua de Sangue avermelhada por refração); NUNCA use eclipse solar para eclipse lunar.
+Comparação de eclipses: contraste os dois alinhamentos (Lua no meio no solar vs Terra no meio no lunar) e quem recebe a sombra projetada, sem escolher apenas um deles.
+Placas de trânsito: sinalização viária e normas de tráfego; NUNCA confunda com placas tectônicas geológicas.
+Revolução Francesa: queda da Bastilha e direitos civis em 1789; NUNCA confunda com a Revolução Industrial das máquinas a vapor.
 IA: escolha um exemplo concreto de entrada, processamento e saída. Distinga treinamento de uso;
 pesos e probabilidades inventados para demonstração devem ser identificados como ilustrativos.
 Não invente referências: esta chamada não tem pesquisa nem acesso a fontes externas. Não alegue consulta ou revisão.
@@ -109,7 +113,7 @@ Preencha tipoDeCena com o modelo visual mais adequado ao assunto.
 Escolha fluxo para processos; ciclo para processos recorrentes; linha_do_tempo para história; mapa para temas geográficos;
 comparacao para antes/depois ou diferenças; sistema_biologico para órgãos e sistemas do corpo; microscopico para células,
 átomos e moléculas; camadas para estruturas como a atmosfera; movimento para fenômenos físicos, deslocamentos e órbitas.
-Para terremotos/placas tectônicas, fotossíntese e Brasil Colonial, escolha especial e experienciaEspecial correspondente somente se o tema da pergunta for estritamente um desses três. NUNCA utilize experienciaEspecial "celula" para perguntas sobre átomos ou física.
+Para terremotos/placas tectônicas, fotossíntese e Brasil Colonial, escolha especial e experienciaEspecial correspondente somente se o tema da pergunta for estritamente um desses três. NUNCA utilize experienciaEspecial "celula" para perguntas sobre átomos ou física. NUNCA utilize experienciaEspecial "eclipse" para perguntas sobre eclipse lunar ou comparações.
 Divida o assunto em 3 a 5 etapas bem separadas (limite de 6), de 4000 a 8000 ms.
 Use somente os elementos necessários, de 1 a 10 por cena e até 12 ações. Nunca acrescente decoração para cumprir uma contagem.
 Componha cada cena com 1 ou 2 protagonistas grandes, elementos de apoio, setas de relação e uma transformação visível.

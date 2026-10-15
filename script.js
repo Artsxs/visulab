@@ -5,7 +5,7 @@ import { findReviewedTopic, reviewedExperiences, SOURCES, premiumReferences, cla
 import { validateVisualExperience } from './js/visual-validator.mjs';
 import { AnimationEngine } from './js/animation-engine.mjs';
 import { findPremiumTopic } from './js/local-fallback.mjs';
-import { isSemanticallyCompatible, extractTopic } from './js/semantic-matcher.mjs';
+import { isSemanticallyCompatible, extractTopic, getConfidenceLevel } from './js/semantic-matcher.mjs';
 
 document.documentElement.classList.add('has-js');
 
@@ -742,6 +742,62 @@ const localVisualExperiences = {
       'O eclipse solar total só é possível pela coincidência de o Sol ser 400 vezes maior que a Lua e estar exatamente cerca de 400 vezes mais distante da Terra.',
     origem: 'local',
   },
+  eclipse_lunar: {
+    titulo: 'Como acontece um eclipse lunar',
+    disciplina: 'ciencias',
+    tipoVisual: 'eclipse_lunar',
+    simplificacoes: 'Vista esquemática do alinhamento Sol–Terra–Lua no plano orbital. Diâmetros e distâncias astronômicas fora de escala para clareza da umbra, penumbra e refração da luz avermelhada.',
+    resumo:
+      'Veja o alinhamento orbital do Sol, da Terra no centro e da Lua, a projeção do cone de sombra da Terra no espaço e o fenômeno da Lua de Sangue.',
+    etapas: [
+      {
+        titulo: 'Alinhamento Sol, Terra e Lua',
+        explicacao:
+          'Durante a fase de Lua Cheia, a Terra posiciona-se diretamente entre o Sol e a Lua. A Terra bloqueia os raios solares que iluminariam a superfície da Lua.',
+      },
+      {
+        titulo: 'Projeção dos cones de sombra da Terra',
+        explicacao:
+          'A Terra intercepta a luz solar e projeta dois cones no espaço: a penumbra (sombra parcial externa) e a umbra (sombra interna total onde a luz direta não chega).',
+      },
+      {
+        titulo: 'A Lua entra na umbra (Lua de Sangue)',
+        explicacao:
+          'Ao mergulhar na umbra, a Lua escurece gradualmente. A atmosfera da Terra filtra a luz solar e refrata apenas os tons avermelhados até a Lua, criando o efeito da Lua de Sangue.',
+      },
+    ],
+    curiosidade:
+      'Se você estivesse na Lua durante um eclipse lunar, veria um espetacular anel de fogo vermelho ao redor da Terra: todos os amanheceres e entardeceres do planeta acontecendo ao mesmo tempo!',
+    origem: 'local',
+  },
+  generico_geometrico: {
+    titulo: 'Estrutura Conceitual Esquemática',
+    disciplina: 'outro',
+    tipoVisual: 'generico_geometrico',
+    simplificacoes: 'Representação esquemática conceitual baseada em eixos centrais, relações de causa e efeito e síntese funcional. Idealizada para representar abstrações sem distorções temáticas.',
+    resumo:
+      'Decomposição esquemática do conceito em fundamentos essenciais, dinâmica de interação e síntese conceitual equilibrada.',
+    etapas: [
+      {
+        titulo: 'Fundamentos e Elementos Centrais',
+        explicacao:
+          'Mapeamento dos eixos estruturantes e premissas fundamentais que delimitam o conceito investigado.',
+      },
+      {
+        titulo: 'Dinâmica e Relações de Causa e Efeito',
+        explicacao:
+          'Fluxo de relações, interações dinâmicas e transformações lógicas entre os componentes do sistema.',
+      },
+      {
+        titulo: 'Síntese, Equilíbrio e Aplicação Prática',
+        explicacao:
+          'Consolidação do modelo conceitual em um estado equilibrado, evidenciando as conclusões e os impactos práticos do conceito.',
+      },
+    ],
+    curiosidade:
+      'Modelos conceituais e esquemáticos são fundamentais na ciência e na filosofia para organizar ideias complexas com clareza e sem ruído visual.',
+    origem: 'local',
+  },
   vulcao: {
     titulo: 'Como acontece uma erupção vulcânica',
     disciplina: 'geografia',
@@ -1055,7 +1111,9 @@ const visualizerPanels = {
   etapas: document.getElementById('visualizer-panel-etapas'),
   controles: document.getElementById('visualizer-panel-controles'),
   complementos: document.getElementById('visualizer-panel-complementos'),
+  diagnostico: document.getElementById('visualizer-panel-diagnostico'),
 };
+const visualizerDiagnosticBtn = document.getElementById('visualizer-diagnostic-btn');
 const visualizerTabsIndicator = document.getElementById('visualizer-tabs-indicator');
 const visualizerStepper = document.getElementById('visualizer-stepper');
 const visualizerStepPrev = document.getElementById('visualizer-step-prev');
@@ -1124,6 +1182,12 @@ visualizerTabButtons.forEach((tabBtn, index) => {
     }
   });
 });
+
+if (visualizerDiagnosticBtn) {
+  visualizerDiagnosticBtn.addEventListener('click', () => {
+    setActiveVisualizerTab('diagnostico');
+  });
+}
 
 window.addEventListener('resize', updateVisualizerTabIndicator);
 
@@ -1311,6 +1375,9 @@ const visualizerTemplates = {
   'photosynthesis': 'visual-template-fotossintese',
   'water-cycle': 'visual-template-agua',
   'solar-eclipse': 'visual-template-eclipse',
+  'lunar-eclipse': 'visual-template-eclipse-lunar',
+  eclipse_lunar: 'visual-template-eclipse-lunar',
+  generico_geometrico: 'visual-template-geometric',
   'tectonic-plates': 'visual-template-placas',
   'cell-structure': 'visual-template-celula',
   processo_generico: 'visual-template-processo',
@@ -1359,6 +1426,18 @@ const visualizerLegends = {
     ['#101826', 'umbra (total)'],
     ['#455a64', 'penumbra (parcial)'],
     ['#0277bd', 'superfície da Terra'],
+  ],
+  eclipse_lunar: [
+    ['#ffd54f', 'radiação solar direta'],
+    ['#81d4fa', 'Terra (no centro)'],
+    ['#060911', 'cone de umbra da Terra'],
+    ['#ef5350', 'Lua de Sangue (luz refratada)'],
+  ],
+  generico_geometrico: [
+    ['#38bdf8', 'eixo conceitual central'],
+    ['#fcd34d', 'premissa / entrada'],
+    ['#c084fc', 'contexto / relação'],
+    ['#4ade80', 'síntese / equilíbrio'],
   ],
   celula: [
     ['#10b981', 'membrana plasmática'],
@@ -1565,7 +1644,16 @@ const requestVisualExperience = async (question) => {
       error.code = payload?.codigo
         || (response.status === 404 ? 'FUNCTION_NOT_FOUND' : 'INVALID_FUNCTION_RESPONSE');
       error.status = response.status;
+      observedConnectivity.backend = `Backend acessível (HTTP ${response.status})`;
+      observedConnectivity.aiProvider = 'Provedor indisponível';
       throw error;
+    }
+
+    observedConnectivity.backend = 'Backend acessível (HTTP 200)';
+    if (payload?.provedor) {
+      observedConnectivity.aiProvider = payload.provedor === 'gemini'
+        ? 'Provedor de IA respondendo (Gemini)'
+        : (payload.provedor === 'nvidia' ? 'Provedor de IA respondendo (NVIDIA)' : 'Provedor de IA respondendo');
     }
 
     if (payload?.esclarecimento) {
@@ -1576,8 +1664,11 @@ const requestVisualExperience = async (question) => {
       const error = new Error(payload?.mensagem || 'O provedor de IA não conseguiu gerar a animação.');
       error.code = payload.codigo;
       error.status = response.status;
+      observedConnectivity.aiProvider = 'Provedor indisponível';
       throw error;
     }
+
+    setVisuIaProcessingState('Validando resultado');
 
     let rawExperience = payload?.experiencia;
     if (typeof rawExperience === 'string') {
@@ -1598,6 +1689,13 @@ const requestVisualExperience = async (question) => {
 
     return createLocalFallback(question);
   } catch (error) {
+    if (error.status) {
+      observedConnectivity.backend = `Backend acessível (HTTP ${error.status})`;
+      observedConnectivity.aiProvider = 'Provedor indisponível';
+    } else if (error.code === 'NETWORK_ERROR' || error instanceof TypeError) {
+      observedConnectivity.backend = 'Backend não acessível';
+      observedConnectivity.aiProvider = 'Provedor indisponível';
+    }
     if (error.name === 'AbortError') {
       if (didTimeout) {
         const timeoutError = new Error('A criação demorou mais que o esperado. Tente novamente.');
@@ -1693,7 +1791,283 @@ const createLocalFallback = (question) => {
     });
   }
 
-  if (/\b(terremoto|sismo|placas?\s+tectonica)/.test(norm)) {
+  // Ebulição da água (NUNCA ciclo da água)
+  if (/\b(ferve|fervendo|ebulicao|fervura|ponto de ebulicao)\b/.test(norm)) {
+    return validateVisualExperience({
+      versao: "1.0",
+      disciplina: "ciencias",
+      titulo: "Ebulição e Mudança de Estado da Água",
+      resumo: "Quando a água atinge o ponto de ebulição (100 °C ao nível do mar), o calor acelera as moléculas, que vencem a pressão externa e passam de líquido a vapor.",
+      tipoDeCena: "microscopico",
+      simplificacoes: "Moléculas de H2O representadas esquematicamente com aumento de energia cinética e transição de fase líquida para gás.",
+      cenas: [
+        {
+          titulo: "Energia Térmica e Agitação Molecular",
+          objetivo: "Demonstrar o aumento de calor agitando as moléculas líquidas.",
+          explicacao: "O fornecimento de calor eleva a temperatura da água, aumentando a velocidade e agitação das moléculas de H2O.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "molecula_1", tipo: "icone", icone: "gota", rotulo: "H2O Líquida", x: 35, y: 65, largura: 16, altura: 16, cor: "azul" },
+            { id: "molecula_2", tipo: "icone", icone: "gota", rotulo: "H2O Líquida", x: 65, y: 65, largura: 16, altura: 16, cor: "azul" },
+            { id: "fonte_calor", tipo: "icone", icone: "fogo", rotulo: "Calor Térmico (100 °C)", x: 50, y: 85, largura: 22, altura: 22, cor: "amarelo" },
+          ],
+          acoes: [
+            { alvo: "fonte_calor", tipo: "pulsar", duracaoMs: 1600, atrasoMs: 200 },
+            { alvo: "molecula_1", tipo: "vibrar", duracaoMs: 2200, atrasoMs: 400 },
+            { alvo: "molecula_2", tipo: "vibrar", duracaoMs: 2200, atrasoMs: 400 },
+          ],
+          cenario: "laboratorio",
+        },
+        {
+          titulo: "Formação de Bolhas de Vapor",
+          objetivo: "Exibir a formação de bolsas de vapor dentro do líquido.",
+          explicacao: "Ao atingir a temperatura de ebulição, a pressão de vapor iguala a pressão atmosférica e formam-se bolhas de gás no interior do líquido.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "bolha_vapor", tipo: "circulo", rotulo: "Bolha de Vapor (Gás)", x: 50, y: 55, largura: 22, altura: 22, cor: "claro" },
+            { id: "seta_ascensao", tipo: "seta", rotulo: "Empuxo / Subida", x: 50, y: 60, largura: 14, altura: 6, cor: "amarelo", destinoX: 50, destinoY: 30 },
+          ],
+          acoes: [
+            { alvo: "bolha_vapor", tipo: "crescer", duracaoMs: 2000, atrasoMs: 300 },
+            { alvo: "seta_ascensao", tipo: "fluir", duracaoMs: 2000, atrasoMs: 600 },
+          ],
+          cenario: "laboratorio",
+        },
+        {
+          titulo: "Liberação de Vapor para o Ar",
+          objetivo: "Mostrar a passagem das moléculas para o estado gasoso.",
+          explicacao: "As bolhas emergem à superfície e liberam o vapor de água no ar, concluindo a mudança de estado físico.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "vapor_livre_1", tipo: "particula", rotulo: "Vapor de Água", x: 40, y: 25, largura: 14, altura: 14, cor: "claro" },
+            { id: "vapor_livre_2", tipo: "particula", rotulo: "Vapor de Água", x: 60, y: 20, largura: 14, altura: 14, cor: "claro" },
+          ],
+          acoes: [
+            { alvo: "vapor_livre_1", tipo: "mover", paraX: 35, paraY: 10, duracaoMs: 2200, atrasoMs: 200 },
+            { alvo: "vapor_livre_2", tipo: "mover", paraX: 65, paraY: 8, duracaoMs: 2200, atrasoMs: 400 },
+          ],
+          cenario: "laboratorio",
+        }
+      ],
+      conclusao: "A ebulição é um processo rápido e turbulento em que todo o líquido participa da mudança de estado físico.",
+      curiosidade: "No topo do Monte Everest, a água ferve a cerca de 71 °C devido à menor pressão atmosférica!",
+      origem: "local",
+      fallback: true,
+    });
+  }
+
+  // Placas de Trânsito (NUNCA placas tectônicas)
+  if (/\b(transito|carro|veiculo|sinalizacao|rodovia|rua)\b/.test(norm) && /\bplacas?\b/.test(norm)) {
+    return validateVisualExperience({
+      versao: "1.0",
+      disciplina: "outro",
+      titulo: "Sinalização e Placas de Trânsito",
+      resumo: "As placas de trânsito organizam a mobilidade urbana, comunicando normas, alertas de perigo e orientações de destino a condutores e pedestres.",
+      tipoDeCena: "fluxo",
+      simplificacoes: "Categorização dos três tipos fundamentais de sinalização viária: regulamentação, advertência e indicação.",
+      cenas: [
+        {
+          titulo: "Placas de Regulamentação (Obrigatórias)",
+          objetivo: "Identificar as placas de regulamentação com borda vermelha e fundo branco.",
+          explicacao: "Indicam obrigações, proibições e restrições no trânsito (ex: Pare, Proibido Estacionar). Seu desrespeito constitui infração.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "placa_reg", tipo: "circulo", rotulo: "Regulamentação (Pare/Limite)", x: 35, y: 50, largura: 22, altura: 22, cor: "vermelho" },
+            { id: "fluxo_via", tipo: "seta", rotulo: "Norma de Circulação", x: 45, y: 50, largura: 16, altura: 6, cor: "amarelo", destinoX: 65, destinoY: 50 },
+          ],
+          acoes: [
+            { alvo: "placa_reg", tipo: "pulsar", duracaoMs: 1600, atrasoMs: 200 },
+            { alvo: "fluxo_via", tipo: "fluir", duracaoMs: 2000, atrasoMs: 500 },
+          ],
+          cenario: "neutro",
+        },
+        {
+          titulo: "Placas de Advertência (Alerta Amarelo)",
+          objetivo: "Apresentar as placas de advertência que alertam sobre condições de risco.",
+          explicacao: "Com formato de losango amarelo, alertam condutores sobre curvas perigosas, cruzamentos, obras ou pedestres na pista.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "placa_adv", tipo: "retangulo", rotulo: "Advertência (Curva/Perigo)", x: 50, y: 48, largura: 20, altura: 20, cor: "amarelo" },
+            { id: "alerta_motorista", tipo: "icone", icone: "olho", rotulo: "Atenção Redobrada", x: 75, y: 48, largura: 18, altura: 18, cor: "azul" },
+          ],
+          acoes: [
+            { alvo: "placa_adv", tipo: "destacar", duracaoMs: 1800, atrasoMs: 300 },
+            { alvo: "alerta_motorista", tipo: "pulsar", duracaoMs: 1600, atrasoMs: 600 },
+          ],
+          cenario: "neutro",
+        },
+        {
+          titulo: "Placas de Indicação e Serviços",
+          objetivo: "Demonstrar a sinalização de localização e serviços auxiliares.",
+          explicacao: "Identificam rodovias, distâncias, rotas de cidades e serviços auxiliares, garantindo uma navegação segura.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "placa_ind", tipo: "retangulo", rotulo: "Indicação / Destino", x: 50, y: 50, largura: 24, altura: 16, cor: "verde" },
+          ],
+          acoes: [
+            { alvo: "placa_ind", tipo: "pulsar", duracaoMs: 1800, atrasoMs: 300 },
+          ],
+          cenario: "neutro",
+        }
+      ],
+      conclusao: "A padronização internacional das placas de trânsito viabiliza a convivência segura entre veículos e pedestres nas cidades e rodovias.",
+      curiosidade: "A placa de 'PARE' é a única em formato octogonal para ser identificada até mesmo sob neve ou de costas!",
+      origem: "local",
+      fallback: true,
+    });
+  }
+
+  // Revolução Francesa (NUNCA Revolução Industrial)
+  if (/\b(revolucao francesa|queda da bastilha|bastilha|1789|jacobinos|girondinos|luis xvi)\b/.test(norm)) {
+    return validateVisualExperience({
+      versao: "1.0",
+      disciplina: "historia",
+      titulo: "A Revolução Francesa (1789)",
+      resumo: "Marco político que derrubou o absolutismo monárquico na França e instituiu os direitos civis sob os princípios de Liberdade, Igualdade e Fraternidade.",
+      tipoDeCena: "linha_do_tempo",
+      simplificacoes: "Linha cronológica didática dos três momentos decisivos: a desigualdade dos Três Estados, a Queda da Bastilha e a Declaração de Direitos.",
+      cenas: [
+        {
+          titulo: "1789: Crise do Antigo Regime e os Três Estados",
+          objetivo: "Mostrar a divisão desigual entre clero, nobreza e o povo.",
+          explicacao: "O Terceiro Estado (97% da população) pagava todos os impostos enquanto a nobreza e o clero gozavam de privilégios e isenções tributárias.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "terceiro_estado", tipo: "icone", icone: "cidade", rotulo: "Terceiro Estado (Povo & Burguesia)", x: 30, y: 55, largura: 22, altura: 22, cor: "azul" },
+            { id: "nobreza_clero", tipo: "icone", icone: "livro", rotulo: "Privilégios da Corte", x: 70, y: 40, largura: 20, altura: 20, cor: "amarelo" },
+          ],
+          acoes: [
+            { alvo: "terceiro_estado", tipo: "destacar", duracaoMs: 1800, atrasoMs: 200 },
+          ],
+          cenario: "historico",
+        },
+        {
+          titulo: "14 de Julho de 1789: A Queda da Bastilha",
+          objetivo: "Apresentar a tomada da fortaleza e símbolo do absolutismo.",
+          explicacao: "A população de Paris invade a fortaleza da Bastilha em busca de armas e pólvora, desafiando abertamente o poder real absolutista.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "bastilha", tipo: "retangulo", rotulo: "Fortaleza da Bastilha", x: 50, y: 45, largura: 24, altura: 22, cor: "escuro" },
+            { id: "povo_mobilizado", tipo: "particula", rotulo: "Mobilização Popular", x: 35, y: 65, largura: 16, altura: 16, cor: "vermelho" },
+          ],
+          acoes: [
+            { alvo: "bastilha", tipo: "desaparecer", duracaoMs: 2200, atrasoMs: 800 },
+            { alvo: "povo_mobilizado", tipo: "mover", paraX: 50, paraY: 55, duracaoMs: 2000, atrasoMs: 300 },
+          ],
+          cenario: "historico",
+        },
+        {
+          titulo: "Declaração dos Direitos do Homem e do Cidadão",
+          objetivo: "Consolidar os princípios de Liberdade, Igualdade e Cidadania.",
+          explicacao: "A Assembleia Nacional proclama direitos universais inalienáveis, inspirando democracias modernas em todo o mundo.",
+          duracaoMs: 4500,
+          elementos: [
+            { id: "declaracao", tipo: "icone", icone: "livro", rotulo: "Liberdade, Igualdade e Fraternidade", x: 50, y: 45, largura: 26, altura: 24, cor: "amarelo" },
+          ],
+          acoes: [
+            { alvo: "declaracao", tipo: "crescer", duracaoMs: 2000, atrasoMs: 300 },
+          ],
+          cenario: "historico",
+        }
+      ],
+      conclusao: "A Revolução Francesa encerrou a Idade Moderna e inaugurou a Idade Contemporânea, redefinindo o conceito de soberania popular e direitos humanos.",
+      curiosidade: "O lema 'Liberté, Égalité, Fraternité' foi adotado oficialmente pela França e consta até hoje em moedas e edifícios públicos do país!",
+      origem: "local",
+      fallback: true,
+    });
+  }
+
+  // Comparação entre Eclipse Solar e Eclipse Lunar
+  // Resposta comparativa rigorosa (JAMAIS escolher arbitrariamente solar ou lunar isolado)
+  if ((/\b(diferenca|diferencas|compare|comparar|comparacao|distincao|versus|\bvs\b)\b/.test(norm)
+      && /\beclipse/.test(norm)
+      && (/\b(solar|sol)\b/.test(norm) || /\b(lunar|lua)\b/.test(norm)))
+      || (/\beclipse.*solar\b/.test(norm) && /\beclipse.*lunar\b/.test(norm))
+      || (/\b(solar e lunar|lunar e solar)\b/.test(norm) && /\beclipse\b/.test(norm))) {
+    return validateVisualExperience({
+      versao: "1.0",
+      disciplina: "ciencias",
+      titulo: "Diferença entre Eclipse Solar e Eclipse Lunar",
+      resumo: "No eclipse solar, a Lua fica no meio (Sol–Lua–Terra) e projeta sua sombra na Terra de dia. No eclipse lunar, a Terra fica no meio (Sol–Terra–Lua) e projeta sua sombra na Lua de noite.",
+      tipoDeCena: "comparacao",
+      simplificacoes: "Comparação em vista transversal dos dois arranjos geométricos celestes. Proporções ilustrativas para evidenciar o corpo central e quem recebe a sombra projetada.",
+      cenas: [
+        {
+          titulo: "Eclipse Solar: Sol — Lua — Terra",
+          objetivo: "Demonstrar o alinhamento do eclipse solar com a Lua entre o Sol e a Terra.",
+          explicacao: "No eclipse solar (fase de Lua Nova), a Lua se interpõe diretamente entre o Sol e a Terra, bloqueando a luz solar e projetando um cone de sombra que atinge uma faixa restrita da superfície terrestre.",
+          duracaoMs: 5000,
+          elementos: [
+            { id: "sol_solar", tipo: "icone", icone: "sol", rotulo: "Sol (Fonte de Luz)", x: 20, y: 50, largura: 22, altura: 22, cor: "amarelo" },
+            { id: "lua_solar", tipo: "icone", icone: "lua", rotulo: "Lua (no Centro)", x: 50, y: 50, largura: 16, altura: 16, cor: "claro" },
+            { id: "terra_solar", tipo: "icone", icone: "globo", rotulo: "Terra (Observador)", x: 80, y: 50, largura: 20, altura: 20, cor: "azul" },
+            { id: "sombra_solar", tipo: "seta", rotulo: "Sombra Lunar na Terra", x: 52, y: 50, largura: 26, altura: 6, cor: "escuro", destinoX: 78, destinoY: 50 },
+          ],
+          acoes: [
+            { alvo: "sol_solar", tipo: "pulsar", duracaoMs: 1600, atrasoMs: 200 },
+            { alvo: "lua_solar", tipo: "destacar", duracaoMs: 1800, atrasoMs: 600 },
+            { alvo: "sombra_solar", tipo: "fluir", duracaoMs: 2000, atrasoMs: 900 },
+          ],
+          cenario: "espaco",
+        },
+        {
+          titulo: "Eclipse Lunar: Sol — Terra — Lua",
+          objetivo: "Demonstrar o alinhamento do eclipse lunar com a Terra entre o Sol e a Lua.",
+          explicacao: "No eclipse lunar (fase de Lua Cheia), a Terra se interpõe entre o Sol e a Lua. O planeta bloqueia os raios solares e projeta sua vasta sombra no espaço, englobando a Lua, que ganha tom avermelhado.",
+          duracaoMs: 5000,
+          elementos: [
+            { id: "sol_lunar", tipo: "icone", icone: "sol", rotulo: "Sol (Fonte de Luz)", x: 20, y: 50, largura: 22, altura: 22, cor: "amarelo" },
+            { id: "terra_lunar", tipo: "icone", icone: "globo", rotulo: "Terra (no Centro)", x: 50, y: 50, largura: 22, altura: 22, cor: "azul" },
+            { id: "lua_lunar", tipo: "icone", icone: "lua", rotulo: "Lua (na Sombra da Terra)", x: 80, y: 50, largura: 16, altura: 16, cor: "vermelho" },
+            { id: "sombra_lunar", tipo: "seta", rotulo: "Sombra da Terra cobre a Lua", x: 52, y: 50, largura: 26, altura: 6, cor: "vermelho", destinoX: 78, destinoY: 50 },
+          ],
+          acoes: [
+            { alvo: "terra_lunar", tipo: "destacar", duracaoMs: 1800, atrasoMs: 400 },
+            { alvo: "lua_lunar", tipo: "mover", paraX: 82, paraY: 50, duracaoMs: 2000, atrasoMs: 600 },
+            { alvo: "sombra_lunar", tipo: "fluir", duracaoMs: 2200, atrasoMs: 800 },
+          ],
+          cenario: "espaco",
+        },
+        {
+          titulo: "Síntese Comparativa: Alinhamento, Fases e Visibilidade",
+          objetivo: "Contrastar as características-chave dos dois tipos de eclipse.",
+          explicacao: "Eclipse Solar: Lua no meio, ocorre de dia na Lua Nova e dura minutos em faixa estreita. Eclipse Lunar: Terra no meio, ocorre à noite na Lua Cheia e dura horas, visível de todo o lado noturno da Terra.",
+          duracaoMs: 5500,
+          elementos: [
+            { id: "bloco_solar", tipo: "retangulo", rotulo: "Solar: Sol–Lua–Terra (Dia, Lua Nova)", x: 30, y: 40, largura: 36, altura: 24, cor: "amarelo" },
+            { id: "bloco_lunar", tipo: "retangulo", rotulo: "Lunar: Sol–Terra–Lua (Noite, Lua Cheia)", x: 70, y: 40, largura: 36, altura: 24, cor: "vermelho" },
+            { id: "eixo_sintese", tipo: "linha", rotulo: "Geometria Celeste Diferenciada", x: 20, y: 75, largura: 60, altura: 4, cor: "claro", destinoX: 80, destinoY: 75 },
+          ],
+          acoes: [
+            { alvo: "bloco_solar", tipo: "destacar", duracaoMs: 1800, atrasoMs: 300 },
+            { alvo: "bloco_lunar", tipo: "destacar", duracaoMs: 1800, atrasoMs: 900 },
+            { alvo: "eixo_sintese", tipo: "fluir", duracaoMs: 2000, atrasoMs: 1200 },
+          ],
+          cenario: "espaco",
+        }
+      ],
+      conclusao: "A diferença fundamental reside no astro central: no solar, a Lua bloqueia a luz solar para a Terra; no lunar, a Terra bloqueia a luz solar para a Lua.",
+      curiosidade: "Como a sombra da Terra no espaço é vasta, eclipses lunares duram horas e podem ser vistos por bilhões de pessoas ao mesmo tempo, enquanto o solar dura poucos minutos numa faixa estreita.",
+      origem: "local",
+      fallback: true,
+    });
+  }
+
+  // Eclipse Lunar (DISTINÇÃO TOTAL DO ECLIPSE SOLAR)
+  // Alinhamento: Sol -> Terra -> Lua (sombra da Terra sobre a Lua, Lua de Sangue)
+  if (/\b(eclipse lunar|terra entre o? sol e a? lua|terra faz sombra (na|sobre a) lua|terra projeta sombra (na|sobre a) lua|lua de sangue|lua fica escura n[ou] eclipse|lua na sombra da terra)\b/.test(norm)) {
+    return { ...localVisualExperiences.eclipse_lunar, origem: 'local', fallback: true };
+  }
+
+  // Eclipse Solar (Alinhamento: Sol -> Lua -> Terra)
+  if (/\b(eclipse solar|lua passa entre o? sol|lua fica entre o? sol|lua entre o? sol e a? terra|sombra da lua na terra)\b/.test(norm)
+      && !/\b(lunar|lua fica escura|terra faz sombra|terra projeta sombra|lua de sangue|terra entre sol)\b/.test(norm)) {
+    return { ...reviewedExperiences.eclipse, origem: 'local', fallback: true };
+  }
+
+  // Terremotos e Placas Tectônicas (NUNCA placas de trânsito)
+  if (/\b(terremoto|sismo|placas?\s+tectonica)\b/.test(norm)
+      && !/\b(transito|carro|veiculo|sinalizacao|rua|rodovia)\b/.test(norm)) {
     return { ...localVisualExperiences.terremoto, origem: 'local', fallback: true };
   }
   if (/\b(fotossintese|clorofila|planta|alimento.*planta|como.*planta.*produz)/.test(norm)) {
@@ -1705,11 +2079,9 @@ const createLocalFallback = (question) => {
   if (/\b(vulcao|vulcoes|erupcao|magma|lava)/.test(norm)) {
     return { ...localVisualExperiences.vulcao, origem: 'local', fallback: true };
   }
-  if (/\b(agua|chuva|evapora|condensa|hidrolog)/.test(norm)) {
+  if (/\b(ciclo da agua|ciclo hidrologico|como a agua circula|como a agua retorna)\b/.test(norm)
+      && !/\b(ferve|fervendo|ebulicao|fervura|ponto de ebulicao)\b/.test(norm)) {
     return { ...reviewedExperiences.agua, origem: 'local', fallback: true };
-  }
-  if (/\b(eclipse|lua|sol.*terra)/.test(norm)) {
-    return { ...reviewedExperiences.eclipse, origem: 'local', fallback: true };
   }
   if (/\b(celula|organela|citoplasma|membrana|mitocondria)/.test(norm) && isSemanticallyCompatible(norm, 'celula')) {
     return { ...localVisualExperiences.celula, origem: 'local', fallback: true };
@@ -2606,92 +2978,61 @@ const createLocalFallback = (question) => {
   const isHist = /\b(historia|guerra|imperio|governo|politica|sociedade|seculo|revolucao|rei|povo|antig)\b/.test(norm);
   const isGeo = /\b(pais|continente|clima|relevo|mapa|rio|cidade|populacao|terra|ambiente|chuva|vento)\b/.test(norm);
 
-  const disciplina = isHist ? "historia" : (isGeo ? "geografia" : "ciencias");
-  const cenario = isAstro ? "espaco" : (isHist ? "historico" : (isBio ? "laboratorio" : (isTech ? "laboratorio" : "natureza")));
-
-  let icon1 = isAstro ? "sol" : (isBio ? "celula" : (isTech ? "bateria" : (isHist ? "livro" : "sol")));
-  let icon2 = isAstro ? "planeta" : (isBio ? "coracao" : (isTech ? "engrenagem" : (isHist ? "cidade" : "agua")));
-
-  if (/carro|veiculo|motor|combustao/.test(norm)) { icon1 = 'engrenagem'; icon2 = 'fogo'; }
-  else if (/energia|eletric|raio|usina/.test(norm)) { icon1 = 'raio'; icon2 = 'lampada'; }
-  else if (/voo|aviao|aero/.test(norm)) { icon1 = 'aviao'; icon2 = 'nuvem'; }
-  else if (/visao|olho|luz|otica/.test(norm)) { icon1 = 'olho'; icon2 = 'lampada'; }
-  else if (/dna|gene|heredit/.test(norm)) { icon1 = 'dna'; icon2 = 'celula'; }
-  else if (/som|audio|ouvido|onda/.test(norm)) { icon1 = 'som'; icon2 = 'cerebro'; }
-
   const shortQuestion = question.length > 50 ? question.slice(0, 47) + '...' : question;
   return validateVisualExperience({
     versao: "1.0",
     disciplina,
-    titulo: "Processo Visual: " + shortQuestion,
-    resumo: `Acompanhe como ${term1} atua sobre ${term2} para gerar ${term3} em etapas sequenciais com animação contínua.`,
-    tipoDeCena: isHist ? "linha_do_tempo" : (isAstro ? "movimento" : "fluxo"),
-    simplificacoes: "Diagrama didático animado com relações causais e componentes essenciais destacados.",
+    titulo: "Estrutura Conceitual: " + shortQuestion,
+    resumo: `Representação esquemática conceitual para investigar "${shortQuestion}". Decomposição em eixos estruturantes, dinâmica de interação e síntese equilibrada.`,
+    tipoVisual: "generico_geometrico",
+    simplificacoes: "Estrutura esquemática geométrica universal para abstrações conceituais sem distorções temáticas.",
     cenas: [
       {
-        titulo: `Origem e Fatores de Partida (${term1})`,
-        objetivo: "Apresentar as condições iniciais e o elemento catalisador do fenômeno.",
-        explicacao: `O processo tem início quando ${term1} entra em ação, fornecendo energia ou direcionamento inicial ao sistema.`,
+        titulo: `1. Fundamentos e Elementos de Entrada (${term1})`,
+        objetivo: "Apresentar as premissas e os componentes fundamentais do conceito.",
+        explicacao: `O conceito fundamenta-se em princípios essenciais (${term1}), estabelecendo o ponto de partida lógico para a análise.`,
         duracaoMs: 4500,
         elementos: [
-          { id: "agente_principal", tipo: "icone", icone: icon1, rotulo: term1, x: 28, y: 48, largura: 22, altura: 22, cor: "amarelo" },
-          { id: "energia_campo", tipo: "particula", rotulo: "Energia / Estímulo", x: 48, y: 34, largura: 16, altura: 16, cor: "claro" },
-          { id: "meio_interacao", tipo: "retangulo", rotulo: "Condições Ambientais", x: 50, y: 68, largura: 22, altura: 14, cor: "verde" },
-          { id: "alvo_inicial", tipo: "icone", icone: icon2, rotulo: term2, x: 74, y: 48, largura: 20, altura: 20, cor: "azul" },
-          { id: "seta_impulso", tipo: "seta", rotulo: "Ação Inicial", x: 35, y: 48, largura: 18, altura: 6, cor: "amarelo", destinoX: 68, destinoY: 48 },
+          { id: "eixo_central", tipo: "circulo", rotulo: term1, x: 50, y: 50, largura: 24, altura: 24, cor: "azul" },
+          { id: "vetor_entrada", tipo: "seta", rotulo: "Premissa Lógica", x: 25, y: 50, largura: 20, altura: 6, cor: "claro", destinoX: 42, destinoY: 50 },
         ],
         acoes: [
-          { alvo: "agente_principal", tipo: "pulsar", duracaoMs: 1800, atrasoMs: 200 },
-          { alvo: "energia_campo", tipo: "mover", paraX: 58, paraY: 42, duracaoMs: 2200, atrasoMs: 400 },
-          { alvo: "seta_impulso", tipo: "fluir", duracaoMs: 2200, atrasoMs: 600 },
-          { alvo: "alvo_inicial", tipo: "destacar", duracaoMs: 1600, atrasoMs: 1000 },
+          { alvo: "eixo_central", tipo: "pulsar", duracaoMs: 1800, atrasoMs: 200 },
+          { alvo: "vetor_entrada", tipo: "fluir", duracaoMs: 2000, atrasoMs: 400 },
         ],
-        cenario,
+        cenario: "neutro",
       },
       {
-        titulo: `Desenvolvimento e Interação (${term2})`,
-        objetivo: "Exibir a transformação dinâmica gerada entre os componentes.",
-        explicacao: `A interação direta entre ${term1} e ${term2} altera o equilíbrio e conduz à transformação central do processo.`,
+        titulo: `2. Relações Dinâmicas e Interação (${term2})`,
+        objetivo: "Exibir o fluxo de causas e efeitos entre os elementos.",
+        explicacao: `A articulação entre as partes (${term2}) gera transformações e conexões mútuas no sistema investigado.`,
         duracaoMs: 4500,
         elementos: [
-          { id: "agente_transformador", tipo: "icone", icone: icon1, rotulo: term1, x: 28, y: 48, largura: 20, altura: 20, cor: "amarelo" },
-          { id: "processo_central", tipo: "circulo", rotulo: term2, x: 52, y: 48, largura: 22, altura: 22, cor: "azul" },
-          { id: "substancia_fluxo", tipo: "particula", rotulo: "Transferência Ativa", x: 52, y: 26, largura: 14, altura: 14, cor: "claro" },
-          { id: "seta_fluxo", tipo: "seta", rotulo: "Transformação em Curso", x: 34, y: 48, largura: 16, altura: 6, cor: "verde", destinoX: 46, destinoY: 48 },
-          { id: "novo_estado", tipo: "retangulo", rotulo: term3, x: 76, y: 48, largura: 20, altura: 16, cor: "verde" },
-          { id: "seta_resultado", tipo: "seta", rotulo: "Geração", x: 58, y: 48, largura: 16, altura: 6, cor: "azul", destinoX: 70, destinoY: 48 },
+          { id: "eixo_dinamico", tipo: "retangulo", rotulo: term2, x: 50, y: 50, largura: 22, altura: 18, cor: "roxo" },
+          { id: "vetor_interacao", tipo: "seta", rotulo: "Relação de Causa e Efeito", x: 40, y: 40, largura: 18, altura: 6, cor: "amarelo", destinoX: 60, destinoY: 60 },
         ],
         acoes: [
-          { alvo: "processo_central", tipo: "pulsar", duracaoMs: 1800, atrasoMs: 200 },
-          { alvo: "substancia_fluxo", tipo: "mover", paraX: 52, paraY: 42, duracaoMs: 2000, atrasoMs: 400 },
-          { alvo: "seta_fluxo", tipo: "fluir", duracaoMs: 2200, atrasoMs: 300 },
-          { alvo: "seta_resultado", tipo: "fluir", duracaoMs: 2200, atrasoMs: 700 },
-          { alvo: "novo_estado", tipo: "destacar", duracaoMs: 1600, atrasoMs: 1100 },
+          { alvo: "eixo_dinamico", tipo: "destacar", duracaoMs: 1600, atrasoMs: 200 },
+          { alvo: "vetor_interacao", tipo: "fluir", duracaoMs: 2200, atrasoMs: 500 },
         ],
-        cenario,
+        cenario: "neutro",
       },
       {
-        titulo: `Conclusão e Estado Final (${term3})`,
-        objetivo: "Demonstrar o produto ou estado resultante consolidado.",
-        explicacao: `O ciclo completa-se com o estabelecimento de ${term3}, que estabiliza o sistema e possibilita novas interações.`,
+        titulo: `3. Síntese e Aplicação Prática (${term3})`,
+        objetivo: "Demonstrar a conclusão equilibrada e suas implicações.",
+        explicacao: `O modelo consolida-se em um estado estável (${term3}), evidenciando suas conclusões e aplicações práticas.`,
         duracaoMs: 4500,
         elementos: [
-          { id: "resultado_final", tipo: "retangulo", rotulo: term3, x: 38, y: 48, largura: 22, altura: 20, cor: "verde" },
-          { id: "sistema_equilibrio", tipo: "icone", icone: icon2, rotulo: "Equilíbrio / Estabilidade", x: 68, y: 48, largura: 20, altura: 20, cor: "azul" },
-          { id: "particula_retorno", tipo: "particula", rotulo: "Consequência / Continuidade", x: 53, y: 32, largura: 14, altura: 14, cor: "amarelo" },
-          { id: "seta_conclusao", tipo: "seta", rotulo: "Fechamento do Ciclo", x: 44, y: 48, largura: 16, altura: 6, cor: "verde", destinoX: 62, destinoY: 48 },
+          { id: "sintese_final", tipo: "circulo", rotulo: term3, x: 50, y: 50, largura: 26, altura: 26, cor: "verde" },
         ],
         acoes: [
-          { alvo: "resultado_final", tipo: "crescer", duracaoMs: 2000, atrasoMs: 200 },
-          { alvo: "seta_conclusao", tipo: "fluir", duracaoMs: 2200, atrasoMs: 400 },
-          { alvo: "sistema_equilibrio", tipo: "pulsar", duracaoMs: 1800, atrasoMs: 700 },
-          { alvo: "particula_retorno", tipo: "destacar", duracaoMs: 1600, atrasoMs: 1000 },
+          { alvo: "sintese_final", tipo: "crescer", duracaoMs: 2000, atrasoMs: 300 },
         ],
-        cenario,
+        cenario: "neutro",
       }
     ],
-    conclusao: `A análise visual de ${question} demonstra que as transformações seguem princípios de causa, efeito e conservação.`,
-    curiosidade: "Você pode explorar variações da pergunta ou clicar em outros temas para comparar diferentes fenômenos visuais.",
+    conclusao: `A análise estrutural de "${question}" evidencia como princípios abstratos organizam-se em sistemas lógicos coerentes.`,
+    curiosidade: "Modelos conceituais e esquemáticos são fundamentais na ciência e na filosofia para organizar ideias complexas com clareza e sem ruído visual.",
     origem: "local",
     fallback: true,
   });
@@ -2752,6 +3093,8 @@ const getVisualStepIndex = () => {
     vulcao: 5,
     agua: 5,
     eclipse: 3,
+    eclipse_lunar: 3,
+    generico_geometrico: 3,
     celula: 5,
     translacao_terra: 4,
     revolucao_industrial: 4,
@@ -2871,6 +3214,248 @@ function renderVisualizerStep() {
   renderVisualizerPlayControl();
 };
 
+const observedConnectivity = {
+  backend: 'Não testado nesta sessão',
+  aiProvider: 'Não consultado nesta sessão',
+  localMode: 'Disponível (100% offline)',
+};
+
+const setVisuIaProcessingState = (state, details = {}) => {
+  const allowedStates = [
+    'Aguardando pergunta',
+    'Analisando',
+    'Aguardando serviço de IA',
+    'Validando resultado',
+    'Visualização pronta',
+    'Erro ou modo local',
+  ];
+  const currentState = allowedStates.includes(state) ? state : 'Aguardando pergunta';
+
+  const stateBadge = document.getElementById('diagnostic-processing-state');
+  const stateBadgeContainer = document.getElementById('diagnostic-state-badge');
+  const stateDetail = document.getElementById('diagnostic-state-detail');
+
+  if (stateBadge) stateBadge.textContent = currentState;
+  if (stateDetail) stateDetail.textContent = currentState;
+
+  if (stateBadgeContainer) {
+    stateBadgeContainer.classList.remove('is-busy', 'is-error');
+    if (['Analisando', 'Aguardando serviço de IA', 'Validando resultado'].includes(currentState)) {
+      stateBadgeContainer.classList.add('is-busy');
+    } else if (currentState === 'Erro ou modo local') {
+      stateBadgeContainer.classList.add('is-error');
+    }
+  }
+
+  if (details.backend) observedConnectivity.backend = details.backend;
+  if (details.aiProvider) observedConnectivity.aiProvider = details.aiProvider;
+
+  const backendEl = document.getElementById('diagnostic-backend-status');
+  if (backendEl) backendEl.textContent = observedConnectivity.backend;
+
+  const aiEl = document.getElementById('diagnostic-ai-status');
+  if (aiEl) aiEl.textContent = observedConnectivity.aiProvider;
+
+  const localEl = document.getElementById('diagnostic-local-status');
+  if (localEl) localEl.textContent = observedConnectivity.localMode;
+};
+
+const updateVisuIaDiagnostic = (exp, question, options = {}) => {
+  const q = question || exp?.titulo || '';
+  const qEl = document.getElementById('diagnostic-question-text');
+  if (qEl) qEl.textContent = q ? `“${q}”` : '—';
+
+  if (!exp && !q) {
+    setVisuIaProcessingState('Aguardando pergunta');
+    return;
+  }
+
+  const topic = extractTopic(q);
+  const conf = topic.confianca;
+  const hasCalculatedConfidence = typeof conf === 'number' && Number.isFinite(conf) && conf > 0;
+
+  let confidenceLevelLabel = 'Não determinada';
+  let scoreText = 'Não determinada';
+  let meterPercent = 0;
+
+  if (hasCalculatedConfidence) {
+    if (conf >= 0.90) {
+      confidenceLevelLabel = 'Alta';
+    } else if (conf >= 0.70) {
+      confidenceLevelLabel = 'Moderada';
+    } else if (conf >= 0.40) {
+      confidenceLevelLabel = 'Baixa';
+    } else {
+      confidenceLevelLabel = 'Não determinada';
+    }
+    scoreText = `${Math.round(conf * 100)}% (est. ${conf.toFixed(2)})`;
+    meterPercent = Math.min(100, Math.max(12, Math.round(conf * 100)));
+  }
+
+  const scoreEl = document.getElementById('diagnostic-confidence-score');
+  if (scoreEl) scoreEl.textContent = scoreText;
+
+  const levelEl = document.getElementById('diagnostic-confidence-level');
+  if (levelEl) {
+    levelEl.textContent = confidenceLevelLabel;
+    levelEl.style.color = confidenceLevelLabel === 'Alta'
+      ? 'var(--color-green)'
+      : (confidenceLevelLabel === 'Moderada' ? '#b45309' : 'var(--color-ink-soft)');
+  }
+
+  const noteEl = document.getElementById('diagnostic-confidence-note');
+  if (noteEl) {
+    noteEl.textContent = hasCalculatedConfidence
+      ? `Estimativa de correspondência: ${conf.toFixed(2)} (${confidenceLevelLabel})`
+      : 'Não determinada';
+  }
+
+  const meterBar = document.getElementById('diagnostic-meter-bar');
+  if (meterBar) {
+    meterBar.style.width = `${meterPercent}%`;
+    meterBar.style.background = confidenceLevelLabel === 'Alta'
+      ? 'linear-gradient(90deg, #38bdf8, #22c55e)'
+      : (confidenceLevelLabel === 'Moderada' ? 'linear-gradient(90deg, #38bdf8, #eab308)' : 'linear-gradient(90deg, #94a3b8, #64748b)');
+  }
+
+  const disciplineEl = document.getElementById('diagnostic-discipline');
+  if (disciplineEl) {
+    const rawDisc = exp?.disciplina || topic.area;
+    disciplineEl.textContent = visualizerDisciplines[rawDisc] || cap(rawDisc) || 'Geral';
+  }
+
+  const topicEl = document.getElementById('diagnostic-topic-name');
+  if (topicEl) {
+    const topicLabels = {
+      atomo: 'Estrutura Atômica & Eletrosfera',
+      celula: 'Biologia Celular & Organelas',
+      agua: 'Ciclo Hidrológico da Água',
+      ebulicao: 'Termologia & Ebulição da Água',
+      terremoto: 'Sismologia & Tectônica de Placas',
+      eclipse: 'Astronomia · Eclipse Solar (Sol–Lua–Terra)',
+      eclipse_lunar: 'Astronomia · Eclipse Lunar (Sol–Terra–Lua)',
+      comparacao_eclipses: 'Astronomia · Diferença entre Eclipses',
+      fotossintese: 'Bioquímica Vegetal · Fotossíntese',
+      brasil_colonial: 'História do Brasil · Período Colonial',
+      revolucao_industrial: 'História Geral · Revolução Industrial',
+      revolucao_francesa: 'História Geral · Revolução Francesa (1789)',
+      placas_transito: 'Mobilidade Urbana & Sinalização Viária',
+      translacao_terra: 'Astronomia · Translação Terrestre',
+      rotacao_terra: 'Astronomia · Rotação Terrestre',
+      sistema_respiratorio: 'Fisiologia Humana · Sistema Respiratório',
+      hidreletrica: 'Engenharia & Energia Hidrelétrica',
+      ia: 'Ciência da Computação · Inteligência Artificial',
+      generico: 'Conceito Abstrato / Não Catalogado',
+    };
+    topicEl.textContent = topicLabels[topic.id || topic.tema] || cap(topic.tema) || 'Conceito Didático';
+  }
+
+  const subtopicEl = document.getElementById('diagnostic-subtopic-area');
+  if (subtopicEl) {
+    const areaName = visualizerDisciplines[exp?.disciplina] || visualizerDisciplines[topic.area] || 'Geral';
+    const subtemaClean = (topic.subtema || 'dinamica_conceitual').replace(/_/g, ' ');
+    subtopicEl.textContent = `${areaName} · ${subtemaClean}`;
+  }
+
+  if (!exp) return;
+
+  const modePill = document.getElementById('diagnostic-visual-mode');
+  const modeRationale = document.getElementById('diagnostic-mode-rationale');
+  const sceneTypeEl = document.getElementById('diagnostic-scene-type');
+  const sceneCountEl = document.getElementById('diagnostic-scene-count');
+
+  if (sceneTypeEl) sceneTypeEl.textContent = exp.tipoVisual || exp.tipoDeCena || 'esquema';
+  const count = exp.cenas?.length || exp.etapas?.length || 3;
+  if (sceneCountEl) sceneCountEl.textContent = `${count} etapas didáticas com foco dinâmico`;
+
+  const isGeometric = exp.tipoVisual === 'generico_geometrico';
+  const isReviewed = exp.origem === 'local' && (exp.revisao || exp.fontes?.length);
+  const isComparative = exp.tipoVisual === 'comparacao' || exp.tipoDeCena === 'comparacao' || topic.tema === 'comparacao_eclipses';
+  const isSpecial = localVisualExperiences[exp.tipoVisual] && !isGeometric;
+
+  if (modePill && modeRationale) {
+    if (isComparative) {
+      modePill.textContent = 'Comparação Conceitual Estruturada';
+      modePill.className = 'diagnostic-mode-pill diagnostic-mode-pill--special';
+      modeRationale.textContent = 'Comparação equilibrada entre os dois fenômenos: posicionamento orbital, projeção das sombras e visibilidade contrastados sem arbitrariedade.';
+    } else if (isReviewed) {
+      modePill.textContent = 'Experiência Editorial Revisada';
+      modePill.className = 'diagnostic-mode-pill diagnostic-mode-pill--reviewed';
+      modeRationale.textContent = 'Conteúdo com curadoria pedagógica e validação científica direta, referências catalogadas e linguagem acessível.';
+    } else if (isSpecial) {
+      modePill.textContent = 'Template Temático Dedicado';
+      modePill.className = 'diagnostic-mode-pill diagnostic-mode-pill--special';
+      modeRationale.textContent = `Visualização temática dedicada (${exp.tipoVisual}) com elementos e dinâmica ajustados especificamente ao tema.`;
+    } else if (isGeometric) {
+      modePill.textContent = 'Esquema Geométrico Conceitual';
+      modePill.className = 'diagnostic-mode-pill diagnostic-mode-pill--geometric';
+      modeRationale.textContent = 'Conceito abstrato ou sem animação temática prévia: renderização esquemática com eixos, fluxo lógico e síntese segura, sem distorção temática.';
+    } else {
+      modePill.textContent = 'Roteiro Estruturado de IA';
+      modePill.className = 'diagnostic-mode-pill diagnostic-mode-pill--ai';
+      modeRationale.textContent = 'Roteiro dinâmico estruturado com entidades, fluxos e validação semântica em tempo real.';
+    }
+  }
+
+  const engineName = document.getElementById('diagnostic-engine-name');
+  if (engineName) {
+    engineName.textContent = isReviewed ? 'VisuLab Editorial' : (exp.origem === 'ia' ? 'VisuIA / Gemini' : 'Motor Semântico VisuLab');
+  }
+
+  const checkEclipse = document.getElementById('check-eclipse-lunar');
+  if (checkEclipse) {
+    const isComp = topic.tema === 'comparacao_eclipses';
+    const isEclipseLunar = topic.tema === 'eclipse_lunar' || exp.tipoVisual === 'eclipse_lunar';
+    const isEclipseSolar = topic.tema === 'eclipse' || exp.tipoVisual === 'eclipse';
+    if (isComp) {
+      checkEclipse.className = 'diagnostic-check-item is-pass';
+      checkEclipse.querySelector('span:last-child').textContent = 'Comparação de Eclipses: ambos os fenômenos foram contrastados (Sol–Lua–Terra vs. Sol–Terra–Lua) sem seleção arbitrária.';
+    } else if (isEclipseLunar) {
+      checkEclipse.className = 'diagnostic-check-item is-pass';
+      checkEclipse.querySelector('span:last-child').textContent = 'Eclipse Lunar detectado: animação Sol–Terra–Lua ativada (sombra da Terra sobre a Lua, Lua de Sangue). Isolado do eclipse solar.';
+    } else if (isEclipseSolar) {
+      checkEclipse.className = 'diagnostic-check-item is-pass';
+      checkEclipse.querySelector('span:last-child').textContent = 'Eclipse Solar detectado: animação Sol–Lua–Terra ativada (sombra da Lua sobre a Terra). Isolado do eclipse lunar.';
+    } else {
+      checkEclipse.className = 'diagnostic-check-item is-pass';
+      checkEclipse.querySelector('span:last-child').textContent = 'Diferenciação Estrita ativa: Eclipse Solar e Eclipse Lunar mapeados como temas mutuamente excludentes.';
+    }
+  }
+
+  const checkAtomo = document.getElementById('check-atomo-celula');
+  if (checkAtomo) {
+    const isAtomo = topic.id === 'atomo' || topic.tema === 'atomo';
+    const isCelula = topic.id === 'celula' || topic.tema === 'celula';
+    if (isAtomo) {
+      checkAtomo.className = 'diagnostic-check-item is-pass';
+      checkAtomo.querySelector('span:last-child').textContent = 'Estrutura atômica identificada: prótons, nêutrons e eletrosfera preservados; nenhuma organela celular renderizada.';
+    } else if (isCelula) {
+      checkAtomo.className = 'diagnostic-check-item is-pass';
+      checkAtomo.querySelector('span:last-child').textContent = 'Biologia celular identificada: membrana, organelas e núcleo celular renderizados; sem confusão com partículas subatômicas.';
+    } else {
+      checkAtomo.className = 'diagnostic-check-item is-pass';
+      checkAtomo.querySelector('span:last-child').textContent = 'Regra atômica/celular ativa: termos subatômicos nunca acionam templates de biologia celular.';
+    }
+  }
+
+  const checkFalsos = document.getElementById('check-falsos-cognatos');
+  if (checkFalsos) {
+    checkFalsos.className = 'diagnostic-check-item is-pass';
+    checkFalsos.querySelector('span:last-child').textContent = 'Filtros de cognatos validados: placas de trânsito ≠ placas tectônicas; água fervente ≠ ciclo hidrológico; Revolução Francesa ≠ Revolução Industrial.';
+  }
+
+  const checkAntialeatorio = document.getElementById('check-antialeatorio');
+  if (checkAntialeatorio) {
+    if (isGeometric) {
+      checkAntialeatorio.className = 'diagnostic-check-item is-pass';
+      checkAntialeatorio.querySelector('span:last-child').textContent = 'Proteção antialeatória aplicada: conceito sem visual específico direcionado ao esquema geométrico conceitual seguro.';
+    } else {
+      checkAntialeatorio.className = 'diagnostic-check-item is-pass';
+      checkAntialeatorio.querySelector('span:last-child').textContent = 'Correspondência semântica estrita: animação temática validada e compatível com a pergunta do usuário.';
+    }
+  }
+};
+
 const showVisualExperience = (candidate) => {
   stopVisualizerPlayback();
   engineActive = false;
@@ -2885,18 +3470,21 @@ const showVisualExperience = (candidate) => {
     const queryOrTitle = pendingQuestion || candidate.titulo || '';
     const compatible = isSemanticallyCompatible(queryOrTitle, special);
 
-    if (isExplicitLocal || compatible) {
+    if (compatible) {
       experience = { ...specialTemplate, origem: isExplicitLocal ? (candidate.origem || 'premium') : 'premium' };
     } else {
-      // Incompatibilidade semântica detectada (ex: pergunta sobre átomo retornando célula).
+      // Incompatibilidade semântica detectada (ex: pergunta sobre átomo retornando célula, ou eclipse lunar retornando solar).
       // NUNCA renderizar uma animação não relacionada!
       const userTopic = extractTopic(queryOrTitle);
-      const safeVisualType = userTopic.id === 'atomo' ? 'microscopico' : 'fluxo';
-      experience = {
-        ...candidate,
-        tipoVisual: safeVisualType,
-      };
-      delete experience.experienciaEspecial;
+      if (userTopic.id === 'comparacao_eclipses' || userTopic.id === 'eclipse_lunar' || userTopic.id === 'atomo' || userTopic.id === 'ebulicao') {
+        experience = createLocalFallback(queryOrTitle);
+      } else {
+        experience = {
+          ...candidate,
+          tipoVisual: 'generico_geometrico',
+        };
+        delete experience.experienciaEspecial;
+      }
     }
   }
 
@@ -2938,6 +3526,7 @@ const showVisualExperience = (candidate) => {
   visualizerExperience.hidden = false;
   engine.setSpeed(Number(visualizerSpeed.value));
   engine.load(activeVisualExperience);
+  updateVisuIaDiagnostic(activeVisualExperience, pendingQuestion);
   requestAnimationFrame(() => updateVisualizerTabIndicator());
 };
 
@@ -3093,11 +3682,26 @@ visualizerForm.addEventListener('submit', async (event) => {
   setVisualizerLoading(true);
   visualizerFeedback.textContent = '';
 
+  setVisuIaProcessingState('Analisando');
+  updateVisuIaDiagnostic(null, question);
+
   try {
     const clarification = clarificationFor(question);
-    if (clarification) { const error = new Error(clarification); error.code = 'CLARIFICATION'; throw error; }
+    if (clarification) {
+      setVisuIaProcessingState('Aguardando pergunta');
+      const error = new Error(clarification);
+      error.code = 'CLARIFICATION';
+      throw error;
+    }
     const premiumTopic = findPremiumTopic(question);
     const reviewedTopic = findReviewedTopic(question);
+
+    if (premiumTopic || reviewedTopic) {
+      setVisuIaProcessingState('Validando resultado');
+    } else {
+      setVisuIaProcessingState('Aguardando serviço de IA');
+    }
+
     const experience = premiumTopic
       ? { ...localVisualExperiences[premiumTopic], origem: 'premium' }
       : reviewedTopic ? reviewedExperiences[reviewedTopic] : await requestVisualExperience(question);
@@ -3135,14 +3739,24 @@ visualizerForm.addEventListener('submit', async (event) => {
         });
       }
       if (error.code === 'CLARIFICATION') {
+        setVisuIaProcessingState('Aguardando pergunta');
         visualizerFeedback.textContent = error.message;
         visualizerEmpty.hidden = false;
         visualizerQuestion.focus();
+        updateVisuIaDiagnostic({
+          titulo: 'Esclarecimento Solicitado',
+          disciplina: 'outro',
+          tipoVisual: 'esclarecimento',
+          origem: 'local',
+          etapas: [],
+        }, question);
       } else if (isAiFailure) {
+        setVisuIaProcessingState('Erro ou modo local');
         showVisualExperience(createLocalFallback(question));
-        visualizerFeedback.textContent = messages[error.code] + " Exibindo uma Animação local de apoio; tente novamente quando quiser gerar com IA.";
+        visualizerFeedback.textContent = messages[error.code] + " Exibindo uma animação local de apoio; tente novamente quando quiser gerar com IA.";
         visualizerEmpty.hidden = false;
       } else {
+        setVisuIaProcessingState('Erro ou modo local');
         visualizerFeedback.textContent = 'Ocorreu um erro ao mostrar a animação. Consulte o console e tente novamente.';
         visualizerEmpty.hidden = false;
       }

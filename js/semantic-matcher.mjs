@@ -75,7 +75,7 @@ export const ANIMATION_METADATA = {
       'ciclo da agua', 'ciclo hidrologico', 'como a agua circula',
       'como a agua retorna', 'evaporacao e precipitacao', 'gotas de chuva'
     ],
-    termosConflitantes: ['mudancas climaticas', 'poluicao hidrica'],
+    termosConflitantes: ['mudancas climaticas', 'poluicao hidrica', 'ferve', 'fervendo', 'ebulicao', 'fervura', 'ponto de ebulicao', 'panela'],
   },
   eclipse: {
     id: 'eclipse',
@@ -88,7 +88,27 @@ export const ANIMATION_METADATA = {
       'sombra da lua na terra', 'geometria do eclipse solar'
     ],
     termosConflitantes: [
-      'eclipse lunar', 'terra entre sol e lua', 'anular', 'hibrido', 'proximo eclipse', 'data'
+      'eclipse lunar', 'terra entre sol e lua', 'terra faz sombra na lua', 'lua de sangue',
+      'lua fica escura', 'anular', 'hibrido', 'proximo eclipse', 'data',
+      'diferenca entre eclipse', 'compare eclipse', 'diferenca entre eclipse solar e lunar'
+    ],
+  },
+  eclipse_lunar: {
+    id: 'eclipse_lunar',
+    titulo: 'Eclipse lunar',
+    area: 'ciencias',
+    tema: 'eclipse_lunar',
+    subtemas: ['astronomia', 'alinhamento sol terra lua', 'sombra da terra na lua', 'lua de sangue', 'umbra e penumbra'],
+    conceitosChave: [
+      'eclipse lunar', 'terra entre sol e lua', 'terra entre o sol e a lua',
+      'terra faz sombra na lua', 'terra projeta sombra na lua', 'lua fica escura',
+      'lua na sombra da terra', 'lua de sangue', 'umbra da terra sobre a lua',
+      'sombra da terra na lua'
+    ],
+    termosConflitantes: [
+      'eclipse solar', 'lua entre o sol e a terra', 'lua entre sol e terra',
+      'sombra da lua na terra', 'lua passa entre o sol',
+      'diferenca entre eclipse', 'compare eclipse', 'diferenca entre eclipse solar e lunar'
     ],
   },
   celula: {
@@ -214,6 +234,20 @@ export function normalizeText(text) {
 }
 
 /**
+ * Classificação por faixas de confiança:
+ * - 0.90 a 1.00: Alta confiança (tema e conceito diretamente identificados)
+ * - 0.75 a 0.89: Confiança aceitável (tema reconhecido, permite animação temática se compatível)
+ * - 0.50 a 0.74: Confiança baixa (não usar visual temático específico; usar modo geométrico)
+ * - abaixo de 0.50: Muito baixa / desconhecida (não usar visual temático específico)
+ */
+export function getConfidenceLevel(score) {
+  if (score >= 0.90) return { nivel: 'alta', rotulo: 'Alta confiança', podeUsarTematico: true };
+  if (score >= 0.75) return { nivel: 'aceitavel', rotulo: 'Confiança aceitável', podeUsarTematico: true };
+  if (score >= 0.50) return { nivel: 'baixa', rotulo: 'Confiança baixa', podeUsarTematico: false };
+  return { nivel: 'muito_baixa', rotulo: 'Confiança insuficiente', podeUsarTematico: false };
+}
+
+/**
  * Extrai o conceito dominante, área e subtema de uma pergunta ou título.
  */
 export function extractTopic(input) {
@@ -244,9 +278,9 @@ export function extractTopic(input) {
     };
   }
 
-  // 3. Terremotos e Placas Tectônicas
+  // 3. Terremotos e Placas Tectônicas (NUNCA placas de trânsito)
   if (/\b(terremoto|terremotos|sismo|sismos|sismico|sismica|placas? tectonicas?|abalos? sismicos?|ondas? sismicas?)\b/.test(norm)
-      && !/\b(transito|carro|emocional)\b/.test(norm)) {
+      && !/\b(transito|carro|veiculo|sinalizacao|rua|avenida|rodovia|emocional)\b/.test(norm)) {
     return {
       area: 'geografia',
       tema: 'terremoto',
@@ -297,8 +331,9 @@ export function extractTopic(input) {
     };
   }
 
-  // 7. Ciclo da água
-  if (/\b(ciclo da agua|ciclo hidrologico|como a agua circula|como a agua retorna)\b/.test(norm)) {
+  // 7. Ciclo da água (NUNCA ebulição da água ou água fervendo)
+  if (/\b(ciclo da agua|ciclo hidrologico|como a agua circula|como a agua retorna)\b/.test(norm)
+      && !/\b(ferve|fervendo|ebulicao|fervura|ponto de ebulicao)\b/.test(norm)) {
     return {
       area: 'ciencias',
       tema: 'agua',
@@ -309,8 +344,54 @@ export function extractTopic(input) {
     };
   }
 
-  // 8. Eclipse Solar
-  if (/\b(eclipse solar|lua passa entre o sol|lua fica entre o sol)\b/.test(norm)) {
+  // 8. Comparação entre Eclipses (Solar vs. Lunar)
+  // Pergunta comparativa: JAMAIS escolher arbitrariamente apenas uma das animações!
+  const isEclipseComparison = (/\b(diferenca|diferencas|compare|comparar|comparacao|distincao|versus|\bvs\b)\b/.test(norm)
+    && /\beclipse/.test(norm)
+    && (/\b(solar|sol)\b/.test(norm) || /\b(lunar|lua)\b/.test(norm)))
+    || (/\beclipse.*solar\b/.test(norm) && /\beclipse.*lunar\b/.test(norm))
+    || (/\b(solar e lunar|lunar e solar)\b/.test(norm) && /\beclipse\b/.test(norm));
+
+  if (isEclipseComparison) {
+    return {
+      area: 'ciencias',
+      tema: 'comparacao_eclipses',
+      subtema: 'comparacao_astronomica',
+      conceitos: ['sol', 'terra', 'lua', 'alinhamento_orbital', 'sombra_da_terra', 'sombra_da_lua'],
+      confianca: 0.96,
+      id: 'comparacao_eclipses',
+    };
+  }
+
+  // 9. Eclipse Lunar (DISTINÇÃO TOTAL DO SOLAR)
+  // Alinhamento: Sol -> Terra -> Lua (Terra projeta sombra sobre a Lua, Lua de Sangue)
+  const isLunarEclipse = !isEclipseComparison && (
+    /\b(eclipse lunar|lua de sangue|lua na sombra da terra)\b/.test(norm)
+    || (/\blua\b/.test(norm) && /\b(escura|escuras?|vermelha|vermelhas?|avermelhada|avermelhadas?|rubra|rubras?|sangue)\b/.test(norm) && /\beclipse\b/.test(norm))
+    || (/\bterra\b/.test(norm) && /\b(faz sombra|projeta sombra)\b/.test(norm) && /\blua\b/.test(norm))
+    || (/\bterra\b/.test(norm) && /\b(entre o? sol e a? lua|fica entre o? sol e a? lua|passa entre o? sol e a? lua)\b/.test(norm))
+  );
+
+  if (isLunarEclipse) {
+    return {
+      area: 'ciencias',
+      tema: 'eclipse_lunar',
+      subtema: 'fenomenos_astronomicos',
+      conceitos: ['sol', 'terra', 'lua', 'sombra_da_terra', 'lua_de_sangue'],
+      confianca: 0.96,
+      id: 'eclipse_lunar',
+    };
+  }
+
+  // 10. Eclipse Solar (DISTINÇÃO TOTAL DO LUNAR)
+  // Alinhamento: Sol -> Lua -> Terra (Lua projeta sombra sobre a Terra)
+  const isSolarEclipse = !isEclipseComparison && !isLunarEclipse && (
+    /\b(eclipse solar)\b/.test(norm)
+    || (/\blua\b/.test(norm) && /\b(passa entre|fica entre|entre o? sol e a? terra)\b/.test(norm))
+    || (/\bsombra da lua\b/.test(norm) && /\bterra\b/.test(norm))
+  );
+
+  if (isSolarEclipse) {
     return {
       area: 'ciencias',
       tema: 'eclipse',
@@ -321,7 +402,7 @@ export function extractTopic(input) {
     };
   }
 
-  // 9. Translação da Terra
+  // 10. Translação da Terra
   if (/\b(translacao|translacao da terra|movimento de translacao|orbita da terra|terra orbita o sol)\b/.test(norm)) {
     return {
       area: 'ciencias',
@@ -333,8 +414,9 @@ export function extractTopic(input) {
     };
   }
 
-  // 10. Revolução Industrial
-  if (/\b(revolucao industrial|primeira revolucao industrial|maquinas? a vapor)\b/.test(norm)) {
+  // 11. Revolução Industrial (NUNCA Revolução Francesa ou Russa)
+  if (/\b(revolucao industrial|primeira revolucao industrial|maquinas? a vapor)\b/.test(norm)
+      && !/\b(francesa|franca|bastilha|russa)\b/.test(norm)) {
     return {
       area: 'historia',
       tema: 'revolucao_industrial',
@@ -345,7 +427,7 @@ export function extractTopic(input) {
     };
   }
 
-  // 11. Urbanização
+  // 12. Urbanização
   if (/\b(urbanizacao|processo de urbanizacao|crescimento urbano|exodo rural)\b/.test(norm)) {
     return {
       area: 'geografia',
@@ -357,7 +439,7 @@ export function extractTopic(input) {
     };
   }
 
-  // 12. Rotação da Terra
+  // 13. Rotação da Terra
   if (/\b(rotacao da terra|movimento de rotacao|terra gira em torno de si)\b/.test(norm)) {
     return {
       area: 'ciencias',
@@ -369,7 +451,7 @@ export function extractTopic(input) {
     };
   }
 
-  // 13. Sistema Respiratório
+  // 14. Sistema Respiratório
   if (/\b(sistema respiratorio|respiracao humana|hematose|alveolos pulmonares)\b/.test(norm)) {
     return {
       area: 'ciencias',
@@ -381,7 +463,7 @@ export function extractTopic(input) {
     };
   }
 
-  // 14. Usina Hidrelétrica
+  // 15. Usina Hidrelétrica
   if (/\b(usina hidreletrica|hidreletrica|energia hidreletrica|represa e turbina|geracao hidreletrica)\b/.test(norm)) {
     return {
       area: 'ciencias',
@@ -393,20 +475,83 @@ export function extractTopic(input) {
     };
   }
 
-  // Caso genérico / não identificado especificamente
+  // Reconhecimento de temas conceituais/abstratos sem template prévio (confiança moderada / baixa para uso genérico seguro)
+  if (/\b(justica|lei|direito|tribunal|julgamento)\b/.test(norm)) {
+    return {
+      area: 'outro',
+      tema: 'justica',
+      subtema: 'filosofia_do_direito',
+      conceitos: ['equidade', 'leis', 'sociedade', 'direitos'],
+      confianca: 0.65,
+      id: null,
+    };
+  }
+  if (/\b(democracia|eleicao|voto|cidadania)\b/.test(norm)) {
+    return {
+      area: 'outro',
+      tema: 'democracia',
+      subtema: 'ciencia_politica',
+      conceitos: ['participacao', 'voto', 'representacao', 'direitos'],
+      confianca: 0.70,
+      id: null,
+    };
+  }
+  if (/\b(empatia|emocao|psicologia|sentimento)\b/.test(norm)) {
+    return {
+      area: 'outro',
+      tema: 'empatia',
+      subtema: 'psicologia',
+      conceitos: ['compreensao', 'alteridade', 'conexoes_humanas'],
+      confianca: 0.65,
+      id: null,
+    };
+  }
+  if (/\b(ferve|ebulicao|mudanca de estado)\b/.test(norm)) {
+    return {
+      area: 'ciencias',
+      tema: 'ebulicao',
+      subtema: 'termologia',
+      conceitos: ['calor', 'energia_cinetica', 'vaporizacao', 'ponto_de_ebulicao'],
+      confianca: 0.72,
+      id: null,
+    };
+  }
+
+  if (/\b(placas? de transito|sinalizacao viaria|sinal de transito|placa de pare|faixa de pedestre|radar de velocidade)\b/.test(norm)) {
+    return {
+      area: 'geografia',
+      tema: 'placas_transito',
+      subtema: 'mobilidade_urbana',
+      conceitos: ['sinalizacao', 'transito', 'normas_viarias', 'seguranca'],
+      confianca: 0.85,
+      id: 'placas_transito',
+    };
+  }
+  if (/\b(revolucao francesa|queda da bastilha|bastilha|luis xvi|jacobinos|girondinos|guilhotina|franca 1789)\b/.test(norm)) {
+    return {
+      area: 'historia',
+      tema: 'revolucao_francesa',
+      subtema: 'revolucao_francesa_1789',
+      conceitos: ['queda_da_bastilha', 'fim_do_absolutismo', 'direitos_humanos', 'soberania_popular'],
+      confianca: 0.90,
+      id: 'revolucao_francesa',
+    };
+  }
+
+  // Caso genérico / abstrato / não identificado especificamente
   return {
     area: 'outro',
     tema: 'generico',
     subtema: 'nao_identificado',
     conceitos: [],
-    confianca: 0.2,
+    confianca: 0.35,
     id: null,
   };
 }
 
 /**
  * Avalia se o tema solicitado e o tema de uma animação são compatíveis.
- * NUNCA retorna true se houver conflito semântico (ex: átomo vs célula).
+ * NUNCA retorna true se houver conflito semântico (ex: átomo vs célula, eclipse lunar vs solar).
  */
 export function isSemanticallyCompatible(userQueryOrTopic, targetAnimationId) {
   if (!targetAnimationId || typeof targetAnimationId !== 'string') return false;
@@ -434,7 +579,49 @@ export function isSemanticallyCompatible(userQueryOrTopic, targetAnimationId) {
     ? userQueryOrTopic
     : extractTopic(userQueryOrTopic);
 
-  // Se o tópico extraído for o mesmo da animação, com confiança adequada
+  // Eclipse Lunar JAMAIS é compatível com animação de eclipse solar
+  if (userTopic.tema === 'eclipse_lunar' && (targetId === 'eclipse' || meta.tema === 'eclipse_solar')) {
+    return false;
+  }
+
+  // Eclipse Solar JAMAIS é compatível com animação de eclipse lunar
+  if ((userTopic.tema === 'eclipse' || userTopic.tema === 'eclipse_solar') && (targetId === 'eclipse_lunar' || meta.tema === 'eclipse_lunar')) {
+    return false;
+  }
+
+  // Pergunta comparativa de eclipses JAMAIS pode selecionar arbitrariamente solar ou lunar isolado
+  if (userTopic.tema === 'comparacao_eclipses') {
+    if (targetId === 'eclipse' || targetId === 'eclipse_lunar' || meta.tema === 'eclipse_solar' || meta.tema === 'eclipse_lunar') {
+      return false;
+    }
+  }
+
+  // Ebulição da água JAMAIS é compatível com ciclo da água
+  if (userTopic.tema === 'ebulicao' && (targetId === 'agua' || meta.tema === 'ciclo_da_agua')) {
+    return false;
+  }
+
+  // Placas de trânsito JAMAIS são compatíveis com terremoto / placas tectônicas
+  if (userTopic.tema === 'placas_transito' && (targetId === 'terremoto' || meta.tema === 'terremoto')) {
+    return false;
+  }
+
+  // Revolução Francesa JAMAIS é compatível com Revolução Industrial
+  if (userTopic.tema === 'revolucao_francesa' && (targetId === 'revolucao_industrial' || meta.tema === 'revolucao_industrial')) {
+    return false;
+  }
+
+  // Átomo JAMAIS é compatível com biologia celular
+  if (userTopic.tema === 'atomo' && (targetId === 'celula' || meta.tema === 'celula')) {
+    return false;
+  }
+
+  // Se a confiança for menor que 0.75, NUNCA autoriza animação temática específica
+  if (userTopic.confianca < 0.75) {
+    return false;
+  }
+
+  // Se o tópico extraído for o mesmo da animação, com confiança mínima aceitável (>= 0.75)
   if (userTopic.id === targetId || userTopic.tema === meta.tema) {
     return true;
   }
@@ -478,8 +665,8 @@ export function matchSemanticAnimation(question) {
     return null;
   }
 
-  // Se for o átomo, sabemos que não existe animação estática com SVG pré-compilado em localVisualExperiences,
-  // mas sim um roteiro didático dinâmico. Retorna null para matching de template premium estático.
+  // Se for o átomo, sabemos que não existe template estático pré-compilado em localVisualExperiences,
+  // mas sim roteiro didático dinâmico. Retorna null para matching de template estático.
   if (candidateMeta.id === 'atomo') {
     return null;
   }

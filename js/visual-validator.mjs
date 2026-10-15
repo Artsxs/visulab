@@ -3,9 +3,9 @@ import { isSemanticallyCompatible, extractTopic } from './semantic-matcher.mjs';
 // Contrato compartilhado: somente propriedades explicitamente copiadas atravessam esta fronteira.
 export const TYPES = ['fluxo', 'ciclo', 'linha_do_tempo', 'mapa', 'comparacao', 'sistema_biologico', 'microscopico', 'camadas', 'movimento', 'especial'];
 export const SPECIALS = [
-  'terremoto', 'fotossintese', 'brasil_colonial', 'vulcao', 'celula', 'agua', 'eclipse',
+  'terremoto', 'fotossintese', 'brasil_colonial', 'vulcao', 'celula', 'agua', 'eclipse', 'eclipse_lunar',
   'translacao_terra', 'revolucao_industrial', 'urbanizacao', 'rotacao_terra', 'sistema_respiratorio',
-  'hidreletrica',
+  'hidreletrica', 'generico_geometrico',
 ];
 export const SPECIAL_ALIASES = {
   'earth-translation': 'translacao_terra',
@@ -37,12 +37,17 @@ export const SPECIAL_ALIASES = {
   'geographic-flow': 'fluxo',
   'cell-structure': 'celula',
   'celula': 'celula',
-  'anatomy': 'sistema_respiratorio',
-  'generic-support': 'fluxo',
   'hydroelectric-plant': 'hidreletrica',
   'hydroelectric': 'hidreletrica',
   'usina_hidreletrica': 'hidreletrica',
   'usina-hidreletrica': 'hidreletrica',
+  'lunar-eclipse': 'eclipse_lunar',
+  'eclipse-lunar': 'eclipse_lunar',
+  'eclipse_lunar': 'eclipse_lunar',
+  'geometric': 'generico_geometrico',
+  'geometric-generic': 'generico_geometrico',
+  'generico_geometrico': 'generico_geometrico',
+  'generic': 'generico_geometrico',
 };
 export const ELEMENTS = ['circulo', 'elipse', 'retangulo', 'texto', 'seta', 'linha', 'onda', 'particula', 'icone'];
 export const ACTIONS = ['aparecer', 'desaparecer', 'mover', 'pulsar', 'girar', 'crescer', 'vibrar', 'destacar', 'fluir'];
@@ -259,5 +264,5 @@ export function validateVisualExperience(input) {
     fallback = true;
     cenas = [{ titulo: 'Vamos estudar', explicacao: safeText(c.resumo || c.summary, 280, 'Não foi possível representar este assunto. Reformule a pergunta ou explore uma experiência pronta.'), duracaoMs: 4000, elementos: [], acoes: [], cenario: 'neutro' }];
   }
-  return { revisao: member(c.revisao, ['agua', 'eclipse', 'ia'], ''), fontes: list(c.fontes, 5).filter(id => ['agua', 'eclipse', 'ia'].includes(id)), simplificacoes: safeText(c.simplificacoes || c.accuracyNote, 340), versao: '1.0', disciplina: member(disciplina, ['ciencias', 'historia', 'geografia', 'outro'], 'outro'), titulo: safeText(c.titulo || c.title, 90, 'Uma explicação visual'), resumo: safeText(c.resumo || c.summary, 280, 'Acompanhe a explicação por etapas.'), tipoVisual, cenas, etapas: cenas.map(({ titulo, explicacao }) => ({ titulo, explicacao })), conclusao: safeText(c.conclusao, 280), curiosidade: safeText(c.curiosidade, 220), origem: member(c.origem, ['premium', 'local', 'ia'], 'ia'), fallback };
+  return { revisao: member(c.revisao, ['agua', 'eclipse', 'eclipse_lunar', 'ia'], ''), fontes: list(c.fontes, 5).filter(id => ['agua', 'eclipse', 'eclipse_lunar', 'ia'].includes(id)), simplificacoes: safeText(c.simplificacoes || c.accuracyNote, 340), versao: '1.0', disciplina: member(disciplina, ['ciencias', 'historia', 'geografia', 'outro'], 'outro'), titulo: safeText(c.titulo || c.title, 90, 'Uma explicação visual'), resumo: safeText(c.resumo || c.summary, 280, 'Acompanhe a explicação por etapas.'), tipoVisual, cenas, etapas: cenas.map(({ titulo, explicacao }) => ({ titulo, explicacao })), conclusao: safeText(c.conclusao, 280), curiosidade: safeText(c.curiosidade, 220), origem: member(c.origem, ['premium', 'local', 'ia'], 'ia'), fallback };
 }

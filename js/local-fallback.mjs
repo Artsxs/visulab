@@ -67,5 +67,10 @@ export function findPremiumTopic(question) {
     if (isSemanticallyCompatible(text, 'hidreletrica')) return 'hidreletrica';
   }
 
+  // 12. Eclipse Lunar
+  if (/\b(eclipse lunar|terra entre o? sol e a? lua|terra faz sombra (na|sobre a) lua|terra projeta sombra (na|sobre a) lua|lua de sangue|lua fica escura n[ou] eclipse|lua na sombra da terra)\b/.test(text)) {
+    if (isSemanticallyCompatible(text, 'eclipse_lunar')) return 'eclipse_lunar';
+  }
+
   return null;
 }

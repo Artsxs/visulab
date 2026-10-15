@@ -3,6 +3,7 @@
 export const SOURCES = {
   agua: { title: 'USGS — Hydrologic Cycle', url: 'https://www.usgs.gov/centers/new-york-water-science-center/science/hydrologic-cycle' },
   eclipse: { title: 'NASA — Why Do Eclipses Happen?', url: 'https://science.nasa.gov/eclipses/geometry/' },
+  eclipse_lunar: { title: 'NASA — Lunar Eclipse and Earth Shadow', url: 'https://science.nasa.gov/eclipses/geometry/' },
   ia: { title: 'Google — Regressão logística e função sigmoide', url: 'https://developers.google.com/machine-learning/crash-course/logistic-regression/sigmoid-function' },
   sismos: { title: 'USGS — The Science of Earthquakes', url: 'https://www.usgs.gov/programs/earthquake-hazards/science-earthquakes' },
   plantas: { title: 'OpenStax / Rice University — Reações da fotossíntese', url: 'https://openstax.org/books/biology-2e/pages/8-2-the-light-dependent-reactions-of-photosynthesis' },
@@ -26,6 +27,8 @@ export const premiumReferences = {
   celula: ['celula'],
   agua: ['agua'],
   eclipse: ['eclipse'],
+  eclipse_lunar: ['eclipse_lunar'],
+  'lunar-eclipse': ['eclipse_lunar'],
   translacao_terra: ['nasa_orbit'],
   'earth-translation': ['nasa_orbit'],
   revolucao_industrial: ['historia_industria'],
@@ -50,8 +53,9 @@ export function findReviewedTopic(question) {
   const q = normalize(question);
   // Casos específicos e comparações vão à IA; o exemplo introdutório não deve
   // se passar por uma resposta sobre datas, aplicações ou outro fenômeno.
-  if (/\b(compare|diferenca|quando|onde|proximo|data|202\d|lunar|anular|hibrido|chatgpt|generativa|transformer|neural|impacto|mudancas|climaticas)\b/.test(q)) return null;
+  if (/\b(compare|diferenca|quando|onde|proximo|data|202\d|anular|hibrido|chatgpt|generativa|transformer|neural|impacto|mudancas|climaticas)\b/.test(q)) return null;
   if (/\bciclo (da |de )?agua\b|\bciclo hidrologico\b|\bcomo (a )?agua (circula|volta|retorna)\b/.test(q)) return 'agua';
+  if (/\beclipse lunar\b|\bterra (passa |fica )?entre (o )?sol e (a )?lua\b|\blua (de sangue|fica escura n[ou] eclipse|na sombra da terra)\b|\bterra faz sombra (na|sobre a) lua\b|\bterra projeta sombra (na|sobre a) lua\b/.test(q)) return 'eclipse_lunar';
   if (/\beclipse solar\b|\blua (passa|fica) entre (o )?sol e (a )?terra\b/.test(q)) return 'eclipse';
   if (/^(como (funciona|funcionam|e o funcionamento) (uma? |a |as )?(ia|ias|inteligencia artificial)|funcionamento (de |da )?(uma? )?(ia|inteligencia artificial)|explique (como funciona )?(uma? |a )?(ia|inteligencia artificial))$/.test(q)
     || /\b(classificador de spam|ia classifica (um )?email)\b/.test(q)) return 'ia';
@@ -75,6 +79,12 @@ export const reviewedExperiences = {
       scene('A Lua entra no alinhamento', 'A Lua passa entre o Sol e a Terra. Quando o alinhamento permite que sua sombra alcance a superfície terrestre, pode ocorrer um eclipse solar.'),
       scene('A Lua bloqueia parte da luz', 'A região central escura é a umbra: ali o Sol fica totalmente encoberto neste exemplo. Ao redor está a penumbra, onde a Lua encobre apenas parte do Sol.'),
       scene('A posição do observador muda a visão', 'Quem está na umbra vê um eclipse total; na penumbra, parcial. Fora da sombra, não há eclipse. Este esquema mostra um instante; o movimento da Lua e da Terra desloca a sombra.'),
+    ]),
+  eclipse_lunar: experience('eclipse_lunar', 'Como se forma um eclipse lunar', 'movimento', 'A Terra passa exatamente entre o Sol e a Lua. A sombra da Terra projeta-se sobre a Lua, que adquire um tom avermelhado (Lua de Sangue).',
+    'Vista lateral do alinhamento Sol–Terra–Lua no plano orbital. Tamanhos, distâncias e duração fora de escala. A atmosfera da Terra filtra e refrata os comprimentos de onda avermelhados em direção à Lua na umbra.', [
+      scene('Alinhamento Sol–Terra–Lua', 'O eclipse lunar ocorre durante a fase de Lua cheia, quando a Terra se posiciona exatamente na linha direta entre o Sol e a Lua.'),
+      scene('A Terra projeta sua sombra no espaço', 'A Terra bloqueia a luz solar direta e projeta dois cones no espaço: a penumbra (sombra parcial externa) e a umbra (sombra total interna).'),
+      scene('A Lua entra na umbra (Lua de Sangue)', 'Ao atravessar a umbra, a Lua escurece gradualmente. A luz solar que atravessa a atmosfera terrestre é dispersada, e apenas os raios avermelhados atingem a Lua, criando a tonalidade da Lua de Sangue.'),
     ]),
   ia: experience('ia', 'Uma IA classificando uma mensagem', 'fluxo', 'Exemplo concreto de IA: um classificador simplificado decide se uma mensagem parece spam. Não representa toda forma de inteligência artificial.',
     'Exemplo inventado para ensino. Pesos, entradas e resultado são ilustrativos, não medidos. Modelo de regressão logística com duas características; não representa um chatbot ou uma rede neural completa.', [

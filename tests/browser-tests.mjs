@@ -152,4 +152,31 @@ await test('troca durante preparação mantém sugestões disponíveis e disting
   assert(signal.aborted && d.querySelector('#visualizer-loading').hidden, 'cancelamento');
   assert(d.querySelector('#visualizer-experience-title').textContent.includes('eclipse'), 'novo assunto');
 });
+await test('eclipse lunar isolado do solar e painel de diagnóstico VisuIA funcional', async () => {
+  submit('Como acontece um eclipse lunar?'); await wait(60);
+  const canvas = d.querySelector('#visualizer-canvas');
+  assert(canvas.querySelector('.visual-scene--eclipse-lunar'), 'renderiza template específico de eclipse lunar');
+  assert(!canvas.querySelector('.visual-scene--eclipse'), 'NÃO renderiza template de eclipse solar');
+  assert(d.querySelector('#visualizer-experience-title').textContent.toLowerCase().includes('lunar'), 'título reflete eclipse lunar');
+
+  // Painel de Diagnóstico VisuIA
+  const diagTabBtn = d.querySelector('#visualizer-tab-diagnostico');
+  const diagPanel = d.querySelector('#visualizer-panel-diagnostico');
+  assert(diagTabBtn && diagPanel, 'elementos da aba de diagnóstico presentes');
+
+  diagTabBtn.click(); await wait(20);
+  assert(!diagPanel.hidden, 'aba de diagnóstico torna-se visível');
+  assert(d.querySelector('#diagnostic-topic-name').textContent.includes('Eclipse Lunar'), 'diagnóstico identifica eclipse lunar');
+  assert(d.querySelector('#diagnostic-confidence-score').textContent.includes('%'), 'score de confiança exibido');
+
+  // Botão atalho de diagnóstico no cabeçalho
+  const quickDiagBtn = d.querySelector('#visualizer-diagnostic-btn');
+  if (quickDiagBtn) {
+    d.querySelector('#visualizer-tab-etapas').click(); await wait(20);
+    assert(diagPanel.hidden, 'volta para etapas');
+    quickDiagBtn.click(); await wait(20);
+    assert(!diagPanel.hidden, 'botão atalho abre aba de diagnóstico');
+  }
+});
 results.textContent += `\n\n${lines.filter(l => l.startsWith('PASSOU')).length}/${lines.length} verificações passaram.`;
+

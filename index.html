@@ -501,6 +501,19 @@
                     <span class="visualizer-source" id="visualizer-source"></span>
                     <button
                       type="button"
+                      class="visualizer-diagnostic-btn"
+                      id="visualizer-diagnostic-btn"
+                      aria-label="Ver diagnóstico detalhado da VisuIA"
+                      title="Ver diagnóstico semântico e técnico da VisuIA"
+                    >
+                      <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <circle cx="8" cy="8" r="6" stroke-dasharray="3 2"/>
+                        <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+                      </svg>
+                      <span>Diagnóstico VisuIA</span>
+                    </button>
+                    <button
+                      type="button"
                       class="visualizer-fullscreen-btn"
                       id="visualizer-fullscreen-btn"
                       aria-label="Ver animação em tela cheia"
@@ -602,6 +615,22 @@
                         <circle cx="10" cy="6" r="0.8" fill="currentColor"/>
                       </svg>
                       <span>Mais complementos</span>
+                    </button>
+                    <button
+                      class="visualizer-tab"
+                      id="visualizer-tab-diagnostico"
+                      role="tab"
+                      type="button"
+                      aria-selected="false"
+                      aria-controls="visualizer-panel-diagnostico"
+                      tabindex="-1"
+                    >
+                      <svg class="visualizer-tab__icon" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <circle cx="10" cy="10" r="7.5" stroke-dasharray="3 2"/>
+                        <path d="M10 6v5l3 2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+                      </svg>
+                      <span>VisuIA — Diagnóstico</span>
                     </button>
                   </div>
 
@@ -768,6 +797,146 @@
                     <p class="visualizer-ai-notice" id="visualizer-ai-notice" hidden>
                       Roteiro de IA ainda não revisado. Confira as informações com seu professor e com materiais de referência.
                     </p>
+                  </div>
+
+                  <!-- Aba 4: Painel Visual de Diagnóstico da VisuIA -->
+                  <div
+                    class="visualizer-panel"
+                    id="visualizer-panel-diagnostico"
+                    role="tabpanel"
+                    aria-labelledby="visualizer-tab-diagnostico"
+                    tabindex="0"
+                    hidden
+                  >
+                    <div class="diagnostic-panel">
+                      <div class="diagnostic-panel__header">
+                        <div class="diagnostic-panel__header-info">
+                          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+                            <span class="diagnostic-badge diagnostic-badge--engine" id="diagnostic-engine-badge">
+                              <span class="diagnostic-badge__dot" aria-hidden="true"></span>
+                              <span id="diagnostic-engine-name">Motor VisuIA</span>
+                            </span>
+                            <span class="diagnostic-badge diagnostic-badge--state" id="diagnostic-state-badge">
+                              <span id="diagnostic-processing-state">Aguardando pergunta</span>
+                            </span>
+                          </div>
+                          <h4 class="diagnostic-panel__title">VisuIA — Diagnóstico</h4>
+                          <p class="diagnostic-panel__subtitle">
+                            Transparência em tempo real sobre classificação semântica, validação de regras pedagógicas e conectividade observada.
+                          </p>
+                        </div>
+                        <div class="diagnostic-panel__score-card">
+                          <span class="diagnostic-score__label">Confiança da Classificação</span>
+                          <div class="diagnostic-score__value" id="diagnostic-confidence-score">Não determinada</div>
+                          <span class="diagnostic-score__tag" id="diagnostic-confidence-level">Aguardando pergunta</span>
+                        </div>
+                      </div>
+
+                      <div class="diagnostic-grid">
+                        <!-- Card 1: Reconhecimento Semântico -->
+                        <div class="diagnostic-card">
+                          <h5 class="diagnostic-card__title">
+                            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6"/><line x1="8" y1="2" x2="8" y2="4"/><line x1="8" y1="12" x2="8" y2="14"/><line x1="2" y1="8" x2="4" y2="8"/><line x1="12" y1="8" x2="14" y2="8"/></svg>
+                            Reconhecimento &amp; Classificação
+                          </h5>
+                          <dl class="diagnostic-dl">
+                            <dt>Estado:</dt>
+                            <dd id="diagnostic-state-detail">Aguardando pergunta</dd>
+                            <dt>Pergunta Analisada:</dt>
+                            <dd id="diagnostic-question-text" class="diagnostic-val-highlight">—</dd>
+                            <dt>Disciplina:</dt>
+                            <dd id="diagnostic-discipline">—</dd>
+                            <dt>Tema Principal:</dt>
+                            <dd id="diagnostic-topic-name">—</dd>
+                            <dt>Subtema &amp; Área:</dt>
+                            <dd id="diagnostic-subtopic-area">—</dd>
+                            <dt>Estimativa:</dt>
+                            <dd id="diagnostic-confidence-note">Não determinada</dd>
+                            <dt>Medidor:</dt>
+                            <dd>
+                              <div class="diagnostic-meter">
+                                <div class="diagnostic-meter__bar" id="diagnostic-meter-bar" style="width: 0%;"></div>
+                              </div>
+                            </dd>
+                          </dl>
+                        </div>
+
+                        <!-- Card 2: Decisão de Renderização -->
+                        <div class="diagnostic-card">
+                          <h5 class="diagnostic-card__title">
+                            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M5 8l2 2 4-4"/></svg>
+                            Modo Visual Selecionado
+                          </h5>
+                          <div class="diagnostic-mode-pill" id="diagnostic-visual-mode">Aguardando seleção</div>
+                          <p class="diagnostic-mode-reason" id="diagnostic-mode-rationale">
+                            Faça uma pergunta para acionar a classificação semântica e a seleção de renderização.
+                          </p>
+                          <dl class="diagnostic-dl diagnostic-dl--compact">
+                            <dt>Tipo de Cena:</dt>
+                            <dd id="diagnostic-scene-type">—</dd>
+                            <dt>Total de Etapas:</dt>
+                            <dd id="diagnostic-scene-count">—</dd>
+                          </dl>
+                        </div>
+
+                        <!-- Card 3: Conectividade & Serviços -->
+                        <div class="diagnostic-card">
+                          <h5 class="diagnostic-card__title">
+                            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M3 8a5 5 0 0 1 10 0M1 8a7 7 0 0 1 14 0"/></svg>
+                            Conectividade &amp; Serviços Observados
+                          </h5>
+                          <dl class="diagnostic-dl">
+                            <dt>Backend API:</dt>
+                            <dd id="diagnostic-backend-status">Não testado nesta sessão</dd>
+                            <dt>Provedor de IA:</dt>
+                            <dd id="diagnostic-ai-status">Não consultado nesta sessão</dd>
+                            <dt>Modo Local:</dt>
+                            <dd id="diagnostic-local-status">Disponível (100% offline)</dd>
+                          </dl>
+                          <span class="diagnostic-conn-note">
+                            Status declarados apenas quando realmente verificados ou observados nas solicitações.
+                          </span>
+                        </div>
+
+                        <!-- Card 4: Validação de Conflitos e Integridade Semântica -->
+                        <div class="diagnostic-card">
+                          <h5 class="diagnostic-card__title">
+                            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 1.5l6 11H2z"/><line x1="8" y1="6" x2="8" y2="9"/><circle cx="8" cy="11" r="0.7" fill="currentColor"/></svg>
+                            Verificações de Integridade Semântica
+                          </h5>
+                          <ul class="diagnostic-checks-list" id="diagnostic-checks-list">
+                            <li class="diagnostic-check-item is-pass" id="check-eclipse-lunar">
+                              <span class="diagnostic-check-icon">✓</span>
+                              <div>
+                                <strong>Diferenciação Estrita de Eclipses:</strong>
+                                <span>Eclipse Lunar (Sol–Terra–Lua) mantido 100% isolado de Eclipse Solar (Sol–Lua–Terra).</span>
+                              </div>
+                            </li>
+                            <li class="diagnostic-check-item is-pass" id="check-atomo-celula">
+                              <span class="diagnostic-check-icon">✓</span>
+                              <div>
+                                <strong>Diferenciação Átomo vs. Célula:</strong>
+                                <span>Estrutura atômica e física subatômica nunca são redirecionadas para biologia celular.</span>
+                              </div>
+                            </li>
+                            <li class="diagnostic-check-item is-pass" id="check-falsos-cognatos">
+                              <span class="diagnostic-check-icon">✓</span>
+                              <div>
+                                <strong>Filtro de Falsa Correspondência:</strong>
+                                <span>Rejeição de aproximações espúrias (placas de trânsito ≠ placas tectônicas; água fervente ≠ ciclo hidrológico).</span>
+                              </div>
+                            </li>
+                            <li class="diagnostic-check-item is-pass" id="check-antialeatorio">
+                              <span class="diagnostic-check-icon">✓</span>
+                              <div>
+                                <strong>Bloqueio de Animações Aleatórias:</strong>
+                                <span>Sem modelo temático compatível, adota-se o modo geométrico conceitual ou solicitação de esclarecimento.</span>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1477,6 +1646,119 @@
           <circle cx="655" cy="185" r="4" fill="#ffb74d" />
           <rect x="690" y="340" width="160" height="42" rx="8" fill="#1c2838" stroke="#ffb74d" stroke-width="2" />
           <text x="770" y="365" text-anchor="middle" class="visual-svg-callout" fill="#ffe082" font-weight="700">Observador: Eclipse Parcial</text>
+        </g>
+      </svg>
+    </template>
+
+    <template id="visual-template-eclipse-lunar">
+      <svg class="visual-scene visual-scene--eclipse-lunar" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="eclipse-lunar-space" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#070a14" />
+            <stop offset="50%" stop-color="#0f1626" />
+            <stop offset="100%" stop-color="#182238" />
+          </linearGradient>
+          <radialGradient id="eclipse-lunar-sun" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="25%" stop-color="#fff176" />
+            <stop offset="65%" stop-color="#fbc02d" />
+            <stop offset="90%" stop-color="#f57f17" />
+            <stop offset="100%" stop-color="#e65100" />
+          </radialGradient>
+          <radialGradient id="eclipse-lunar-earth" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#81d4fa" />
+            <stop offset="40%" stop-color="#29b6f6" />
+            <stop offset="70%" stop-color="#0277bd" />
+            <stop offset="100%" stop-color="#01579b" />
+          </radialGradient>
+          <radialGradient id="eclipse-lunar-moon-blood" cx="40%" cy="40%" r="65%">
+            <stop offset="0%" stop-color="#ef5350" />
+            <stop offset="45%" stop-color="#c62828" />
+            <stop offset="75%" stop-color="#801313" />
+            <stop offset="100%" stop-color="#3e0707" />
+          </radialGradient>
+          <marker id="eclipse-lunar-arrow-gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffd54f" />
+          </marker>
+          <marker id="eclipse-lunar-arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#81d4fa" />
+          </marker>
+        </defs>
+
+        <!-- Fundo espacial e estrelas -->
+        <rect width="800" height="420" fill="url(#eclipse-lunar-space)" />
+        <g fill="#ffffff" opacity="0.6">
+          <circle cx="60" cy="45" r="1.5" /><circle cx="180" cy="75" r="1" /><circle cx="320" cy="40" r="1.5" />
+          <circle cx="480" cy="55" r="1" /><circle cx="610" cy="40" r="1.5" /><circle cx="750" cy="65" r="1" />
+          <circle cx="130" cy="380" r="1" /><circle cx="260" cy="390" r="1.5" /><circle cx="470" cy="365" r="1" />
+          <circle cx="640" cy="375" r="1.5" /><circle cx="770" cy="360" r="1" />
+        </g>
+
+        <!-- Eixo orbital e alinhamento Sol -> Terra -> Lua -->
+        <line x1="40" y1="210" x2="760" y2="210" stroke="#37474f" stroke-width="2" stroke-dasharray="8 8" />
+
+        <!-- Cones de sombra da Terra projetados em direção à Lua -->
+        <polygon class="lunar-penumbra-cone" points="390,160 760,110 760,310 390,260" fill="#37474f" opacity="0.4" />
+        <polygon class="lunar-umbra-cone" points="390,178 720,188 720,232 390,242" fill="#060911" opacity="0.95" />
+
+        <!-- Raios solares diretos atingindo a Terra -->
+        <g class="lunar-light-rays" stroke="#ffd54f" stroke-width="2" opacity="0.75">
+          <line x1="100" y1="135" x2="390" y2="160" />
+          <line x1="100" y1="285" x2="390" y2="260" />
+          <line x1="100" y1="135" x2="390" y2="242" stroke-dasharray="5 5" opacity="0.4" />
+          <line x1="100" y1="285" x2="390" y2="178" stroke-dasharray="5 5" opacity="0.4" />
+        </g>
+
+        <!-- Raios vermelhos refratados pela atmosfera terrestre em direção à Lua -->
+        <g class="lunar-refracted-rays" stroke="#ef5350" stroke-width="2.5" opacity="0.85">
+          <line x1="390" y1="160" x2="680" y2="204" stroke-dasharray="6 4" />
+          <line x1="390" y1="260" x2="680" y2="216" stroke-dasharray="6 4" />
+        </g>
+
+        <!-- Sol (à esquerda, fonte de luz) -->
+        <g class="eclipse-sun-glow">
+          <circle cx="100" cy="210" r="82" fill="#ff9800" opacity="0.25" />
+          <circle cx="100" cy="210" r="75" fill="url(#eclipse-lunar-sun)" />
+        </g>
+        <text x="100" y="315" text-anchor="middle" class="visual-svg-callout" fill="#ffd54f" font-weight="700">Sol</text>
+
+        <!-- Terra (no centro, bloqueando a luz solar para a Lua) -->
+        <g class="lunar-earth-group" transform="translate(390, 210)">
+          <circle cx="0" cy="0" r="58" fill="none" stroke="#81d4fa" stroke-width="3" opacity="0.5" />
+          <circle cx="0" cy="0" r="54" fill="url(#eclipse-lunar-earth)" />
+          <path d="M-28 -15 Q-15 -35 10 -30 Q25 -15 15 5 Q-10 20 -28 -15 Z" fill="#66bb6a" opacity="0.85" />
+          <path d="M5 10 Q25 5 35 25 Q15 45 -5 35 Q-15 20 5 10 Z" fill="#81c784" opacity="0.85" />
+        </g>
+        <text x="390" y="295" text-anchor="middle" class="visual-svg-callout" fill="#81d4fa" font-weight="700">Terra (no centro)</text>
+
+        <!-- Órbita da Lua e a Lua imersa na sombra da Terra (à direita) -->
+        <g class="lunar-moon-orbit" transform="translate(680, 210)">
+          <path d="M0 -80 A80 80 0 0 1 0 80" fill="none" stroke="#546e7a" stroke-width="2" stroke-dasharray="6 6" />
+          <circle class="lunar-moon-sphere" cx="0" cy="0" r="20" fill="url(#eclipse-lunar-moon-blood)" />
+          <circle cx="0" cy="0" r="24" fill="none" stroke="#ef5350" stroke-width="1.8" opacity="0.75" />
+        </g>
+        <text x="680" y="255" text-anchor="middle" class="visual-svg-callout" fill="#ff8a80" font-weight="700">Lua (na umbra)</text>
+        <text x="540" y="204" text-anchor="middle" class="visual-svg-molecule" fill="#ffffff" font-size="13">umbra (sombra total da Terra)</text>
+        <text x="560" y="145" text-anchor="middle" class="visual-svg-molecule" fill="#b0bec5" font-size="12">penumbra (sombra parcial)</text>
+
+        <!-- Etapa 0: Alinhamento Sol–Terra–Lua -->
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <path class="visual-arrow" d="M390 135 V155" fill="none" stroke="#81d4fa" stroke-width="4" marker-end="url(#eclipse-lunar-arrow-cyan)" />
+          <text x="390" y="125" text-anchor="middle" class="visual-svg-callout" fill="#81d4fa">Terra no centro: bloqueio da luz</text>
+        </g>
+
+        <!-- Etapa 1: A sombra da Terra é projetada no espaço -->
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <path class="visual-arrow" d="M480 185 L530 198" fill="none" stroke="#ffd54f" stroke-width="4" marker-end="url(#eclipse-lunar-arrow-gold)" />
+          <text x="540" y="115" text-anchor="middle" class="visual-svg-callout" fill="#ffd54f">Cone de umbra estende-se até a órbita lunar</text>
+        </g>
+
+        <!-- Etapa 2: A Lua entra na umbra (Lua de Sangue) -->
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <line x1="680" y1="230" x2="680" y2="340" stroke="#ef5350" stroke-width="2" stroke-dasharray="4 4" />
+          <circle cx="680" cy="230" r="4" fill="#ef5350" />
+          <rect x="580" y="340" width="200" height="42" rx="8" fill="#1c2838" stroke="#ef5350" stroke-width="2" />
+          <text x="680" y="365" text-anchor="middle" class="visual-svg-callout" fill="#ff8a80" font-weight="700">Lua de Sangue (Luz vermelha refratada)</text>
         </g>
       </svg>
     </template>
@@ -2307,6 +2589,134 @@
         <circle class="process-core" cx="400" cy="210" r="72" fill="#fff" stroke="#233659" stroke-width="4" />
         <text x="400" y="202" text-anchor="middle" class="process-core-title">Veja as etapas</text>
         <text x="400" y="227" text-anchor="middle" class="process-core-caption">uma ideia de cada vez</text>
+      </svg>
+    </template>
+
+    <template id="visual-template-geometric">
+      <svg class="visual-scene visual-scene--geometric" viewBox="0 0 800 420" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="geom-bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0b1120" />
+            <stop offset="50%" stop-color="#111c33" />
+            <stop offset="100%" stop-color="#19233c" />
+          </linearGradient>
+          <radialGradient id="geom-core-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#38bdf8" />
+            <stop offset="45%" stop-color="#0284c7" />
+            <stop offset="80%" stop-color="#0369a1" />
+            <stop offset="100%" stop-color="#0c4a6e" />
+          </radialGradient>
+          <radialGradient id="geom-node-purple" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#c084fc" />
+            <stop offset="60%" stop-color="#9333ea" />
+            <stop offset="100%" stop-color="#581c87" />
+          </radialGradient>
+          <radialGradient id="geom-node-emerald" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#4ade80" />
+            <stop offset="60%" stop-color="#16a34a" />
+            <stop offset="100%" stop-color="#14532d" />
+          </radialGradient>
+          <radialGradient id="geom-node-amber" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fcd34d" />
+            <stop offset="60%" stop-color="#d97706" />
+            <stop offset="100%" stop-color="#78350f" />
+          </radialGradient>
+          <marker id="geom-arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+          <marker id="geom-arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#c084fc" />
+          </marker>
+          <marker id="geom-arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#4ade80" />
+          </marker>
+        </defs>
+
+        <!-- Fundo moderno e grade conceitual suave -->
+        <rect width="800" height="420" fill="url(#geom-bg)" />
+        <g stroke="#334155" stroke-width="1" opacity="0.25">
+          <line x1="80" y1="0" x2="80" y2="420" stroke-dasharray="4 8" />
+          <line x1="240" y1="0" x2="240" y2="420" stroke-dasharray="4 8" />
+          <line x1="400" y1="0" x2="400" y2="420" stroke-dasharray="4 8" />
+          <line x1="560" y1="0" x2="560" y2="420" stroke-dasharray="4 8" />
+          <line x1="720" y1="0" x2="720" y2="420" stroke-dasharray="4 8" />
+          <line x1="0" y1="105" x2="800" y2="105" stroke-dasharray="4 8" />
+          <line x1="0" y1="210" x2="800" y2="210" stroke-dasharray="4 8" />
+          <line x1="0" y1="315" x2="800" y2="315" stroke-dasharray="4 8" />
+        </g>
+
+        <!-- Anéis concêntricos orbitais ao redor do núcleo conceitual -->
+        <circle cx="400" cy="210" r="160" fill="none" stroke="#1e293b" stroke-width="2" stroke-dasharray="6 6" />
+        <circle cx="400" cy="210" r="115" fill="none" stroke="#334155" stroke-width="1.8" stroke-dasharray="4 4" />
+        <circle cx="400" cy="210" r="70" fill="none" stroke="#0284c7" stroke-width="2" opacity="0.6" />
+
+        <!-- Vetores dinâmicos de fluxo lógico entre premissas, núcleo e síntese -->
+        <path d="M 180 130 C 270 130, 310 210, 370 210" fill="none" stroke="#38bdf8" stroke-width="3" opacity="0.8" marker-end="url(#geom-arrow-cyan)" />
+        <path d="M 180 290 C 270 290, 310 210, 370 210" fill="none" stroke="#c084fc" stroke-width="3" opacity="0.8" marker-end="url(#geom-arrow-purple)" />
+        <path d="M 430 210 C 490 210, 530 130, 620 130" fill="none" stroke="#fcd34d" stroke-width="3" opacity="0.8" />
+        <path d="M 430 210 C 490 210, 530 290, 620 290" fill="none" stroke="#4ade80" stroke-width="3.5" opacity="0.9" marker-end="url(#geom-arrow-green)" />
+
+        <!-- Partículas de dados/conceito em trânsito -->
+        <circle cx="270" cy="165" r="4" fill="#38bdf8" opacity="0.9" />
+        <circle cx="280" cy="255" r="4" fill="#c084fc" opacity="0.9" />
+        <circle cx="520" cy="165" r="4" fill="#fcd34d" opacity="0.9" />
+        <circle cx="525" cy="255" r="4.5" fill="#4ade80" opacity="0.9" />
+
+        <!-- Satélite 1 (Esquerda Superior): Premissa / Entidade A -->
+        <g transform="translate(180, 130)">
+          <circle cx="0" cy="0" r="26" fill="url(#geom-node-amber)" />
+          <circle cx="0" cy="0" r="30" fill="none" stroke="#fcd34d" stroke-width="1.5" opacity="0.5" />
+          <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">A</text>
+        </g>
+        <text x="180" y="172" text-anchor="middle" class="visual-svg-callout" fill="#fcd34d" font-weight="600">Premissa / Origem</text>
+
+        <!-- Satélite 2 (Esquerda Inferior): Variável / Entidade B -->
+        <g transform="translate(180, 290)">
+          <circle cx="0" cy="0" r="26" fill="url(#geom-node-purple)" />
+          <circle cx="0" cy="0" r="30" fill="none" stroke="#c084fc" stroke-width="1.5" opacity="0.5" />
+          <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">B</text>
+        </g>
+        <text x="180" y="332" text-anchor="middle" class="visual-svg-callout" fill="#c084fc" font-weight="600">Contexto / Fator</text>
+
+        <!-- Núcleo Central: Eixo Conceitual Central -->
+        <g transform="translate(400, 210)">
+          <circle cx="0" cy="0" r="42" fill="url(#geom-core-glow)" />
+          <circle cx="0" cy="0" r="48" fill="none" stroke="#38bdf8" stroke-width="2.5" opacity="0.8" />
+          <polygon points="0,-18 16,10 -16,10" fill="#ffffff" opacity="0.9" />
+        </g>
+        <text x="400" y="275" text-anchor="middle" class="visual-svg-callout" fill="#38bdf8" font-weight="700">Conceito Central</text>
+
+        <!-- Satélite 3 (Direita Superior): Dinâmica / Desdobramento -->
+        <g transform="translate(620, 130)">
+          <circle cx="0" cy="0" r="26" fill="url(#geom-node-amber)" />
+          <circle cx="0" cy="0" r="30" fill="none" stroke="#fcd34d" stroke-width="1.5" opacity="0.5" />
+          <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">R</text>
+        </g>
+        <text x="620" y="172" text-anchor="middle" class="visual-svg-callout" fill="#fcd34d" font-weight="600">Relações / Interação</text>
+
+        <!-- Satélite 4 (Direita Inferior): Síntese / Aplicação -->
+        <g transform="translate(620, 290)">
+          <circle cx="0" cy="0" r="28" fill="url(#geom-node-emerald)" />
+          <circle cx="0" cy="0" r="34" fill="none" stroke="#4ade80" stroke-width="2" opacity="0.75" />
+          <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">✓</text>
+        </g>
+        <text x="620" y="336" text-anchor="middle" class="visual-svg-callout" fill="#4ade80" font-weight="700">Síntese / Equilíbrio</text>
+
+        <!-- Foco por etapa da experiência -->
+        <g class="visual-focus visual-focus--step-0" data-visual-step="0">
+          <rect x="90" y="30" width="220" height="38" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.8" />
+          <text x="200" y="54" text-anchor="middle" class="visual-svg-callout" fill="#38bdf8" font-weight="700">1. Identificação dos Fundamentos</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-1" data-visual-step="1">
+          <rect x="290" y="30" width="220" height="38" rx="8" fill="#1e293b" stroke="#fcd34d" stroke-width="1.8" />
+          <text x="400" y="54" text-anchor="middle" class="visual-svg-callout" fill="#fcd34d" font-weight="700">2. Relações de Causa e Efeito</text>
+        </g>
+
+        <g class="visual-focus visual-focus--step-2" data-visual-step="2">
+          <rect x="510" y="30" width="220" height="38" rx="8" fill="#1e293b" stroke="#4ade80" stroke-width="1.8" />
+          <text x="620" y="54" text-anchor="middle" class="visual-svg-callout" fill="#4ade80" font-weight="700">3. Síntese e Aplicação Prática</text>
+        </g>
       </svg>
     </template>
 
